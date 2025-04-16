@@ -8,7 +8,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 
 	std::string jsonString = j.dump();
 
-	std::vector<unsigned char> jsonBytes(jsonString.begin(), jsonString.end());
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const LoginResponse& response)
@@ -19,7 +19,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 
 	std::string jsonString = j.dump();
 
-	std::vector<unsigned char> jsonBytes(jsonString.begin(), jsonString.end());
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const SignupResponse& response)
@@ -30,7 +30,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 
 	std::string jsonString = j.dump();
 
-	std::vector<unsigned char> jsonBytes(jsonString.begin(), jsonString.end());
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const LogoutResponse& response)
@@ -41,82 +41,192 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 
 	std::string jsonString = j.dump();
 
-	std::vector<unsigned char> jsonBytes(jsonString.begin(), jsonString.end());
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetRoomsResponse& response)
 {
 	nlohmann::json j = {
 		{"status", response.status},
+		{"rooms", nlohmann::json::array()}
+	};
+
+	for (const auto& room : response.rooms)
+	{
+		j["rooms"].push_back({
+			{"id", room.id},
+			{"name", room.name},
+			{"maxPlayers", room.maxPlayers},
+			{"numOfQuestionsInGame", room.numOfQuestionsInGame},
+			{"timePerQuestion", room.timePerQuestion},
+			{"isActive", room.isActive}
+			});
+	}
+
+	std::string jsonString = j.dump();
+
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+}
+
+std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetPlayersInRoomResponse& response)
+{
+	nlohmann::json j = {
 		{"rooms", response.rooms}
 	};
 
 	std::string jsonString = j.dump();
 
-	std::vector<unsigned char> jsonBytes(jsonString.begin(), jsonString.end());
-}
-
-std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetPlayersInRoomResponse& response)
-{
-	return std::vector<unsigned char>();
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const JoinRoomResponse& response)
 {
-	return std::vector<unsigned char>();
+	nlohmann::json j = {
+		{"status", response.status}
+	};
+
+	std::string jsonString = j.dump();
+
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const CreateRoomResponse& response)
 {
-	return std::vector<unsigned char>();
+	nlohmann::json j = {
+		{"status", response.status}
+	};
+
+	std::string jsonString = j.dump();
+
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetHighScoreResponse& response)
 {
-	return std::vector<unsigned char>();
+	nlohmann::json j = {
+		{"status", response.status},
+		{"statistics", response.statistics}
+	};
+
+	std::string jsonString = j.dump();
+
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetPersonalStatsResponse& response)
 {
-	return std::vector<unsigned char>();
+	nlohmann::json j = {
+		{"status", response.status},
+		{"statistics", response.statistics}
+	};
+
+	std::string jsonString = j.dump();
+
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const CloseRoomResponse& response)
 {
-	return std::vector<unsigned char>();
+	nlohmann::json j = {
+		{"status", response.status}
+	};
+
+	std::string jsonString = j.dump();
+
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const StartGameResponse& response)
 {
-	return std::vector<unsigned char>();
+	nlohmann::json j = {
+		{"status", response.status}
+	};
+
+	std::string jsonString = j.dump();
+
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetRoomStateResponse& response)
 {
-	return std::vector<unsigned char>();
+	nlohmann::json j = {
+		{"status", response.status},
+		{"hasGameBegun", response.hasGameBegun},
+		{"players", response.players},
+		{"questionCount", response.questionCount},
+		{"answerTimeout", response.answerTimeout}
+	};
+
+	std::string jsonString = j.dump();
+
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const LeaveRoomResponse& response)
 {
-	return std::vector<unsigned char>();
+	nlohmann::json j = {
+		{"status", response.status}
+	};
+
+	std::string jsonString = j.dump();
+
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetGameResultsResponse& response)
 {
-	return std::vector<unsigned char>();
+	nlohmann::json j = {
+		{"status", response.status},
+		{"results", nlohmann::json::array()}
+	};
+
+	for (const auto& result : response.results)
+	{
+		j["results"].push_back({
+			{"username", result.username},
+			{"correctAnswerCount", result.correctAnswerCount},
+			{"wrongAnswerCount", result.wrongAnswerCount},
+			{"averageAnswerTime", result.averageAnswerTime}
+			});
+	}
+
+	std::string jsonString = j.dump();
+
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const SubmitAnswerResponse& response)
 {
-	return std::vector<unsigned char>();
+	nlohmann::json j = {
+		{"status", response.status},
+		{"correctAnswerId", response.correctAnswerId}
+	};
+
+	std::string jsonString = j.dump();
+
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetQuestionResponse& response)
 {
-	return std::vector<unsigned char>();
+	nlohmann::json j = {
+		{"status", response.status},
+		{"question", response.question},
+		{"answers", response.answers}
+	};
+
+	std::string jsonString = j.dump();
+
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const LeaveGameResponse& response)
 {
-	return std::vector<unsigned char>();
+	nlohmann::json j = {
+		{"status", response.status}
+	};
+
+	std::string jsonString = j.dump();
+
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
 }

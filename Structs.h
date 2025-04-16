@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string>
 #include <vector>
 #include <iostream>
+#include <string>
 
 // All structs needed for JsonResponsePacketSerializer
 
@@ -28,7 +28,12 @@
 // 18 - GetGameResultsResponse
 
 struct RoomData {
-	// To be filled later
+	unsigned int id;
+	std::string name;
+	unsigned int maxPlayers;
+	unsigned int numOfQuestionsInGame;
+	unsigned int timePerQuestion;
+	unsigned int isActive;
 };
 
 struct LoginResponse {
