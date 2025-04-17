@@ -16,25 +16,25 @@
 class Server
 {
 public:
-    Server();
-    ~Server();
+	Server();
+	~Server();
 
-    void start();
-    void close();
+	void start();
+	void close();
 
 private:
-    void handleNewClient(SOCKET clientSocket);
-    void handleReceivedMessages();
-    void handleUserInput();
+	void handleNewClient(SOCKET clientSocket);
+	void handleReceivedMessages();
+	void handleUserInput();
 
-    bool initializeWinsock();
-    bool bindAndListen();
-    bool acceptClient();
+	bool initializeWinsock();
+	bool bindAndListen();
+	bool acceptClient();
 
-    std::thread m_consoleThread;
-    std::vector<std::thread> m_clientThreads;
-    std::map<SOCKET, IRequestHandler*> m_clients;
+	std::thread m_consoleThread;
+	std::vector<std::thread> m_clientThreads;
+	std::map<SOCKET, IRequestHandler*> m_clients;
 
-    SOCKET m_serverSocket;
-    bool m_isRunning;
+	SOCKET m_serverSocket;
+	bool m_isRunning;
 };
