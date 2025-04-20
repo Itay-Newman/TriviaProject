@@ -28,6 +28,4 @@ public:
 	static std::vector<unsigned char> serializeResponse(const SubmitAnswerResponse& response);
 	static std::vector<unsigned char> serializeResponse(const GetQuestionResponse& response);
 	static std::vector<unsigned char> serializeResponse(const LeaveGameResponse& response);
-private:
-	json roomDataToJson(const RoomData& roomData);
 };
