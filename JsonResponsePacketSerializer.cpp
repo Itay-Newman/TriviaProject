@@ -3,7 +3,8 @@
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const ErrorResponse& response)
 {
 	nlohmann::json j = {
-		{"status", response.message}
+		{"status", response.status},
+		{"message", response.message}
 	};
 
 	std::string jsonString = j.dump();
