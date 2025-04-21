@@ -3,38 +3,40 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include <iostream>
-#include <map>
-#include <string>
 #include <thread>
 #include <vector>
+#include <map>
 #include <WinSock2.h>
-#include <Windows.h>
 #include "IRequestHandler.h"
+#include <string>
+#include <Windows.h>
 
 #pragma comment(lib, "ws2_32.lib")
 
 class Server
 {
 public:
-	Server();
-	~Server();
+    Server();
+    ~Server();
 
-	void start();
-	void close();
+    void start();
+    void close();
 
 private:
-	void handleNewClient(SOCKET clientSocket);
-	void handleReceivedMessages();
-	void handleUserInput();
+    SOCKET m_serverSocket;
+    bool m_isRunning;
+    std::map<SOCKET, IRequestHandler*> m_clients;
+    std::vector<std::thread> m_clientThreads;
+    std::thread m_consoleThread;
 
-	bool initializeWinsock();
-	bool bindAndListen();
-	bool acceptClient();
+    bool initializeWinsock();
+    bool bindAndListen();
+    bool acceptClient();
+    void handleNewClient(SOCKET clientSocket);
+    void handleUserInput();
 
-	std::thread m_consoleThread;
-	std::vector<std::thread> m_clientThreads;
-	std::map<SOCKET, IRequestHandler*> m_clients;
-
-	SOCKET m_serverSocket;
-	bool m_isRunning;
+    std::vector<unsigned char> getBufferFromSocket(SOCKET sc, int bytesToRead);
+    void sendBuffer(SOCKET sc, const std::vector<unsigned char>& buffer);
+    void sendResponse(SOCKET sc, int messageCode, const std::vector<unsigned char>& buffer);
+    RequestInfo getRequestFromClient(SOCKET clientSocket);
 };
