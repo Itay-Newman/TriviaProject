@@ -173,6 +173,12 @@ void Server::handleNewClient(SOCKET clientSocket)
                 std::cout << "Received request from client " << clientSocket
                     << ", message code: " << requestInfo.id
                     << ", buffer size: " << requestInfo.buffer.size() << std::endl;
+                // Print the actual message content
+                if (!requestInfo.buffer.empty()) 
+                {
+                    std::string messageContent(requestInfo.buffer.begin(), requestInfo.buffer.end());
+                    std::cout << "Message content: " << messageContent << std::endl;
+                }
 
                 // Check if request is relevant to the current handler
                 if (!handler->isRequestRelevant(requestInfo))
