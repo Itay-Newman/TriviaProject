@@ -1,5 +1,10 @@
+// All things that should have been in the Communicator class are happening here in the server class
+// And thats why there is no Communicator class (it replaces it)
+
 #include "Server.h"
 #include "LoginRequestHandler.h"
+#include "JsonResponsePacketSerializer.h"
+#include "JsonRequestPacketDeserializer.h"
 
 Server::Server() : m_serverSocket(INVALID_SOCKET), m_isRunning(false)
 {
@@ -68,7 +73,6 @@ void Server::close()
         m_serverSocket = INVALID_SOCKET;
     }
 
-    // Cleanup Winsock
     WSACleanup();
 }
 
@@ -152,32 +156,65 @@ bool Server::acceptClient()
 
 void Server::handleNewClient(SOCKET clientSocket)
 {
-    // Sending the "Hello" message to client
-    const char* welcomeMsg = "Hello";
-    send(clientSocket, welcomeMsg, 5, 0);
-    std::cout << "Sent 'Hello' to client: " << clientSocket << std::endl;
-
-    // Receiving the "Hello" message from client
-    char buffer[6] = { 0 };
-    int bytesReceived = recv(clientSocket, buffer, 5, 0);
-
-    if (bytesReceived > 0)
+    try
     {
-        buffer[bytesReceived] = '\0';
-        std::cout << "Received from client " << clientSocket << ": " << buffer << std::endl;
+        // Get the handler for this client
+        IRequestHandler* handler = m_clients[clientSocket];
+
+        bool clientConnected = true;
+        while (m_isRunning && clientConnected)
+        {
+            try
+            {
+                // Get request from client
+                RequestInfo requestInfo = getRequestFromClient(clientSocket);
+
+                // Log the received request
+                std::cout << "Received request from client " << clientSocket
+                    << ", message code: " << requestInfo.id
+                    << ", buffer size: " << requestInfo.buffer.size() << std::endl;
+
+                // Check if request is relevant to the current handler
+                if (!handler->isRequestRelevant(requestInfo))
+                {
+                    // Create error response for unsupported request types
+                    ErrorResponse errorResponse;
+                    errorResponse.message = "Request not relevant to current handler";
+                    std::vector<unsigned char> buffer = JsonResponsePacketSerializer::serializeResponse(errorResponse);
+
+                    // Send error response
+                    sendResponse(clientSocket, 0, buffer);
+                    std::cout << "Sent error response to client " << clientSocket << ": Request not relevant" << std::endl;
+                    continue;
+                }
+
+                // Handle the request
+                RequestInfo responseInfo = handler->handleRequest(requestInfo);
+
+                // Send response to client
+                sendResponse(clientSocket, responseInfo.id, responseInfo.buffer);
+                std::cout << "Sent response to client " << clientSocket
+                    << ", message code: " << responseInfo.id
+                    << ", buffer size: " << responseInfo.buffer.size() << std::endl;
+
+                // If we need to update the handler, we could do it here
+                // For now, we'll keep using the same handler
+            }
+            catch (const std::exception& e)
+            {
+                std::cerr << "Error handling client request: " << e.what() << std::endl;
+                clientConnected = false;
+            }
+        }
+
+        // Client disconnected or server is shutting down
+        std::cout << "Client disconnected. Socket: " << clientSocket << std::endl;
     }
-    
-    else
+    catch (const std::exception& e)
     {
-        std::cerr << "Error receiving from client: " << WSAGetLastError() << std::endl;
+        std::cerr << "Error in client handler: " << e.what() << std::endl;
     }
 
-    while (m_isRunning)
-    {
-        Sleep(100); // The sleep keeps the thread alive while the server is running
-    }
-
-    // Closing the client socket went the server closes
     closesocket(clientSocket);
 }
 
@@ -194,7 +231,7 @@ void Server::handleUserInput()
             std::cout << "Shutting down server..." << std::endl;
             m_isRunning = false;
 
-            // Forcing the accept() to return by connecting to ourselves
+            // Forcing the accept() to return by connecting to ourselves and making the server shut down
             SOCKET tempSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
             if (tempSocket != INVALID_SOCKET)
             {
@@ -209,4 +246,103 @@ void Server::handleUserInput()
             break;
         }
     }
+}
+
+std::vector<unsigned char> Server::getBufferFromSocket(SOCKET sc, int bytesToRead)
+{
+    std::vector<unsigned char> buffer(bytesToRead);
+    int bytesReceived = 0;
+    int result;
+
+    // Keep reading until we have all the data we need
+    while (bytesReceived < bytesToRead)
+    {
+        result = recv(sc, reinterpret_cast<char*>(&buffer[bytesReceived]), bytesToRead - bytesReceived, 0);
+
+        if (result == SOCKET_ERROR)
+        {
+            throw std::exception("Error receiving data from socket");
+        }
+
+        if (result == 0)
+        {
+            throw std::exception("Connection closed by client");
+        }
+
+        bytesReceived += result;
+    }
+
+    return buffer;
+}
+
+void Server::sendBuffer(SOCKET sc, const std::vector<unsigned char>& buffer)
+{
+    int bytesSent = 0;
+    int bytesToSend = buffer.size();
+    int result;
+
+    // Keep sending until all data is sent
+    while (bytesSent < bytesToSend)
+    {
+        result = send(sc, reinterpret_cast<const char*>(&buffer[bytesSent]), bytesToSend - bytesSent, 0);
+
+        if (result == SOCKET_ERROR)
+        {
+            throw std::exception("Error sending data to socket");
+        }
+
+        bytesSent += result;
+    }
+}
+
+void Server::sendResponse(SOCKET sc, int messageCode, const std::vector<unsigned char>& buffer)
+{
+    // Message structure:
+    // 1 byte - message code
+    // 4 bytes - message size
+    // [message size] bytes - the actual message
+
+    std::vector<unsigned char> fullResponse;
+
+    // Add message code (1 byte)
+    fullResponse.push_back(static_cast<unsigned char>(messageCode));
+
+    // Add message size (4 bytes)
+    uint32_t messageSize = buffer.size();
+    for (int i = 3; i >= 0; i--)
+    {
+        fullResponse.push_back((messageSize >> (i * 8)) & 0xFF);
+    }
+
+    // Add the actual message
+    fullResponse.insert(fullResponse.end(), buffer.begin(), buffer.end());
+
+    // Send the full response
+    sendBuffer(sc, fullResponse);
+}
+
+RequestInfo Server::getRequestFromClient(SOCKET clientSocket)
+{
+    RequestInfo requestInfo;
+    requestInfo.receivalTime = std::chrono::system_clock::now();
+
+    // Read message code (1 byte)
+    std::vector<unsigned char> codeBuffer = getBufferFromSocket(clientSocket, 1);
+    requestInfo.id = static_cast<int>(codeBuffer[0]);
+
+    // Read message size (4 bytes)
+    std::vector<unsigned char> sizeBuffer = getBufferFromSocket(clientSocket, 4);
+    uint32_t messageSize = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        messageSize = (messageSize << 8) | sizeBuffer[i];
+    }
+
+    // Read the actual message
+    if (messageSize > 0)
+    {
+        requestInfo.buffer = getBufferFromSocket(clientSocket, messageSize);
+    }
+
+    return requestInfo;
 }
