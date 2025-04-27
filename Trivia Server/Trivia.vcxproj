@@ -135,12 +135,14 @@
     <ClCompile Include="loginManager.cpp" />
     <ClCompile Include="LoginRequestHandler.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MenuRequestHandler.h" />
     <ClCompile Include="RequestHandlerFactory.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="sqlite3.c" />
     <ClCompile Include="SqliteDataBase.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="IDatabase.h" />
     <ClInclude Include="IRequestHandler.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="JsonRequestPacketDeserializer.h" />

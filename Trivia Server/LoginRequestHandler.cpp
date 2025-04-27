@@ -1,6 +1,7 @@
 #include "LoginRequestHandler.h"
 
-LoginRequestHandler::LoginRequestHandler()
+LoginRequestHandler::LoginRequestHandler(IRequestHandler* database, LoginManager& loginManager)
+	: m_Database(database), m_LoginManager(loginManager) // Initialize member variables
 {
 }
 
@@ -10,62 +11,48 @@ LoginRequestHandler::~LoginRequestHandler()
 
 bool LoginRequestHandler::isRequestRelevant(RequestInfo requestInfo)
 {
-    // Checking if the message code is a Login or SignUp request
-    return (requestInfo.id == RequestCodes::LOGIN_REQUEST ||
-        requestInfo.id == RequestCodes::SIGNUP_REQUEST);
+	return (requestInfo.id) == static_cast<unsigned int>(RequestCodes::LOGIN_REQUEST) || (requestInfo.id) == static_cast<unsigned int>(RequestCodes::SIGNUP_REQUEST);
 }
 
 RequestInfo LoginRequestHandler::handleRequest(RequestInfo requestInfo)
 {
-    RequestInfo response;
-    response.receivalTime = std::chrono::system_clock::now();
+	RequestInfo response;
+	response.receivalTime = std::chrono::system_clock::now();
 
-    if (requestInfo.id == RequestCodes::LOGIN_REQUEST)
-    {
-        // Deserialize login request
-        LoginRequest loginRequest = JsonRequestPacketDeserializer::deserializeLoginRequest(requestInfo.buffer);
+	static LoginManager loginManager; // Avoid creating it every time
 
-        // Process login...
-        // For now, I'll just create a simple response
-        LoginResponse loginResponse;
-        loginResponse.status = 1; // Success
+	switch (requestInfo.id)
+	{
+	case static_cast<unsigned int>(RequestCodes::LOGIN_REQUEST):
+	{
+		const LoginRequest loginRequest = JsonRequestPacketDeserializer::deserializeLoginRequest(requestInfo.buffer);
+		const LoginResponse loginResponse{ loginManager.signIn(loginRequest.username, loginRequest.password) };
 
-        // Serialize the response
-        std::vector<unsigned char> serializedResponse = JsonResponsePacketSerializer::serializeResponse(loginResponse);
+		response.id = static_cast<unsigned int>(RequestCodes::LOGIN_REQUEST);
+		response.buffer = JsonResponsePacketSerializer::serializeResponse(loginResponse);
+		break;
+	}
+	case static_cast<unsigned int>(RequestCodes::SIGNUP_REQUEST):
+	{
+		const SignupRequest signupRequest = JsonRequestPacketDeserializer::deserializeSignupRequest(requestInfo.buffer);
+		const SignupResponse signupResponse{ loginManager.signUp(signupRequest.username, signupRequest.password, signupRequest.email) };
 
-        // Set response data
-        response.id = 1; // Login response code
-        response.buffer = serializedResponse;
-    }
-    
-    else if (requestInfo.id == RequestCodes::SIGNUP_REQUEST)
-    {
-        // Deserialize signup request
-        SignupRequest signupRequest = JsonRequestPacketDeserializer::deserializeSignupRequest(requestInfo.buffer);
+		response.id = static_cast<unsigned int>(RequestCodes::SIGNUP_REQUEST);
+		response.buffer = JsonResponsePacketSerializer::serializeResponse(signupResponse);
+		break;
+	}
+	default:
+	{
+		const ErrorResponse errorResponse{
+			ResponseCode::ERROR_RESPONSE,
+			"Unsupported request type"
+		};
 
-        // Process signup...
-        // For now, I'll just create a simple response just like the login
-        SignupResponse signupResponse;
-        signupResponse.status = 1;
+		response.id = static_cast<unsigned int>(ResponseCode::ERROR_RESPONSE);
+		response.buffer = JsonResponsePacketSerializer::serializeResponse(errorResponse);
+		break;
+	}
+	}
 
-        std::vector<unsigned char> serializedResponse = JsonResponsePacketSerializer::serializeResponse(signupResponse);
-
-        response.id = 2;
-        response.buffer = serializedResponse;
-    }
-    
-    else
-    {
-        // Creating an error response for unsupported request types
-        ErrorResponse errorResponse;
-        errorResponse.status = 0; // Fail
-        errorResponse.message = "Unsupported request type";
-
-        std::vector<unsigned char> serializedResponse = JsonResponsePacketSerializer::serializeResponse(errorResponse);
-
-        response.id = 0; // Error response code
-        response.buffer = serializedResponse;
-    }
-
-    return response;
+	return response;
 }
