@@ -1,13 +1,12 @@
 #include "RequestHandlerFactory.h"
 
-IRequestHandler* RequestHandlerFactory::createHandler(int requestCode)
+LoginRequestHandler* RequestHandlerFactory::createLoginRequstHandler()
 {
-    // Checking the request code and creating the appropriate handler
-    if (requestCode == RequestCodes::LOGIN_REQUEST || requestCode == RequestCodes::SIGNUP_REQUEST)
-    {
-        return new LoginRequestHandler();
-    }
+	auto* handler = new LoginRequestHandler(m_Database, m_LoginManager);
+	return handler;
+}
 
-    // Default handler or returning nullptr for unknown request types
-    return nullptr;
+LoginManager& RequestHandlerFactory::getLoginManager()
+{
+	return m_LoginManager;
 }

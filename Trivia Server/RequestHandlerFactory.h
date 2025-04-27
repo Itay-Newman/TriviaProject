@@ -1,9 +1,14 @@
 #pragma once
 
 #include "LoginRequestHandler.h"
+#include "IRequestHandler.h"
 
 class RequestHandlerFactory
 {
 public:
-    static IRequestHandler* createHandler(int requestCode);
+	LoginRequestHandler* createLoginRequstHandler();
+	LoginManager& getLoginManager();
+private:
+	LoginManager m_LoginManager;
+	IRequestHandler* m_Database;
 };

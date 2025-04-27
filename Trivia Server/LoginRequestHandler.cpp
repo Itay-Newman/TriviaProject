@@ -1,6 +1,7 @@
 #include "LoginRequestHandler.h"
 
-LoginRequestHandler::LoginRequestHandler()
+LoginRequestHandler::LoginRequestHandler(IRequestHandler* database, LoginManager& loginManager)
+	: m_Database(database), m_LoginManager(loginManager) // Initialize member variables
 {
 }
 
@@ -10,8 +11,7 @@ LoginRequestHandler::~LoginRequestHandler()
 
 bool LoginRequestHandler::isRequestRelevant(RequestInfo requestInfo)
 {
-	return (static_cast<unsigned int>(requestInfo.id) == static_cast<unsigned int>(RequestCodes::LOGIN_REQUEST) ||
-		static_cast<unsigned int>(requestInfo.id) == static_cast<unsigned int>(RequestCodes::SIGNUP_REQUEST));
+	return (requestInfo.id) == static_cast<unsigned int>(RequestCodes::LOGIN_REQUEST) || (requestInfo.id) == static_cast<unsigned int>(RequestCodes::SIGNUP_REQUEST);
 }
 
 RequestInfo LoginRequestHandler::handleRequest(RequestInfo requestInfo)
@@ -21,7 +21,7 @@ RequestInfo LoginRequestHandler::handleRequest(RequestInfo requestInfo)
 
 	static LoginManager loginManager; // Avoid creating it every time
 
-	switch (static_cast<unsigned int>(requestInfo.id))
+	switch (requestInfo.id)
 	{
 	case static_cast<unsigned int>(RequestCodes::LOGIN_REQUEST):
 	{
