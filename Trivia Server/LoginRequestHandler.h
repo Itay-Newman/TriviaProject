@@ -4,7 +4,6 @@
 #include "JsonRequestPacketDeserializer.h"
 #include "JsonResponsePacketSerializer.h"
 #include "loginManager.h"
-#include "RequestHandlerFactory.h"
 
 class LoginRequestHandler : public IRequestHandler
 {
