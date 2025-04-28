@@ -3,24 +3,26 @@
 #include "IRequestHandler.h"
 #include "JsonRequestPacketDeserializer.h"
 #include "JsonResponsePacketSerializer.h"
-#include "loginManager.h"
+#include "LoginManager.h"
+
+class RequestHandlerFactory;
 
 class LoginRequestHandler : public IRequestHandler
 {
 public:
-	LoginRequestHandler(IRequestHandler* database, LoginManager& loginManager);
-	~LoginRequestHandler();
+	LoginRequestHandler(LoginManager& loginManager, RequestHandlerFactory& handlerFactory);
+	~LoginRequestHandler() override = default;
 
-	// Virtual functions implementation  
-	virtual bool isRequestRelevant(RequestInfo requestInfo) override;
-	virtual RequestInfo handleRequest(RequestInfo requestInfo) override;
-
-	// Implementing pure virtual functions from IRequestHandler  
-	virtual bool doesUserExist(const std::string& username) const override;
-	virtual bool doesPasswordMatch(const std::string& username, const std::string& password) const override;
-	virtual bool addUser(const std::string& username, const std::string& password, const std::string& email) const override;
-
+	bool doesUserExist(const std::string& username) const override;
+	bool doesPasswordMatch(const std::string& username, const std::string& password) const override;
+	bool addUser(const std::string& username, const std::string& password, const std::string& email) const override;
+	bool isRequestRelevant(RequestInfo requestInfo) override;
+	RequestInfo handleRequest(RequestInfo requestInfo) override;
 private:
-	IRequestHandler* m_Database;
 	LoginManager& m_LoginManager;
+<<<<<<< HEAD
 };
+=======
+	RequestHandlerFactory& m_HandlerFactory;
+};
+>>>>>>> e590169f11bac56e37253fbcd1cbf35adf60d623
