@@ -6,7 +6,7 @@
 #include "JsonResponsePacketSerializer.h"
 #include "JsonRequestPacketDeserializer.h"
 
-Server::Server() : m_serverSocket(INVALID_SOCKET), m_isRunning(false)
+Server::Server() : m_serverSocket(INVALID_SOCKET), m_isRunning(false), m_handlerFactory(nullptr)
 {
 }
 
