@@ -5,18 +5,18 @@ int LoginManager::signUp(const std::string& username, const std::string& passwor
 	if (this->requestHandler->doesUserExist(username))
 	{
 		std::cout << "User already exists" << std::endl;
-		return -1; //! User already exists
+		return -1; // Means that the user already exists
 	}
 
 	if (this->requestHandler->addUser(username, password, email))
 	{
 		std::cout << "User added successfully" << std::endl;
-		return 0; //! User added successfully
+		return 0; // Means that the user added successfully
 	}
 	else
 	{
 		std::cout << "Failed to add user" << std::endl;
-		return -2; //! Failed to add user
+		return -2; // Means that the failed to add user
 	}
 }
 
@@ -30,18 +30,18 @@ int LoginManager::signIn(const std::string& username, const std::string& passwor
 
 			std::cout << "User signed in successfully" << std::endl;
 			this->loggedUsers.push_back(loggedUser);
-			return 0; //! User signed in successfully
+			return 0; // Means that the user signed in successfully
 		}
 		else
 		{
 			std::cout << "Incorrect password" << std::endl;
-			return -1; //! Incorrect password
+			return -1; // Means incorrect password
 		}
 	}
 	else
 	{
 		std::cout << "User does not exist" << std::endl;
-		return -2; //! User does not exist
+		return -2; // Means that the user does not exist
 	}
 }
 
