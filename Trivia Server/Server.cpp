@@ -143,13 +143,7 @@ bool Server::acceptClient()
 
 	std::cout << "Client connected. Socket: " << clientSocket << std::endl;
 
-	// Creating a handler for this client
-	IRequestHandler* handler = new LoginRequestHandler(
-		m_handlerFactory.getLoginManager(),
-		m_handlerFactory
-	);
-
-	m_clients[clientSocket] = handler;
+	LoginRequestHandler* handler = m_handlerFactory->createLoginRequestHandler();
 
 	// Creating a thread to handle this client
 	m_clientThreads.push_back(std::thread(&Server::handleNewClient, this, clientSocket));

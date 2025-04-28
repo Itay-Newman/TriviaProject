@@ -1,10 +1,23 @@
 #include "LoginRequestHandler.h"
 
-LoginRequestHandler::LoginRequestHandler(LoginManager& loginManager, RequestHandlerFactory& handlerFactory)
-	: m_LoginManager(loginManager), m_HandlerFactory(handlerFactory)
+LoginRequestHandler::LoginRequestHandler(RequestHandlerFactory& factory) : IRequestHandler(), m_HandlerFactory(factory), m_LoginManager(factory.getLoginManager())
 {
 }
 
+bool LoginRequestHandler::doesUserExist(const std::string& username) const
+{
+	return m_HandlerFactory.getDataBase().doesUserExist(username);
+}
+
+bool LoginRequestHandler::doesPasswordMatch(const std::string& username, const std::string& password) const
+{
+	return m_HandlerFactory.getDataBase().doesPasswordMatch(username, password);
+}
+
+bool LoginRequestHandler::addUser(const std::string& username, const std::string& password, const std::string& email) const
+{
+	return m_HandlerFactory.getDataBase().addUser(username, password, email);
+}
 
 bool LoginRequestHandler::isRequestRelevant(RequestInfo requestInfo)
 {

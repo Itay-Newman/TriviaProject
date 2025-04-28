@@ -41,5 +41,5 @@ private:
 	void sendResponse(SOCKET sc, int messageCode, const std::vector<unsigned char>& buffer);
 	RequestInfo getRequestFromClient(SOCKET clientSocket);
 
-	RequestHandlerFactory m_handlerFactory;
+	RequestHandlerFactory* m_handlerFactory;
 };
