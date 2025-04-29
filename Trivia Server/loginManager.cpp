@@ -3,7 +3,6 @@
 LoginManager::LoginManager(IDatabase* database)
 {
 	this->m_Database = database;
-
 }
 
 int LoginManager::signUp(const std::string& username, const std::string& password, const std::string& email) const

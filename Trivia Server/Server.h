@@ -11,6 +11,7 @@
 #include <string>
 #include <Windows.h>
 #include "RequestHandlerFactory.h"
+#include "SqliteDataBase.h"
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -42,4 +43,5 @@ private:
 	RequestInfo getRequestFromClient(SOCKET clientSocket);
 
 	RequestHandlerFactory* m_handlerFactory;
+	SqliteDataBase* m_database;
 };

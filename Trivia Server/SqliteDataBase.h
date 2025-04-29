@@ -8,7 +8,7 @@
 class SqliteDataBase : public IDatabase
 {
 public:
-	SqliteDataBase(const std::string& dbPath);
+	explicit SqliteDataBase(const std::string& dbPath);
 	~SqliteDataBase();
 	bool doesUserExist(const std::string& username) const;
 	bool doesPasswordMatch(const std::string& username, const std::string& password) const;

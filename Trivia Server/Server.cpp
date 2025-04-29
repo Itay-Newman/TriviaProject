@@ -8,6 +8,10 @@
 
 Server::Server() : m_serverSocket(INVALID_SOCKET), m_isRunning(false), m_handlerFactory(nullptr)
 {
+	m_handlerFactory = new RequestHandlerFactory(new SqliteDataBase("database.db"));
+	m_database = new SqliteDataBase("database.db");
+	m_serverSocket = INVALID_SOCKET;
+	m_isRunning = false;
 }
 
 Server::~Server()
