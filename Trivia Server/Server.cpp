@@ -6,13 +6,27 @@
 #include "JsonResponsePacketSerializer.h"
 #include "JsonRequestPacketDeserializer.h"
 
-Server::Server() : m_serverSocket(INVALID_SOCKET), m_isRunning(false)
+Server::Server() : m_serverSocket(INVALID_SOCKET), m_isRunning(false), m_handlerFactory(nullptr), m_database(nullptr)
 {
+	m_database = new SqliteDataBase("trivia.db");
+	m_handlerFactory = new RequestHandlerFactory(m_database);
 }
 
 Server::~Server()
 {
 	close();
+
+	if (m_handlerFactory != nullptr)
+	{
+		delete m_handlerFactory;
+		m_handlerFactory = nullptr;
+	}
+
+	if (m_database != nullptr)
+	{
+		delete m_database;
+		m_database = nullptr;
+	}
 }
 
 void Server::start()
@@ -130,11 +144,10 @@ bool Server::bindAndListen()
 
 bool Server::acceptClient()
 {
-	// Accepting client connection
 	SOCKET clientSocket = accept(m_serverSocket, NULL, NULL);
 	if (clientSocket == INVALID_SOCKET)
 	{
-		if (m_isRunning) // Showing the error only if the server is still running
+		if (m_isRunning)
 		{
 			std::cerr << "Accept failed with error: " << WSAGetLastError() << std::endl;
 		}
@@ -143,12 +156,8 @@ bool Server::acceptClient()
 
 	std::cout << "Client connected. Socket: " << clientSocket << std::endl;
 
-	// Creating a handler for this client
-	IRequestHandler* handler = new LoginRequestHandler(
-		m_handlerFactory.getLoginManager(),
-		m_handlerFactory
-	);
-
+	// Creating a handler for this client and store it in the map
+	IRequestHandler* handler = m_handlerFactory->createLoginRequestHandler();
 	m_clients[clientSocket] = handler;
 
 	// Creating a thread to handle this client

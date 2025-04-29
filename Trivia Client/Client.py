@@ -2,6 +2,7 @@ import socket
 import sys
 import json
 import struct
+import time
 
 PORT = 8888
 IP = '127.0.0.1'
@@ -10,7 +11,6 @@ LOGIN_REQUEST = 20
 SIGNUP_REQUEST = 21
 
 def connect_to_server(server_ip, server_port):
-    """Connect to the trivia server and return the socket"""
     try:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((server_ip, server_port))
@@ -20,14 +20,14 @@ def connect_to_server(server_ip, server_port):
         print(f"Connection error: {e}")
         return None
 
+
 def disconnect(client_socket):
-    """Close the connection to the server"""
     if client_socket:
         client_socket.close()
         print("Disconnected from server")
 
+
 def send_request(client_socket, request_code, data):
-    """Send a request to the server with proper formatting"""
     if not client_socket:
         print("Not connected to server")
         return None
@@ -100,35 +100,52 @@ def receive_response(client_socket):
         return None
 
 def login(client_socket, username, password):
-    """Send a login request to the server"""
     login_data = {
         "username": username,
         "password": password
     }
 
-    print(f"Sending login request for user: {username}")
+    print(f"\nSending login request for user: {username}")
     response = send_request(client_socket, LOGIN_REQUEST, login_data)
 
     if response:
         print(f"Login response received, code: {response['code']}")
         print(f"Response data: {response['data']}")
 
+        # Check status in response
+        if 'status' in response['data']:
+            status = response['data']['status']
+            if status == 0:
+                print("Login successful!")
+            else:
+                print(f"Login failed with status code: {status}")
+                if 'message' in response['data']:
+                    print(f"Error message: {response['data']['message']}")
+
     return response
 
 def signup(client_socket, username, password, email):
-    """Send a signup request to the server"""
     signup_data = {
         "username": username,
         "password": password,
         "email": email
     }
 
-    print(f"Sending signup request for user: {username}")
+    print(f"\nSending signup request for user: {username}")
     response = send_request(client_socket, SIGNUP_REQUEST, signup_data)
 
     if response:
         print(f"Signup response received, code: {response['code']}")
         print(f"Response data: {response['data']}")
+
+        if 'status' in response['data']:
+            status = response['data']['status']
+            if status == 0:
+                print("Signup successful!")
+            else:
+                print(f"Signup failed with status code: {status}")
+                if 'message' in response['data']:
+                    print(f"Error message: {response['data']['message']}")
 
     return response
 
@@ -136,11 +153,61 @@ def display_menu():
     print("\n===== Trivia Game Client =====")
     print("1. Login")
     print("2. Signup")
-    print("3. Exit")
-    return input("Choose an option (1-3): ")
+    print("3. Run Test Suite")
+    print("4. Exit")
+    return input("Choose an option (1-4): ")
+
+def run_test(client_socket):
+    """Running a series of tests to check the server functionality"""
+    print("\n===== Running Tests =====")
+
+    print("\nTest 1: Login with non-existent user")
+    test_username = "nonexistentuser"
+    test_password = "password123"
+    response = login(client_socket, test_username, test_password)
+    if response and 'status' in response['data'] and response['data']['status'] != 0:
+        print("Test passed: Server correctly rejected non-existent user")
+    else:
+        print("Test failed: Server should reject non-existent user")
+
+    print("\nTest 2: Register a new user")
+    test_username = f"testuser_{int(time.time())}"
+    test_password = "password123"
+    test_email = f"{test_username}@example.com"
+    response = signup(client_socket, test_username, test_password, test_email)
+    if response and 'status' in response['data'] and response['data']['status'] == 0:
+        print(f"Test passed: User {test_username} registered successfully")
+    else:
+        print("Test failed: User registration should succeed")
+
+    print("\nTest 3: Register duplicate user")
+    response = signup(client_socket, test_username, test_password, test_email)
+    if response and 'status' in response['data'] and response['data']['status'] != 0:
+        print("Test passed: Server correctly rejected duplicate username")
+    else:
+        print("Test failed: Server should reject duplicate username registration")
+
+    print("\nTest Case 4: Login with newly created user")
+    response = login(client_socket, test_username, test_password)
+    if response and 'status' in response['data'] and response['data']['status'] == 0:
+        print("Test passed: User logged in successfully")
+    else:
+        print("Test failed: User login should succeed")
+
+    print("\nTest 5: Login when already logged in")
+    response = login(client_socket, test_username, test_password)
+
+    if response:
+        print("Test completed: Check if your system allows multiple logins for the same user")
+
+    print("\nTest 6: Test username validation")
+    invalid_username = "u"  # Too short username
+    response = signup(client_socket, invalid_username, test_password, "short@example.com")
+    print("Check if the server validates username length and format")
+
+    print("\nTests completed!")
 
 def main():
-    # Validate port range
     if not (1024 <= PORT <= 65535):
         print(f"Error: Invalid port {PORT}")
         sys.exit(1)
@@ -165,7 +232,10 @@ def main():
                 email = input("Enter email: ")
                 signup(client_socket, username, password, email)
 
-            elif choice == '3':  # Exit
+            elif choice == '3':  # Run Tests
+                run_test(client_socket)
+
+            elif choice == '4':  # Exit
                 print("Exiting client...")
                 break
 

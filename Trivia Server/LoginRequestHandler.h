@@ -4,25 +4,23 @@
 #include "JsonRequestPacketDeserializer.h"
 #include "JsonResponsePacketSerializer.h"
 #include "LoginManager.h"
+#include "RequestHandlerFactory.h"
 
 class RequestHandlerFactory;
 
 class LoginRequestHandler : public IRequestHandler
 {
 public:
-	LoginRequestHandler(LoginManager& loginManager, RequestHandlerFactory& handlerFactory);
+	LoginRequestHandler(RequestHandlerFactory& factory);
 	~LoginRequestHandler() override = default;
 
 	bool doesUserExist(const std::string& username) const override;
 	bool doesPasswordMatch(const std::string& username, const std::string& password) const override;
 	bool addUser(const std::string& username, const std::string& password, const std::string& email) const override;
+
 	bool isRequestRelevant(RequestInfo requestInfo) override;
 	RequestInfo handleRequest(RequestInfo requestInfo) override;
 private:
 	LoginManager& m_LoginManager;
-<<<<<<< HEAD
-};
-=======
 	RequestHandlerFactory& m_HandlerFactory;
 };
->>>>>>> e590169f11bac56e37253fbcd1cbf35adf60d623

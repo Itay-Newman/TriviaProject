@@ -11,6 +11,7 @@
 #include <string>
 #include <Windows.h>
 #include "RequestHandlerFactory.h"
+#include "IDatabase.h"
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -24,6 +25,8 @@ public:
 	void close();
 
 private:
+	IDatabase* m_database;
+	RequestHandlerFactory* m_handlerFactory;
 	SOCKET m_serverSocket;
 	bool m_isRunning;
 	std::map<SOCKET, IRequestHandler*> m_clients;
@@ -40,6 +43,4 @@ private:
 	void sendBuffer(SOCKET sc, const std::vector<unsigned char>& buffer);
 	void sendResponse(SOCKET sc, int messageCode, const std::vector<unsigned char>& buffer);
 	RequestInfo getRequestFromClient(SOCKET clientSocket);
-
-	RequestHandlerFactory m_handlerFactory;
 };

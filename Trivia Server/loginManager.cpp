@@ -1,22 +1,28 @@
 #include "loginManager.h"
 
+LoginManager::LoginManager(IDatabase* database)
+{
+	this->m_Database = database;
+	this->requestHandler = database;
+}
+
 int LoginManager::signUp(const std::string& username, const std::string& password, const std::string& email) const
 {
 	if (this->requestHandler->doesUserExist(username))
 	{
 		std::cout << "User already exists" << std::endl;
-		return -1; // Means that the user already exists
+		return -1;
 	}
 
 	if (this->requestHandler->addUser(username, password, email))
 	{
 		std::cout << "User added successfully" << std::endl;
-		return 0; // Means that the user added successfully
+		return 0;
 	}
 	else
 	{
 		std::cout << "Failed to add user" << std::endl;
-		return -2; // Means that the failed to add user
+		return -2;
 	}
 }
 
@@ -30,18 +36,18 @@ int LoginManager::signIn(const std::string& username, const std::string& passwor
 
 			std::cout << "User signed in successfully" << std::endl;
 			this->loggedUsers.push_back(loggedUser);
-			return 0; // Means that the user signed in successfully
+			return 0;
 		}
 		else
 		{
 			std::cout << "Incorrect password" << std::endl;
-			return -1; // Means incorrect password
+			return -1;
 		}
 	}
 	else
 	{
 		std::cout << "User does not exist" << std::endl;
-		return -2; // Means that the user does not exist
+		return -2;
 	}
 }
 
