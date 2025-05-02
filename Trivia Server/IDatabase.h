@@ -3,7 +3,8 @@
 
 class IDatabase
 {
-	virtual bool doesUserExist(const std::string& name) const;
-	virtual bool doesPasswordMatch(const std::string& name, const std::string& password) const;
-	virtual bool addUser(const std::string& name, const std::string& password, const std::string& email) const;
+public:
+	virtual bool doesUserExist(const std::string& name) const = 0;
+	virtual bool doesPasswordMatch(const std::string& name, const std::string& password) const = 0;
+	virtual bool addUser(const std::string& name, const std::string& password, const std::string& email) const = 0;
 };

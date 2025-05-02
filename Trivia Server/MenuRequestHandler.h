@@ -9,8 +9,8 @@ public:
 	MenuRequestHandler(IRequestHandler* database, LoginManager& loginManager);
 	~MenuRequestHandler();
 
-	virtual bool isRequestRelevant(RequestInfo requestInfo) override;
-	virtual RequestInfo handleRequest(RequestInfo requestInfo) override;
+	virtual bool isRequestRelevant(const RequestInfo& requestInfo) override;
+	virtual RequestInfo handleRequest(const RequestInfo& requestInfo) override;
 
 	virtual bool doesUserExist(const std::string& username) const override;
 	virtual bool doesPasswordMatch(const std::string& username, const std::string& password) const override;
