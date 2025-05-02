@@ -1,12 +1,28 @@
 #include "RequestHandlerFactory.h"
+#include "LoginRequestHandler.h"
 
-LoginRequestHandler* RequestHandlerFactory::createLoginRequstHandler()
+RequestHandlerFactory::RequestHandlerFactory(IDatabase* database)
+	: m_Database(database)
 {
-	auto* handler = new LoginRequestHandler(m_Database, m_LoginManager);
-	return handler;
+	m_LoginManager = new LoginManager(database);
+}
+
+RequestHandlerFactory::~RequestHandlerFactory()
+{
+	delete m_LoginManager;
+}
+
+LoginRequestHandler* RequestHandlerFactory::createLoginRequestHandler()
+{
+	return new LoginRequestHandler(*this, *this->m_Database);
 }
 
 LoginManager& RequestHandlerFactory::getLoginManager()
 {
-	return m_LoginManager;
+	return *this->m_LoginManager;
+}
+
+IDatabase& RequestHandlerFactory::getDataBase()
+{
+	return *this->m_Database;
 }
