@@ -1,32 +1,42 @@
 #include "LoginRequestHandler.h"
 
-LoginRequestHandler::LoginRequestHandler(IRequestHandler* database, LoginManager& loginManager)
-	: m_Database(database), m_LoginManager(loginManager) // Initialize member variables
+LoginRequestHandler::LoginRequestHandler(RequestHandlerFactory& factory, IDatabase& database)
+	: IRequestHandler(), m_LoginManager(factory.getLoginManager()), m_HandlerFactory(factory), m_database(database)
 {
 }
 
-LoginRequestHandler::~LoginRequestHandler()
+bool LoginRequestHandler::doesUserExist(const std::string& username) const
 {
+	return m_HandlerFactory.getDataBase().doesUserExist(username);
 }
 
-bool LoginRequestHandler::isRequestRelevant(RequestInfo requestInfo)
+bool LoginRequestHandler::doesPasswordMatch(const std::string& username, const std::string& password) const
 {
-	return (requestInfo.id) == static_cast<unsigned int>(RequestCodes::LOGIN_REQUEST) || (requestInfo.id) == static_cast<unsigned int>(RequestCodes::SIGNUP_REQUEST);
+	return m_HandlerFactory.getDataBase().doesPasswordMatch(username, password);
 }
 
-RequestInfo LoginRequestHandler::handleRequest(RequestInfo requestInfo)
+bool LoginRequestHandler::addUser(const std::string& username, const std::string& password, const std::string& email) const
+{
+	return m_HandlerFactory.getDataBase().addUser(username, password, email);
+}
+
+bool LoginRequestHandler::isRequestRelevant(const RequestInfo& requestInfo)
+{
+	return (requestInfo.id == static_cast<unsigned int>(RequestCodes::LOGIN_REQUEST)) ||
+		(requestInfo.id == static_cast<unsigned int>(RequestCodes::SIGNUP_REQUEST));
+}
+
+RequestInfo LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 {
 	RequestInfo response;
 	response.receivalTime = std::chrono::system_clock::now();
-
-	static LoginManager loginManager; // Avoid creating it every time
 
 	switch (requestInfo.id)
 	{
 	case static_cast<unsigned int>(RequestCodes::LOGIN_REQUEST):
 	{
 		const LoginRequest loginRequest = JsonRequestPacketDeserializer::deserializeLoginRequest(requestInfo.buffer);
-		const LoginResponse loginResponse{ loginManager.signIn(loginRequest.username, loginRequest.password) };
+		const LoginResponse loginResponse{ m_LoginManager.signIn(loginRequest.username, loginRequest.password) };
 
 		response.id = static_cast<unsigned int>(RequestCodes::LOGIN_REQUEST);
 		response.buffer = JsonResponsePacketSerializer::serializeResponse(loginResponse);
@@ -35,7 +45,7 @@ RequestInfo LoginRequestHandler::handleRequest(RequestInfo requestInfo)
 	case static_cast<unsigned int>(RequestCodes::SIGNUP_REQUEST):
 	{
 		const SignupRequest signupRequest = JsonRequestPacketDeserializer::deserializeSignupRequest(requestInfo.buffer);
-		const SignupResponse signupResponse{ loginManager.signUp(signupRequest.username, signupRequest.password, signupRequest.email) };
+		const SignupResponse signupResponse{ m_LoginManager.signUp(signupRequest.username, signupRequest.password, signupRequest.email) };
 
 		response.id = static_cast<unsigned int>(RequestCodes::SIGNUP_REQUEST);
 		response.buffer = JsonResponsePacketSerializer::serializeResponse(signupResponse);

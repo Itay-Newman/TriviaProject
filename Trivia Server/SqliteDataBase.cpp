@@ -1,6 +1,7 @@
 #include "SqliteDataBase.h"
 #include <iostream>
 #include "sqlite3.h"
+#include <io.h>
 
 int countCallback(void* data, int argc, char** argv, char** azColName)
 {
@@ -24,15 +25,28 @@ int passwordCallback(void* data, int argc, char** argv, char** azColName)
 
 SqliteDataBase::SqliteDataBase(const std::string& dbPath)
 {
-	int rc = sqlite3_open(dbPath.c_str(), &this->db);
-	if (rc)
+	char* errMessage;
+	int doesFileExist = _access(dbPath.c_str(), 0);
+	int res = sqlite3_open(dbPath.c_str(), &db);
+
+	if (res != SQLITE_OK)
 	{
-		std::cerr << "Can't open database: " << sqlite3_errmsg(this->db) << std::endl;
-		sqlite3_close(this->db);
+		db = nullptr;
+		std::cout << "Failed to open DB" << std::endl;
 	}
-	else
+
+	if (doesFileExist != 0)
 	{
-		std::cout << "Opened database successfully\n";
+		std::string sqlStatement = "CREATE TABLE IF NOT EXISTS Users (UserName TEXT NOT NULL UNIQUE, Password TEXT NOT NULL, Email TEXT NOT NULL, PRIMARY KEY(UserName));";
+		res = sqlite3_exec(db, sqlStatement.c_str(), NULL, NULL, &errMessage);
+		if (res != SQLITE_OK)
+		{
+			std::cout << "Failed to open DB " << errMessage << errMessage << std::endl;
+			if (std::remove(dbPath.c_str()) != 0)
+			{
+				std::cout << "Failed to delete the database";
+			}
+		}
 	}
 }
 
