@@ -7,29 +7,29 @@ LoginManager::LoginManager(IDatabase* database)
 
 int LoginManager::signUp(const std::string& username, const std::string& password, const std::string& email) const
 {
-	if (this->requestHandler->doesUserExist(username))
+	if (this->m_Database->doesUserExist(username))
 	{
 		std::cout << "User already exists" << std::endl;
-		return -1; //! User already exists
+		return -1;
 	}
 
-	if (this->requestHandler->addUser(username, password, email))
+	if (this->m_Database->addUser(username, password, email))
 	{
 		std::cout << "User added successfully" << std::endl;
-		return 0; //! User added successfully
+		return 0;
 	}
 	else
 	{
 		std::cout << "Failed to add user" << std::endl;
-		return -2; //! Failed to add user
+		return -2;
 	}
 }
 
 int LoginManager::signIn(const std::string& username, const std::string& password)
 {
-	if (this->requestHandler->doesUserExist(username))
+	if (this->m_Database->doesUserExist(username))
 	{
-		if (this->requestHandler->doesPasswordMatch(username, password))
+		if (this->m_Database->doesPasswordMatch(username, password))
 		{
 			LoggedUser loggedUser(username);
 

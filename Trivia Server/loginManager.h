@@ -19,6 +19,5 @@ public:
 
 private:
 	std::vector<LoggedUser> loggedUsers;
-	IRequestHandler* requestHandler;
 	IDatabase* m_Database;
 };

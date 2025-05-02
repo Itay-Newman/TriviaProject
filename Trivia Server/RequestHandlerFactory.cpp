@@ -14,12 +14,12 @@ RequestHandlerFactory::~RequestHandlerFactory()
 
 LoginRequestHandler* RequestHandlerFactory::createLoginRequestHandler()
 {
-	return new LoginRequestHandler(*this, m_LoginManager);
+	return new LoginRequestHandler(*this, *this->m_Database);
 }
 
 LoginManager& RequestHandlerFactory::getLoginManager()
 {
-	return *m_LoginManager;
+	return *this->m_LoginManager;
 }
 
 IDatabase& RequestHandlerFactory::getDataBase()

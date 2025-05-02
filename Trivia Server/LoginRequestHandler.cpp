@@ -1,7 +1,7 @@
 #include "LoginRequestHandler.h"
 
-LoginRequestHandler::LoginRequestHandler(RequestHandlerFactory& factory)
-	: IRequestHandler(), m_LoginManager(factory.getLoginManager()), m_HandlerFactory(factory)
+LoginRequestHandler::LoginRequestHandler(RequestHandlerFactory& factory, IDatabase& database)
+	: IRequestHandler(), m_LoginManager(factory.getLoginManager()), m_HandlerFactory(factory), m_database(database)
 {
 }
 
@@ -20,13 +20,13 @@ bool LoginRequestHandler::addUser(const std::string& username, const std::string
 	return m_HandlerFactory.getDataBase().addUser(username, password, email);
 }
 
-bool LoginRequestHandler::isRequestRelevant(RequestInfo requestInfo)
+bool LoginRequestHandler::isRequestRelevant(const RequestInfo& requestInfo)
 {
 	return (requestInfo.id == static_cast<unsigned int>(RequestCodes::LOGIN_REQUEST)) ||
 		(requestInfo.id == static_cast<unsigned int>(RequestCodes::SIGNUP_REQUEST));
 }
 
-RequestInfo LoginRequestHandler::handleRequest(RequestInfo requestInfo)
+RequestInfo LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 {
 	RequestInfo response;
 	response.receivalTime = std::chrono::system_clock::now();
