@@ -136,7 +136,6 @@
     <ClCompile Include="LoginRequestHandler.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MenuRequestHandler.cpp" />
-    <ClCompile Include="MenuRequestHandler.h" />
     <ClCompile Include="RequestHandlerFactory.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="sqlite3.c" />
@@ -152,6 +151,7 @@
     <ClInclude Include="loginManager.h" />
     <ClInclude Include="LoginRequestHandler.h" />
     <ClInclude Include="RequestHandlerFactory.h" />
+	<ClInclude Include="MenuRequestHandler.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="sqlite3.h" />
     <ClInclude Include="SqliteDataBase.h" />
