@@ -5,6 +5,7 @@
 #include <string>
 #include <chrono>
 
+class IRequestHandler;
 // All structs needed for JsonResponsePacketSerializer and JsonRequestPacketDeserializer
 
 // There are only 2 statuses: 1 - success, 0 - fail
@@ -180,4 +181,11 @@ struct ErrorResponse
 {
 	ResponseCode status; // 0 for fail
 	std::string message;
+};
+
+struct RequestResult
+{
+	ResponseCode id; // 0 for fail
+	std::vector<unsigned char> response;
+	IRequestHandler* newHandler;
 };

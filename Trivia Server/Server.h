@@ -30,18 +30,16 @@ private:
 	std::map<SOCKET, IRequestHandler*> m_clients;
 	std::vector<std::thread> m_clientThreads;
 	std::thread m_consoleThread;
+	RequestHandlerFactory* m_handlerFactory;
+	IDatabase* m_database;
 
 	bool initializeWinsock();
 	bool bindAndListen();
 	bool acceptClient();
 	void handleNewClient(SOCKET clientSocket);
 	void handleUserInput();
-
 	std::vector<unsigned char> getBufferFromSocket(SOCKET sc, int bytesToRead);
 	void sendBuffer(SOCKET sc, const std::vector<unsigned char>& buffer);
 	void sendResponse(SOCKET sc, int messageCode, const std::vector<unsigned char>& buffer);
 	RequestInfo getRequestFromClient(SOCKET clientSocket);
-
-	RequestHandlerFactory* m_handlerFactory;
-	SqliteDataBase* m_database;
 };

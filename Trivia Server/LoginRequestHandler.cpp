@@ -26,10 +26,9 @@ bool LoginRequestHandler::isRequestRelevant(const RequestInfo& requestInfo)
 		(requestInfo.id == static_cast<unsigned int>(RequestCodes::SIGNUP_REQUEST));
 }
 
-RequestInfo LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
+RequestResult LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 {
-	RequestInfo response;
-	response.receivalTime = std::chrono::system_clock::now();
+	RequestResult response;
 
 	switch (requestInfo.id)
 	{
@@ -38,8 +37,16 @@ RequestInfo LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 		const LoginRequest loginRequest = JsonRequestPacketDeserializer::deserializeLoginRequest(requestInfo.buffer);
 		const LoginResponse loginResponse{ m_LoginManager.signIn(loginRequest.username, loginRequest.password) };
 
-		response.id = static_cast<unsigned int>(RequestCodes::LOGIN_REQUEST);
-		response.buffer = JsonResponsePacketSerializer::serializeResponse(loginResponse);
+		if (loginResponse.status == -1)
+		{
+			response.newHandler = m_HandlerFactory.createMenuRequestHandler();
+		}
+		else
+		{
+			response.newHandler = nullptr;
+		}
+
+		response.response = JsonResponsePacketSerializer::serializeResponse(loginResponse);
 		break;
 	}
 	case static_cast<unsigned int>(RequestCodes::SIGNUP_REQUEST):
@@ -47,8 +54,16 @@ RequestInfo LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 		const SignupRequest signupRequest = JsonRequestPacketDeserializer::deserializeSignupRequest(requestInfo.buffer);
 		const SignupResponse signupResponse{ m_LoginManager.signUp(signupRequest.username, signupRequest.password, signupRequest.email) };
 
-		response.id = static_cast<unsigned int>(RequestCodes::SIGNUP_REQUEST);
-		response.buffer = JsonResponsePacketSerializer::serializeResponse(signupResponse);
+		if (signupResponse.status == -1)
+		{
+			response.newHandler = m_HandlerFactory.createMenuRequestHandler();
+		}
+		else
+		{
+			response.newHandler = nullptr;
+		}
+
+		response.response = JsonResponsePacketSerializer::serializeResponse(signupResponse);
 		break;
 	}
 	default:
@@ -58,8 +73,7 @@ RequestInfo LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 			"Unsupported request type"
 		};
 
-		response.id = static_cast<unsigned int>(ResponseCode::ERROR_RESPONSE);
-		response.buffer = JsonResponsePacketSerializer::serializeResponse(errorResponse);
+		response.response = JsonResponsePacketSerializer::serializeResponse(errorResponse);
 		break;
 	}
 	}

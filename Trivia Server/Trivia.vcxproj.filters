@@ -48,6 +48,9 @@
     <ClCompile Include="MenuRequestHandler.h">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="MenuRequestHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Server.h">

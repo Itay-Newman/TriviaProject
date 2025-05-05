@@ -8,8 +8,8 @@
 
 Server::Server() : m_serverSocket(INVALID_SOCKET), m_isRunning(false), m_handlerFactory(nullptr)
 {
-	m_handlerFactory = new RequestHandlerFactory(new SqliteDataBase("triviaDB.sqlite"));
 	m_database = new SqliteDataBase("triviaDB.sqlite");
+	m_handlerFactory = new RequestHandlerFactory(*this->m_database);
 	m_serverSocket = INVALID_SOCKET;
 	m_isRunning = false;
 }
@@ -197,13 +197,13 @@ void Server::handleNewClient(SOCKET clientSocket)
 				}
 
 				// Handle the request
-				RequestInfo responseInfo = handler->handleRequest(requestInfo);
+				RequestResult responseInfo = handler->handleRequest(requestInfo);
 
 				// Send response to client
-				sendResponse(clientSocket, responseInfo.id, responseInfo.buffer);
+				sendResponse(clientSocket, static_cast<int>(responseInfo.id), responseInfo.response);
 				std::cout << "Sent response to client " << clientSocket
-					<< ", message code: " << responseInfo.id
-					<< ", buffer size: " << responseInfo.buffer.size() << std::endl;
+					<< ", message code: " << static_cast<int>(responseInfo.id)
+					<< ", buffer size: " << responseInfo.response.size() << std::endl;
 
 				// If we need to update the handler, we could do it here
 				// For now, we'll keep using the same handler
