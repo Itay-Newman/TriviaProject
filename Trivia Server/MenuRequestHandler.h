@@ -16,6 +16,7 @@ public:
 	virtual bool doesUserExist(const std::string& username) const override;
 	virtual bool doesPasswordMatch(const std::string& username, const std::string& password) const override;
 	virtual bool addUser(const std::string& username, const std::string& password, const std::string& email) const override;*/
+
 private:
 	IDatabase& m_database;
 	LoginManager* m_loginManager;
