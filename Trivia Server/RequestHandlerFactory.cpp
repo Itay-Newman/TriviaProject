@@ -1,7 +1,7 @@
 #include "RequestHandlerFactory.h"
 #include "LoginRequestHandler.h"
 
-RequestHandlerFactory::RequestHandlerFactory(IDatabase* database)
+RequestHandlerFactory::RequestHandlerFactory(IDatabase& database)
 	: m_Database(database)
 {
 	m_LoginManager = new LoginManager(database);
@@ -9,12 +9,16 @@ RequestHandlerFactory::RequestHandlerFactory(IDatabase* database)
 
 RequestHandlerFactory::~RequestHandlerFactory()
 {
-	delete m_LoginManager;
 }
 
 LoginRequestHandler* RequestHandlerFactory::createLoginRequestHandler()
 {
-	return new LoginRequestHandler(*this, *this->m_Database);
+	return new LoginRequestHandler(*this, this->m_Database);
+}
+
+MenuRequestHandler* RequestHandlerFactory::createMenuRequestHandler()
+{
+	return new MenuRequestHandler(this->m_Database, this->m_LoginManager);
 }
 
 LoginManager& RequestHandlerFactory::getLoginManager()
@@ -24,5 +28,5 @@ LoginManager& RequestHandlerFactory::getLoginManager()
 
 IDatabase& RequestHandlerFactory::getDataBase()
 {
-	return *this->m_Database;
+	return this->m_Database;
 }

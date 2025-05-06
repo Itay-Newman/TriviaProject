@@ -11,5 +11,5 @@ public:
 	virtual bool doesPasswordMatch(const std::string& username, const std::string& password) const = 0;
 	virtual bool addUser(const std::string& username, const std::string& password, const std::string& email) const = 0;
 	virtual bool isRequestRelevant(const RequestInfo& requestInfo) = 0;
-	virtual RequestInfo handleRequest(const RequestInfo& requestInfo) = 0;
+	virtual RequestResult handleRequest(const RequestInfo& requestInfo) = 0;
 };

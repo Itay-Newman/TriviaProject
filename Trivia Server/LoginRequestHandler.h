@@ -5,6 +5,7 @@
 #include "JsonResponsePacketSerializer.h"
 #include "LoginManager.h"
 #include "RequestHandlerFactory.h"
+#include "Structs.h"
 
 class RequestHandlerFactory;
 
@@ -19,7 +20,7 @@ public:
 	bool addUser(const std::string& username, const std::string& password, const std::string& email) const override;
 
 	bool isRequestRelevant(const RequestInfo& requestInfo) override;
-	RequestInfo handleRequest(const RequestInfo& requestInfo) override;
+	RequestResult handleRequest(const RequestInfo& requestInfo) override;
 private:
 	LoginManager& m_LoginManager;
 	RequestHandlerFactory& m_HandlerFactory;
