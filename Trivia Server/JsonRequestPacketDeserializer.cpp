@@ -8,7 +8,6 @@ LoginRequest JsonRequestPacketDeserializer::deserializeLoginRequest(const std::v
 	std::string jsonStr(buffer.begin(), buffer.end());
 	nlohmann::json j = nlohmann::json::parse(jsonStr);
 
-	// Extract fields from JSON to the struct
 	loginRequest.username = j.at("username");
 	loginRequest.password = j.at("password");
 
