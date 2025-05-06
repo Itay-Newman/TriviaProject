@@ -24,7 +24,6 @@ def connect_to_server(server_ip, server_port):
 def disconnect(client_socket):
     if client_socket:
         client_socket.close()
-        print("Disconnected from server")
 
 
 def send_request(client_socket, request_code, data):
@@ -243,6 +242,7 @@ def main():
                 print("Invalid option. Please try again.")
 
         disconnect(client_socket)
+        print("Disconnected from server")
 
     except KeyboardInterrupt:
         print("\nClient terminated by user")
