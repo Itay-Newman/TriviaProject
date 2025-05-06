@@ -10,7 +10,7 @@
 class LoginManager
 {
 public:
-	LoginManager(IDatabase* database);
+	LoginManager(IDatabase& database);
 	~LoginManager() = default;
 
 	int signUp(const std::string& username, const std::string& password, const std::string& email) const;
@@ -19,5 +19,5 @@ public:
 
 private:
 	std::vector<LoggedUser> loggedUsers;
-	IDatabase* m_Database;
+	IDatabase& m_Database;
 };

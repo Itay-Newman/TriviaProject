@@ -5,11 +5,13 @@
 #include <string>
 #include <chrono>
 
+class IRequestHandler;
 // All structs needed for JsonResponsePacketSerializer and JsonRequestPacketDeserializer
 
 // There are only 2 statuses: 1 - success, 0 - fail
 
-enum class ResponseCode {
+enum class ResponseCode
+{
 	ERROR_RESPONSE = 0,
 	LOGIN_RESPONSE = 1,
 	SIGNUP_RESPONSE = 2,
@@ -32,13 +34,15 @@ enum class ResponseCode {
 };
 
 // Request Message Codes
-enum class RequestCodes {
+enum class RequestCodes
+{
 	LOGIN_REQUEST = 20,
 	SIGNUP_REQUEST = 21
 	// Will add more request codes as needed
 };
 
-struct RoomData {
+struct RoomData
+{
 	unsigned int id;
 	std::string name;
 	unsigned int maxPlayers;
@@ -48,72 +52,87 @@ struct RoomData {
 };
 
 // Request structs
-struct RequestInfo {
+struct RequestInfo
+{
 	unsigned int id;
 	std::chrono::system_clock::time_point receivalTime;
 	std::vector<unsigned char> buffer;
 };
 
-struct LoginRequest {
+struct LoginRequest
+{
 	std::string username;
 	std::string password;
 };
 
-struct SignupRequest {
+struct SignupRequest
+{
 	std::string username;
 	std::string password;
 	std::string email;
 };
 
 // Response structs
-struct LoginResponse {
+struct LoginResponse
+{
 	unsigned int status;
 };
 
-struct SignupResponse {
+struct SignupResponse
+{
 	unsigned int status;
 };
 
-struct LogoutResponse {
+struct LogoutResponse
+{
 	unsigned int status;
 };
 
-struct GetRoomsResponse {
+struct GetRoomsResponse
+{
 	unsigned int status;
 	std::vector<RoomData> rooms;
 };
 
-struct GetPlayersInRoomResponse {
+struct GetPlayersInRoomResponse
+{
 	std::vector<std::string> rooms;
 };
 
-struct GetHighScoreResponse {
+struct GetHighScoreResponse
+{
 	unsigned int status;
 	std::vector<std::string> statistics;
 };
 
-struct GetPersonalStatsResponse {
+struct GetPersonalStatsResponse
+{
 	unsigned int status;
 	std::vector<std::string> statistics;
 };
 
-struct JoinRoomResponse {
+struct JoinRoomResponse
+{
 	unsigned int status;
 };
 
-struct CreateRoomResponse {
+struct CreateRoomResponse
+{
 	unsigned int status;
 };
 
-struct CloseRoomResponse {
+struct CloseRoomResponse
+{
 	unsigned int status;
 };
 
-struct StartGameResponse {
+struct StartGameResponse
+{
 	unsigned int status;
 };
 
-struct GetRoomStateResponse {
+struct GetRoomStateResponse
+{
 	unsigned int status;
 	bool hasGameBegun;
 	std::vector<std::string> players;
@@ -121,38 +140,52 @@ struct GetRoomStateResponse {
 	unsigned int answerTimeout;
 };
 
-struct LeaveRoomResponse {
+struct LeaveRoomResponse
+{
 	unsigned int status;
 };
 
-struct LeaveGameResponse {
+struct LeaveGameResponse
+{
 	unsigned int status;
 };
 
-struct GetQuestionResponse {
+struct GetQuestionResponse
+{
 	unsigned int status;
 	std::string question;
 	std::vector<std::string> answers;
 };
 
-struct SubmitAnswerResponse {
+struct SubmitAnswerResponse
+{
 	unsigned int status;
 	unsigned int correctAnswerId;
 };
 
-struct PlayerResults {
+struct PlayerResults
+{
 	std::string username;
 	unsigned int correctAnswerCount;
 	unsigned int wrongAnswerCount;
 	unsigned int averageAnswerTime;
 };
 
-struct GetGameResultsResponse {
+struct GetGameResultsResponse
+{
 	unsigned int status;
 	std::vector<PlayerResults> results;
 };
 
-struct ErrorResponse {
+struct ErrorResponse
+{
 	ResponseCode status; // 0 for fail
 	std::string message;
+};
+
+struct RequestResult
+{
+	ResponseCode id; // 0 for fail
+	std::vector<unsigned char> response;
+	IRequestHandler* newHandler;
 };
