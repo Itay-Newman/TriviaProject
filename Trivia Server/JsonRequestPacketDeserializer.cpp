@@ -2,31 +2,31 @@
 
 LoginRequest JsonRequestPacketDeserializer::deserializeLoginRequest(const std::vector<unsigned char>& buffer)
 {
-    LoginRequest loginRequest;
+	LoginRequest loginRequest;
 
-    // Parse the JSON from the buffer
-    std::string jsonStr(buffer.begin(), buffer.end());
-    nlohmann::json j = nlohmann::json::parse(jsonStr);
+	// Parse the JSON from the buffer
+	std::string jsonStr(buffer.begin(), buffer.end());
+	nlohmann::json j = nlohmann::json::parse(jsonStr);
 
-    // Extract fields from JSON to the struct
-    loginRequest.username = j["username"];
-    loginRequest.password = j["password"];
+	// Extract fields from JSON to the struct
+	loginRequest.username = j.at("username");
+	loginRequest.password = j.at("password");
 
-    return loginRequest;
+	return loginRequest;
 }
 
 SignupRequest JsonRequestPacketDeserializer::deserializeSignupRequest(const std::vector<unsigned char>& buffer)
 {
-    SignupRequest signupRequest;
+	SignupRequest signupRequest;
 
-    // Parse the JSON from the buffer
-    std::string jsonStr(buffer.begin(), buffer.end());
-    nlohmann::json j = nlohmann::json::parse(jsonStr);
+	// Parse the JSON from the buffer
+	std::string jsonStr(buffer.begin(), buffer.end());
+	nlohmann::json j = nlohmann::json::parse(jsonStr);
 
-    // Extract fields from JSON to the struct
-    signupRequest.username = j["username"];
-    signupRequest.password = j["password"];
-    signupRequest.email = j["email"];
+	// Extract fields from JSON to the struct
+	signupRequest.username = j["username"];
+	signupRequest.password = j["password"];
+	signupRequest.email = j["email"];
 
-    return signupRequest;
+	return signupRequest;
 }

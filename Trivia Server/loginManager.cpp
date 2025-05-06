@@ -51,14 +51,22 @@ int LoginManager::signIn(const std::string& username, const std::string& passwor
 
 void LoginManager::signOut(const std::string& username)
 {
-	for (auto it = this->loggedUsers.begin(); it != this->loggedUsers.end(); ++it)
-	{
-		if (it->getUsername() == username)
+	auto userIt = std::find_if(
+		this->loggedUsers.begin(),
+		this->loggedUsers.end(),
+		[&](const LoggedUser& user)
 		{
-			this->loggedUsers.erase(it);
-			std::cout << "User signed out successfully" << std::endl;
-			return;
-		}
+			return user.getUsername() == username;
+		});
+
+	if (userIt != this->loggedUsers.end())
+	{
+		this->loggedUsers.erase(userIt);
+		std::cout << "User signed out successfully" << std::endl;
 	}
-	std::cout << "User not found" << std::endl;
+	else
+	{
+		std::cout << "User not found" << std::endl;
+	}
+
 }
