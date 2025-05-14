@@ -4,6 +4,7 @@
 #include <chrono>
 #include "Structs.h"
 #include "json.hpp"
+using nlohmann::json;
 
 class JsonRequestPacketDeserializer
 {

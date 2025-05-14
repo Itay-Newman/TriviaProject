@@ -3,6 +3,7 @@
 #include <vector>
 #include "Structs.h"
 #include "json.hpp"
+using nlohmann::json;
 
 class JsonResponsePacketSerializer
 {
