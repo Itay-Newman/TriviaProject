@@ -25,28 +25,28 @@ int passwordCallback(void* data, int argc, char** argv, char** azColName)
 
 SqliteDataBase::SqliteDataBase(const std::string& dbPath)
 {
-	char* errMessage;
 	int doesFileExist = _access(dbPath.c_str(), 0);
 	int res = sqlite3_open(dbPath.c_str(), &db);
 
 	if (res != SQLITE_OK)
 	{
 		db = nullptr;
-		std::cout << "Failed to open DB" << std::endl;
+		throw std::exception("[SQL ERROR] Can't create database file.");
 	}
 
-	if (doesFileExist != 0)
+	std::string sqlStatementUsers = "CREATE TABLE IF NOT EXISTS Users (UserName TEXT NOT NULL UNIQUE, Password TEXT NOT NULL, Email TEXT NOT NULL, PRIMARY KEY(UserName));";
+	std::string sqlStatementStat = "CREATE TABLE IF NOT EXISTS Statistics (AVG_TIME NUMERIC NOT NULL, C_ANSWERS INTEGER NOT NULL, W_ANSWER INTEGER NOT NULL, GAMES INTEGER NOT NULL, USERNAME TEXT NOT NULL, FOREIGN KEY(USERNAME) REFERENCES Users(UserName));";
+
+	res = sqlite3_exec(db, sqlStatementUsers.c_str(), NULL, NULL, NULL);
+	if (res != SQLITE_OK)
 	{
-		std::string sqlStatement = "CREATE TABLE IF NOT EXISTS Users (UserName TEXT NOT NULL UNIQUE, Password TEXT NOT NULL, Email TEXT NOT NULL, PRIMARY KEY(UserName));";
-		res = sqlite3_exec(db, sqlStatement.c_str(), NULL, NULL, &errMessage);
-		if (res != SQLITE_OK)
-		{
-			std::cout << "Failed to open DB " << errMessage << errMessage << std::endl;
-			if (std::remove(dbPath.c_str()) != 0)
-			{
-				std::cout << "Failed to delete the database";
-			}
-		}
+		throw std::exception("[SQL ERROR] Can't create USERS Table.");
+	}
+
+	res = sqlite3_exec(db, sqlStatementStat.c_str(), NULL, NULL, NULL);
+	if (res != SQLITE_OK)
+	{
+		throw std::exception("[SQL ERROR] Can't create STATISTICS Table.");
 	}
 }
 
