@@ -55,8 +55,11 @@ SqliteDataBase::SqliteDataBase(const std::string& dbPath)
 	res = sqlite3_exec(db, sqlStatementQ.c_str(), NULL, NULL, NULL);
 	if (res != SQLITE_OK)
 	{
-		throw std::exception("[SQL ERROR] Can't create QUESTIONS Table.");
+		throw std::exception("[SQL ERROR] Can't create QUESTIONS Table."); 
+
 	}
+
+	
 }
 
 SqliteDataBase::~SqliteDataBase()
@@ -117,4 +120,20 @@ bool SqliteDataBase::addUser(const std::string& username, const std::string& pas
 	}
 
 	return true;
+}
+
+bool SqliteDataBase::addQ(std::string q, std:string a1, std::string a2, std::string a3, std::string a4)
+{
+	std::string sqlStatementQ = "INSERT INTO Questions (question, c_answer1, w_answer2, w_answer3, w_answer4) VALUES ('" + q + "','" + a1 + '", "' + a2 + '" ,"' + a3 + '" ,"' + a4 + "');";
+
+	char* err = nullptr;
+	int rc = sqlite3_exec(this->db, query.c_str(), nullptr, nullptr, &err);
+	if(rc != SQLITE_OK)
+	{
+		std::cerr << "SQL Error: " << err << std::endl;
+		sqlite3_free(err);
+		return false;
+	}
+
+	return false;
 }
