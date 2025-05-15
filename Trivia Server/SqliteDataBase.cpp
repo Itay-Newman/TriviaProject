@@ -3,6 +3,7 @@
 #include "sqlite3.h"
 #include <io.h>
 
+
 int countCallback(void* data, int argc, char** argv, char** azColName)
 {
 	int* count = static_cast<int*>(data);
@@ -36,6 +37,8 @@ SqliteDataBase::SqliteDataBase(const std::string& dbPath)
 
 	std::string sqlStatementUsers = "CREATE TABLE IF NOT EXISTS Users (UserName TEXT NOT NULL UNIQUE, Password TEXT NOT NULL, Email TEXT NOT NULL, PRIMARY KEY(UserName));";
 	std::string sqlStatementStat = "CREATE TABLE IF NOT EXISTS Statistics (AVG_TIME NUMERIC NOT NULL, C_ANSWERS INTEGER NOT NULL, W_ANSWER INTEGER NOT NULL, GAMES INTEGER NOT NULL, USERNAME TEXT NOT NULL, FOREIGN KEY(USERNAME) REFERENCES Users(UserName));";
+	std::string sqlStatementQ = "CREATE TABLE IF NOT EXISTS Questions (ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QUESTION TEXT NOT NULL, C_ANSWER1 TEXT NOT NULL, W_ANSWER2 TEXT NOT NULL, W_ANSWER3 TEXT NOT NULL, W_ANSWER4 TEXT NOT NULL);";
+
 
 	res = sqlite3_exec(db, sqlStatementUsers.c_str(), NULL, NULL, NULL);
 	if (res != SQLITE_OK)
@@ -47,6 +50,12 @@ SqliteDataBase::SqliteDataBase(const std::string& dbPath)
 	if (res != SQLITE_OK)
 	{
 		throw std::exception("[SQL ERROR] Can't create STATISTICS Table.");
+	}
+
+	res = sqlite3_exec(db, sqlStatementQ.c_str(), NULL, NULL, NULL);
+	if (res != SQLITE_OK)
+	{
+		throw std::exception("[SQL ERROR] Can't create QUESTIONS Table.");
 	}
 }
 

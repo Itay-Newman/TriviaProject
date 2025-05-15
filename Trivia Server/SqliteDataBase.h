@@ -5,6 +5,8 @@
 #include "sqlite3.h"
 #include "IDatabase.h"
 
+#define DEFAULT_QUESTION_NUMBER 10
+
 class SqliteDataBase : public IDatabase
 {
 public:
