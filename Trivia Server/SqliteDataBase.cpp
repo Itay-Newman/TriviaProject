@@ -58,8 +58,6 @@ SqliteDataBase::SqliteDataBase(const std::string& dbPath)
 		throw std::exception("[SQL ERROR] Can't create QUESTIONS Table."); 
 
 	}
-
-	
 }
 
 SqliteDataBase::~SqliteDataBase()
@@ -122,9 +120,9 @@ bool SqliteDataBase::addUser(const std::string& username, const std::string& pas
 	return true;
 }
 
-bool SqliteDataBase::addQ(std::string q, std:string a1, std::string a2, std::string a3, std::string a4)
+bool SqliteDataBase::addQ(std::string q, std::string a1, std::string a2, std::string a3, std::string a4)
 {
-	std::string sqlStatementQ = "INSERT INTO Questions (question, c_answer1, w_answer2, w_answer3, w_answer4) VALUES ('" + q + "','" + a1 + '", "' + a2 + '" ,"' + a3 + '" ,"' + a4 + "');";
+	std::string sqlStatementQ = "INSERT INTO Questions (question, c_answer1, w_answer2, w_answer3, w_answer4) VALUES ('" + q + "', '" + a1 + "', '" + a2 + "', '" + a3 + "', '" + a4 + "');";
 
 	char* err = nullptr;
 	int rc = sqlite3_exec(this->db, query.c_str(), nullptr, nullptr, &err);
@@ -137,3 +135,16 @@ bool SqliteDataBase::addQ(std::string q, std:string a1, std::string a2, std::str
 
 	return false;
 }
+
+std::vector<std::tuple<std::string, std::string, std::string, std::string, std::string>> questions = {
+{"What is the capital of France?", "Paris", "London", "Berlin", "Madrid"},
+{"Which planet is known as the Red Planet?", "Mars", "Venus", "Jupiter", "Saturn"},
+{"What gas do plants absorb from the atmosphere?", "Carbon Dioxide", "Oxygen", "Nitrogen", "Hydrogen"},
+{"Who painted the Mona Lisa?", "Leonardo da Vinci", "Michelangelo", "Raphael", "Donatello"},
+{"What is the largest ocean on Earth?", "Pacific Ocean", "Atlantic Ocean", "Indian Ocean", "Arctic Ocean"},
+{"What is the hardest natural substance?", "Diamond", "Gold", "Iron", "Quartz"},
+{"Which element has the chemical symbol 'O'?", "Oxygen", "Osmium", "Oxide", "Organium"},
+{"In what year did World War II end?", "1945", "1939", "1940", "1942"},
+{"Which country invented paper?", "China", "Egypt", "Greece", "India"},
+{"What is the smallest prime number?", "2", "1", "3", "0"}
+};
