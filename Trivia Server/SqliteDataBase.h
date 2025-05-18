@@ -15,7 +15,7 @@ public:
 	bool doesUserExist(const std::string& username) const override;
 	bool doesPasswordMatch(const std::string& username, const std::string& password) const override;
 	bool addUser(const std::string& username, const std::string& password, const std::string& email) const override;
-    bool addQuestions(std::string  q, std::string a1, std::string a2, std::string a3, std::string a4);
+	bool addQuestions(std::string  q, std::string a1, std::string a2, std::string a3, std::string a4);
 private:
 	sqlite3* db;
 };

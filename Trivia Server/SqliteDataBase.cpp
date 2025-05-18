@@ -2,6 +2,7 @@
 #include <iostream>
 #include "sqlite3.h"
 #include <io.h>
+#include <tuple>
 
 
 int countCallback(void* data, int argc, char** argv, char** azColName)
@@ -55,8 +56,31 @@ SqliteDataBase::SqliteDataBase(const std::string& dbPath)
 	res = sqlite3_exec(db, sqlStatementQ.c_str(), NULL, NULL, NULL);
 	if (res != SQLITE_OK)
 	{
-		throw std::exception("[SQL ERROR] Can't create QUESTIONS Table."); 
+		throw std::exception("[SQL ERROR] Can't create QUESTIONS Table.");
 
+	}
+
+	std::vector<std::tuple<std::string, std::string, std::string, std::string, std::string>> questions = {
+		std::make_tuple("What is the capital of France?", "Paris", "London", "Berlin", "Madrid"),
+		std::make_tuple("Which planet is known as the Red Planet?", "Mars", "Venus", "Jupiter", "Saturn"),
+		std::make_tuple("What gas do plants absorb from the atmosphere?", "Carbon Dioxide", "Oxygen", "Nitrogen", "Hydrogen"),
+		std::make_tuple("Who painted the Mona Lisa?", "Leonardo da Vinci", "Michelangelo", "Raphael", "Donatello"),
+		std::make_tuple("What is the largest ocean on Earth?", "Pacific Ocean", "Atlantic Ocean", "Indian Ocean", "Arctic Ocean"),
+		std::make_tuple("What is the hardest natural substance?", "Diamond", "Gold", "Iron", "Quartz"),
+		std::make_tuple("Which element has the chemical symbol 'O'?", "Oxygen", "Osmium", "Oxide", "Organium"),
+		std::make_tuple("In what year did World War II end?", "1945", "1939", "1940", "1942"),
+		std::make_tuple("Which country invented paper?", "China", "Egypt", "Greece", "India"),
+		std::make_tuple("What is the smallest prime number?", "2", "1", "3", "0")
+	};
+
+	for (const auto& question : questions)
+	{
+		std::string q = std::get<0>(question);
+		std::string a1 = std::get<1>(question);
+		std::string a2 = std::get<2>(question);
+		std::string a3 = std::get<3>(question);
+		std::string a4 = std::get<4>(question);
+		addQuestions(q, a1, a2, a3, a4);
 	}
 }
 
@@ -120,13 +144,13 @@ bool SqliteDataBase::addUser(const std::string& username, const std::string& pas
 	return true;
 }
 
-bool SqliteDataBase::addQ(std::string q, std::string a1, std::string a2, std::string a3, std::string a4)
+bool SqliteDataBase::addQuestions(std::string  q, std::string a1, std::string a2, std::string a3, std::string a4)
 {
-	std::string sqlStatementQ = "INSERT INTO Questions (question, c_answer1, w_answer2, w_answer3, w_answer4) VALUES ('" + q + "', '" + a1 + "', '" + a2 + "', '" + a3 + "', '" + a4 + "');";
+	std::string sqlStatementQuestions = "INSERT INTO Questions (question, c_answer1, w_answer2, w_answer3, w_answer4) VALUES ('" + q + "', '" + a1 + "', '" + a2 + "', '" + a3 + "', '" + a4 + "');";
 
 	char* err = nullptr;
-	int rc = sqlite3_exec(this->db, query.c_str(), nullptr, nullptr, &err);
-	if(rc != SQLITE_OK)
+	int rc = sqlite3_exec(this->db, sqlStatementQuestions.c_str(), nullptr, nullptr, &err);
+	if (rc != SQLITE_OK)
 	{
 		std::cerr << "SQL Error: " << err << std::endl;
 		sqlite3_free(err);
@@ -135,16 +159,3 @@ bool SqliteDataBase::addQ(std::string q, std::string a1, std::string a2, std::st
 
 	return false;
 }
-
-std::vector<std::tuple<std::string, std::string, std::string, std::string, std::string>> questions = {
-{"What is the capital of France?", "Paris", "London", "Berlin", "Madrid"},
-{"Which planet is known as the Red Planet?", "Mars", "Venus", "Jupiter", "Saturn"},
-{"What gas do plants absorb from the atmosphere?", "Carbon Dioxide", "Oxygen", "Nitrogen", "Hydrogen"},
-{"Who painted the Mona Lisa?", "Leonardo da Vinci", "Michelangelo", "Raphael", "Donatello"},
-{"What is the largest ocean on Earth?", "Pacific Ocean", "Atlantic Ocean", "Indian Ocean", "Arctic Ocean"},
-{"What is the hardest natural substance?", "Diamond", "Gold", "Iron", "Quartz"},
-{"Which element has the chemical symbol 'O'?", "Oxygen", "Osmium", "Oxide", "Organium"},
-{"In what year did World War II end?", "1945", "1939", "1940", "1942"},
-{"Which country invented paper?", "China", "Egypt", "Greece", "India"},
-{"What is the smallest prime number?", "2", "1", "3", "0"}
-};
