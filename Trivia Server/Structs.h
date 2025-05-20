@@ -38,6 +38,7 @@ enum class RequestCodes
 {
 	LOGIN_REQUEST = 20,
 	SIGNUP_REQUEST = 21,
+	LOGOUT_REQUEST = 29,
 	// Room-related request codes
 	GET_ROOMS_REQUEST = 22,
 	GET_PLAYERS_IN_ROOM_REQUEST = 23,
@@ -45,7 +46,7 @@ enum class RequestCodes
 	CREATE_ROOM_REQUEST = 25,
 	CLOSE_ROOM_REQUEST = 26,
 	GET_ROOM_STATE_REQUEST = 27,
-	LEAVE_ROOM_REQUEST = 28
+	LEAVE_ROOM_REQUEST = 28,
 	// More request codes can be added as needed in the future
 };
 
@@ -117,6 +118,11 @@ struct GetRoomStateRequest
 struct LeaveRoomRequest
 {
 	unsigned int roomId;
+};
+
+struct LogoutRequest
+{
+	// No additional data needed, username is handled by the handler
 };
 
 // Response structs

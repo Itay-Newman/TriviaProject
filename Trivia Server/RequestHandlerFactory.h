@@ -15,7 +15,7 @@ public:
     ~RequestHandlerFactory();
 
     LoginRequestHandler* createLoginRequestHandler();
-    MenuRequestHandler* createMenuRequestHandler();
+    MenuRequestHandler* createMenuRequestHandler(const std::string& username);
 
     LoginManager& getLoginManager();
     IDatabase& getDataBase();
