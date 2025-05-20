@@ -39,7 +39,7 @@ RequestResult LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 
 		if (loginResponse.status == -1)
 		{
-			response.newHandler = m_HandlerFactory.createMenuRequestHandler();
+			response.newHandler = m_HandlerFactory.createMenuRequestHandler(loginRequest.username);
 		}
 		else
 		{
@@ -56,7 +56,7 @@ RequestResult LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 
 		if (signupResponse.status == -1)
 		{
-			response.newHandler = m_HandlerFactory.createMenuRequestHandler();
+			response.newHandler = m_HandlerFactory.createMenuRequestHandler(signupRequest.username);
 		}
 		else
 		{
