@@ -6,14 +6,12 @@ RequestHandlerFactory::RequestHandlerFactory(IDatabase& database)
 {
     m_LoginManager = new LoginManager(database);
     m_RoomManager = new RoomManager();
-    m_StatisticsManager = new StatisticsManager(database);
 }
 
 RequestHandlerFactory::~RequestHandlerFactory()
 {
     delete m_LoginManager;
     delete m_RoomManager;
-    delete m_StatisticsManager;
 }
 
 LoginRequestHandler* RequestHandlerFactory::createLoginRequestHandler()
@@ -39,9 +37,4 @@ IDatabase& RequestHandlerFactory::getDataBase()
 RoomManager& RequestHandlerFactory::getRoomManager()
 {
     return *this->m_RoomManager;
-}
-
-StatisticsManager& RequestHandlerFactory::getStatisticsManager()
-{
-    return *this->m_StatisticsManager;
 }
