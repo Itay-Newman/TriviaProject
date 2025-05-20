@@ -1,5 +1,4 @@
 #include "JsonResponsePacketSerializer.h"
-#include <sstream>
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const ErrorResponse& response)
 {
@@ -48,21 +47,22 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetRoomsResponse& response)
 {
-	std::stringstream roomsStream;
-
-	for (size_t i = 0; i < response.rooms.size(); ++i)
-	{
-		roomsStream << response.rooms[i].name;
-		if (i < response.rooms.size() - 1)
-		{
-			roomsStream << ", ";
-		}
-	}
-
 	nlohmann::json j = {
 		{"status", response.status},
-		{"rooms", roomsStream.str()}
+		{"rooms", nlohmann::json::array()}
 	};
+
+	for (const auto& room : response.rooms)
+	{
+		j["rooms"].push_back({
+			{"id", room.id},
+			{"name", room.name},
+			{"maxPlayers", room.maxPlayers},
+			{"numOfQuestionsInGame", room.numOfQuestionsInGame},
+			{"timePerQuestion", room.timePerQuestion},
+			{"isActive", room.isActive}
+			});
+	}
 
 	std::string jsonString = j.dump();
 
@@ -71,19 +71,8 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetPlayersInRoomResponse& response)
 {
-	std::stringstream playersStream;
-
-	for (size_t i = 0; i < response.rooms.size(); ++i)
-	{
-		playersStream << response.rooms[i];
-		if (i < response.rooms.size() - 1)
-		{
-			playersStream << ", ";
-		}
-	}
-
 	nlohmann::json j = {
-		{"PlayersInRoom", playersStream.str()}
+		{"rooms", response.rooms}
 	};
 
 	std::string jsonString = j.dump();
@@ -115,21 +104,9 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetHighScoreResponse& response)
 {
-	std::stringstream highScoresStream;
-
-	for (size_t i = 0; i < response.statistics.size(); ++i)
-	{
-		highScoresStream << response.statistics[i];
-		if (i < response.statistics.size() - 1)
-		{
-			highScoresStream << ", ";
-		}
-	}
-
 	nlohmann::json j = {
 		{"status", response.status},
-		{"UserStatistics", ""},  // This will be filled by client
-		{"HighScores", highScoresStream.str()}
+		{"statistics", response.statistics}
 	};
 
 	std::string jsonString = j.dump();
@@ -139,21 +116,9 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetPersonalStatsResponse& response)
 {
-	// Combine statistics into a single string
-	std::stringstream statsStream;
-
-	for (size_t i = 0; i < response.statistics.size(); ++i)
-	{
-		statsStream << response.statistics[i];
-		if (i < response.statistics.size() - 1)
-		{
-			statsStream << ", ";
-		}
-	}
-
 	nlohmann::json j = {
 		{"status", response.status},
-		{"UserStatistics", statsStream.str()}
+		{"statistics", response.statistics}
 	};
 
 	std::string jsonString = j.dump();
