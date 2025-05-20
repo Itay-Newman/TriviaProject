@@ -143,6 +143,7 @@
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="sqlite3.c" />
     <ClCompile Include="SqliteDataBase.cpp" />
+    <ClCompile Include="statisticsManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="communicator.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="Server.h" />
     <ClInclude Include="sqlite3.h" />
     <ClInclude Include="SqliteDataBase.h" />
+    <ClInclude Include="statisticsManager.h" />
     <ClInclude Include="Structs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
