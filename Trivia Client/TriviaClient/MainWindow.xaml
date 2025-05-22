@@ -3,5 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Trivia Game" Height="450" Width="800" WindowStartupLocation="CenterScreen">
 
-    <Frame Name="MainFrame" NavigationUIVisibility="Hidden"/>
+    <Grid>
+        <Frame Name="MainFrame" NavigationUIVisibility="Hidden"/>
+
+        <MediaElement Name="BackgroundMusic"
+                      Source=".Sounds/otherside.mp3"
+                      LoadedBehavior="Play"
+                      UnloadedBehavior="Stop"
+                      MediaEnded="BackgroundMusic_MediaEnded"
+                      Volume="0.3"
+                      Visibility="Collapsed"/>
+    </Grid>
+
 </Window>

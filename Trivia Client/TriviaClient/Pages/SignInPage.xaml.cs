@@ -14,13 +14,6 @@ namespace TriviaClient
             InitializeComponent();
         }
 
-        private void BackgroundMusic_MediaEnded(object sender, RoutedEventArgs e)
-        {
-            // Restart the media playback
-            BackgroundMusic.Position = System.TimeSpan.Zero;
-            BackgroundMusic.Play();
-        }
-
         private void SignInButton_Click(object sender, RoutedEventArgs e)
         {
             // Add your sign-in logic here

@@ -1,32 +1,27 @@
 ﻿<Page x:Class="TriviaClient.SignUpPage"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TriviaClient"
-        mc:Ignorable="d"
-        Title="Trivia Game" Height="450" Width="800" Background="Black">
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:local="clr-namespace:TriviaClient"
+      xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+      mc:Ignorable="d"
+      Title="Trivia Game" Height="450" Width="800" Background="Black">
 
     <Grid>
-
-        <!-- Background Music -->
-        <MediaElement Name="BackgroundMusic" Source=".Sounds/otherside.mp3" LoadedBehavior="Play" UnloadedBehavior="Stop" MediaEnded="BackgroundMusic_MediaEnded" Volume="0.3" Visibility="Collapsed"/>
-
-        <!-- Background Image -->
         <Image Source="/Photos/download.jpeg" Stretch="Fill" Panel.ZIndex="0"/>
 
-        <!-- Content -->
         <Grid VerticalAlignment="Center" Panel.ZIndex="1">
             <TextBlock Text="Trivia" FontSize="48" FontWeight="Bold" Foreground="White" TextAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,20"/>
-
             <StackPanel HorizontalAlignment="Center" Margin="0,80,0,0" Width="300">
-                <TextBox x:Name="Username" Text="Username" Height="45" FontSize="24" TextAlignment="Left" Background="White" Foreground="Gray" Margin="0,0,0,10"/>
-                <TextBox x:Name="Password" Text="Password" Height="45" FontSize="24" TextAlignment="Left" Background="White" Foreground="Gray" Margin="0,0,0,10"/>
-                <TextBox x:Name="Email" Text="Email" Height="45" FontSize="24" TextAlignment="Left" Background="White" Foreground="Gray" Margin="0,0,0,10"/>
+                <xctk:WatermarkTextBox x:Name="Username" Watermark="Username" Height="45" FontSize="24" Margin="0,0,0,10"/>
+
+                <xctk:WatermarkTextBox x:Name="Password" Watermark="Password" Height="45" FontSize="24" Margin="0,0,0,10"/>
+
+                <xctk:WatermarkTextBox x:Name="Email" Watermark="Email" Height="45" FontSize="24" Margin="0,0,0,10"/>
 
                 <Button x:Name="SignUpButton" Content="Sign Up" Width="120" Height="45" FontSize="22" FontWeight="Bold" Background="Gray" Foreground="Black" Click="SignUpButton_Click"/>
             </StackPanel>
         </Grid>
-
     </Grid>
 </Page>

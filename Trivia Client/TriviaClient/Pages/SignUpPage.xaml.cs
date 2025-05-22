@@ -18,11 +18,5 @@ namespace TriviaClient
 
             MessageBox.Show($"Username: {username}\nPassword: {password}\nEmail: {email}", "Sign Up Info");
         }
-
-        private void BackgroundMusic_MediaEnded(object sender, RoutedEventArgs e)
-        {
-            BackgroundMusic.Position = TimeSpan.Zero;
-            BackgroundMusic.Play();
-        }
     }
 }

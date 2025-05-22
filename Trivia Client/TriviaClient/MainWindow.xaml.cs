@@ -9,5 +9,12 @@ namespace TriviaClient
             InitializeComponent();
             MainFrame.Navigate(new SignInPage());
         }
+
+        private void BackgroundMusic_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            BackgroundMusic.Position = TimeSpan.Zero;
+            BackgroundMusic.Play();
+        }
+
     }
 }
