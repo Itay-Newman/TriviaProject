@@ -22,7 +22,6 @@ namespace TriviaClient
 
         private void SignUpButton_Click(object sender, RoutedEventArgs e)
         {
-            // Navigate to the SignUpPage instead of calling Show()
             NavigationService.Navigate(new SignUpPage());
         }
     }
