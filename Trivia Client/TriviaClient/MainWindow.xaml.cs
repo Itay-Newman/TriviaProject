@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using TriviaClient.Pages;
 
 namespace TriviaClient
 {
@@ -7,7 +8,7 @@ namespace TriviaClient
         public MainWindow()
         {
             InitializeComponent();
-            MainFrame.Navigate(new SignInPage());
+            MainFrame.Navigate(new MainMenuPage());
         }
 
         private void BackgroundMusic_MediaEnded(object sender, RoutedEventArgs e)
