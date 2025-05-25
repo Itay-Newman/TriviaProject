@@ -37,7 +37,7 @@
             </Grid>
 
             <!-- Main dynamic content area -->
-            <ContentControl x:Name="MainContent" Grid.Column="1" Margin="20"/>
+            <Frame x:Name="MainContent" Grid.Column="1" Width="540" Height="410" Margin="20" NavigationUIVisibility="Hidden"/>
         </Grid>
     </Grid>
 </Page>

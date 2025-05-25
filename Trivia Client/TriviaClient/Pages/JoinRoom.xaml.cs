@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace TriviaClient.Pages
 {
@@ -23,6 +11,17 @@ namespace TriviaClient.Pages
         public JoinRoom()
         {
             InitializeComponent();
+        }
+
+        private void JoinRoom_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Join Room button clicked! Please enter the room details.");
+        }
+
+        private void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            // Logic to refresh the room list
+            MessageBox.Show("Room list refreshed!");
         }
     }
 }
