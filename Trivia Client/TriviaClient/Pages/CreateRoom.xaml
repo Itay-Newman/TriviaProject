@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:TriviaClient.Pages"
       xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="410" d:DesignWidth="540"
       Title="Create Room">
 
     <Grid Background="Black">
@@ -25,13 +25,13 @@
                        HorizontalAlignment="Center" Margin="0,20"/>
 
             <!-- Form with dark background -->
-            <Border Grid.Row="1" Background="#AA000000" CornerRadius="10" Padding="20" Margin="0,30,0,40" HorizontalAlignment="Center" Width="320">
+            <Border Grid.Row="1" Background="#AA000000" CornerRadius="10" Padding="20" Margin="0,30,0,20" HorizontalAlignment="Center" Width="320">
                 <StackPanel>
                     <xctk:WatermarkTextBox x:Name="RoomName" Height="40" FontSize="20" Margin="0,10" Watermark="Room Name"/>
                     <xctk:WatermarkTextBox x:Name="QuestionTime" Height="40" FontSize="20" Margin="0,10" Watermark="Time per Question (sec)"/>
                     <xctk:WatermarkTextBox x:Name="PlayerCount" Height="40" FontSize="20" Margin="0,10" Watermark="Max Players"/>
 
-                    <Button Content="Create" Height="45" FontSize="20" Margin="0,20,0,0" Click="CreateRoom_Click"/>
+                    <Button Content="Create" Height="45" FontSize="20" Margin="0,10,0,0" Click="CreateRoom_Click"/>
                 </StackPanel>
             </Border>
         </Grid>

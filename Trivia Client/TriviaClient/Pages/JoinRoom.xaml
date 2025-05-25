@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:TriviaClient.Pages"
       mc:Ignorable="d"
-      Title="Join Room" d:DesignHeight="450" d:DesignWidth="800">
+      Title="Join Room" d:DesignHeight="410" d:DesignWidth="540">
 
     <Grid Background="Black">
         <Image Source="/Photos/download.jpeg" Stretch="Fill" Panel.ZIndex="0"/>
