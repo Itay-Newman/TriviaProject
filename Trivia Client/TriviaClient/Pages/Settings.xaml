@@ -1,0 +1,23 @@
+﻿<Page x:Class="TriviaClient.Pages.Settings"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      mc:Ignorable="d" 
+      d:DesignHeight="410" d:DesignWidth="540"
+      Title="Settings">
+
+    <Grid Background="Transparent">
+        <Border Background="#AA000000" CornerRadius="10" Padding="20" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel>
+                <TextBlock Text="Volume" FontSize="24" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,10">
+                    <TextBlock Text="0%" Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <Slider x:Name="VolumeSlider" Minimum="0" Maximum="1" Value="0.5" TickFrequency="0.01" IsSnapToTickEnabled="True" SmallChange="0.01" LargeChange="0.05" Width="250" ValueChanged="VolumeSlider_ValueChanged"/>
+                    <TextBlock Text="100%" Foreground="White" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>
