@@ -23,10 +23,15 @@ namespace TriviaClient.Pages
             MainContent.Navigate(new JoinRoom());
         }
 
-        private void Statistics_Click(object sender, RoutedEventArgs e)
+        private void PersonalStats_Click(object sender, RoutedEventArgs e)
         {
             // Logic to view statistics
-            MessageBox.Show("Statistics button clicked!");
+            MainContent.Navigate(new PersonalStats());
+        }
+
+        private void Records_Click(object sender, RoutedEventArgs e)
+        {
+            MainContent.Navigate(new Records());
         }
 
         private void Settings_Click(object sender, RoutedEventArgs e)
