@@ -1,0 +1,24 @@
+﻿<Page x:Class="TriviaClient.Pages.Records"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TriviaClient.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="410" d:DesignWidth="540"
+      Title="Records">
+
+    <Grid Background="Transparent">
+        <Border Background="#AA000000" CornerRadius="10" Padding="20" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center" Height="227.683">
+            <StackPanel>
+                <TextBlock Text="Leaderboard" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+                <ListBox x:Name="LeaderBoard" FontSize="18" Background="#AA000000" Foreground="White" BorderThickness="0" Margin="0,0,0,0"/>
+                <ListBoxItem Content="1. SkullCrusher - 200 pts" Foreground="White"/>
+                <ListBoxItem Content="2. TriviaNinja - 180 pts" Foreground="White"/>
+                <ListBoxItem Content="3. QuizMaster - 165 pts" Foreground="White"/>
+                <ListBoxItem Content="4. Brainiac - 150 pts" Foreground="White"/>
+                <ListBoxItem Content="5. FactWizard - 140 pts" Foreground="White"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>
