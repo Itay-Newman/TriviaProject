@@ -5,9 +5,13 @@ namespace TriviaClient
 {
     public partial class MainWindow : Window
     {
+
+        public static MainWindow Instance;
+
         public MainWindow()
         {
             InitializeComponent();
+            Instance = this;
             MainFrame.Navigate(new MainMenuPage());
         }
 
@@ -17,5 +21,9 @@ namespace TriviaClient
             BackgroundMusic.Play();
         }
 
+        public void SetVolume(double volume)
+        {
+            BackgroundMusic.Volume = volume;
+        }
     }
 }

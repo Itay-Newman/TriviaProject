@@ -36,8 +36,7 @@ namespace TriviaClient.Pages
 
         private void Settings_Click(object sender, RoutedEventArgs e)
         {
-            // Logic to open settings
-            MessageBox.Show("Settings button clicked!");
+            MainContent.Navigate(new Settings());
         }
 
         private void ExitApp_Click(object sender, RoutedEventArgs e)
