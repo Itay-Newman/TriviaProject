@@ -15,7 +15,12 @@ namespace TriviaClient.Pages
 
         private void CreateRoom_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Room created successfully!");
+            // Ensure MainFrame is properly referenced
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            if (mainWindow != null)
+            {
+                mainWindow.MainFrame.Navigate(new RoomBeforeGame());
+            }
         }
     }
 }

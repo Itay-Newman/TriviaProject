@@ -15,7 +15,12 @@ namespace TriviaClient.Pages
 
         private void JoinRoom_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Join Room button clicked! Please enter the room details.");
+            // Ensure MainFrame is properly referenced
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            if (mainWindow != null)
+            {
+                mainWindow.MainFrame.Navigate(new RoomBeforeGame());
+            }
         }
 
         private void Refresh_Click(object sender, RoutedEventArgs e)
