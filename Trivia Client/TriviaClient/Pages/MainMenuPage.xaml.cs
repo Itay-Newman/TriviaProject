@@ -15,14 +15,12 @@ namespace TriviaClient.Pages
 
         private void CreateRoom_Click(object sender, RoutedEventArgs e)
         {
-            // Logic to create a new room
-            MessageBox.Show("Create Room button clicked!");
+            MainContent.Navigate(new CreateRoom());
         }
 
         private void JoinRoom_Click(object sender, RoutedEventArgs e)
         {
-            // Logic to join an existing room
-            MessageBox.Show("Join Room button clicked!");
+            MainContent.Navigate(new JoinRoom());
         }
 
         private void Statistics_Click(object sender, RoutedEventArgs e)
