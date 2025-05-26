@@ -21,7 +21,7 @@ LoginRequestHandler* RequestHandlerFactory::createLoginRequestHandler()
 
 MenuRequestHandler* RequestHandlerFactory::createMenuRequestHandler(const std::string& username)
 {
-    return new MenuRequestHandler(this->m_Database, this->m_LoginManager, this->m_RoomManager, this->m_StatisticsManager, username);
+    return new MenuRequestHandler(this->m_Database, this->m_LoginManager, this->m_RoomManager, this->m_statisticsManager, username);
 }
 
 LoginManager& RequestHandlerFactory::getLoginManager()
@@ -37,4 +37,9 @@ IDatabase& RequestHandlerFactory::getDataBase()
 RoomManager& RequestHandlerFactory::getRoomManager()
 {
     return *this->m_RoomManager;
+}
+
+StatisticsManager& RequestHandlerFactory::getStatisticsManager()
+{
+    return *this->m_statisticsManager;
 }

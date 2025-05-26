@@ -45,9 +45,6 @@
     <ClCompile Include="LoggedUser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MenuRequestHandler.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="MenuRequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -58,6 +55,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RoomManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="statisticsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -110,10 +110,10 @@
     <ClInclude Include="RoomManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="statisticsManager.h">
+    <ClInclude Include="MenuRequestHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MenuRequestHandler.h">
+    <ClInclude Include="statisticsManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
