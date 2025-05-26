@@ -23,11 +23,16 @@ namespace TriviaClient.Pages
         public Settings()
         {
             InitializeComponent();
+
+            double currentVolume = MainWindow.Instance?.GetVolume() ?? 0.5;
+            VolumeSlider.Value = currentVolume;
         }
 
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             MainWindow.Instance?.SetVolume(e.NewValue);
         }
+
+
     }
 }

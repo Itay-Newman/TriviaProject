@@ -14,7 +14,7 @@
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,10">
                     <TextBlock Text="0%" Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <Slider x:Name="VolumeSlider" Minimum="0" Maximum="1" Value="0.5" TickFrequency="0.01" IsSnapToTickEnabled="True" SmallChange="0.01" LargeChange="0.05" Width="250" ValueChanged="VolumeSlider_ValueChanged"/>
+                    <Slider x:Name="VolumeSlider" Minimum="0" Maximum="1" TickFrequency="0.01" IsSnapToTickEnabled="True" SmallChange="0.01" LargeChange="0.05" Width="250" ValueChanged="VolumeSlider_ValueChanged"/>
                     <TextBlock Text="100%" Foreground="White" VerticalAlignment="Center" Margin="10,0,0,0"/>
                 </StackPanel>
             </StackPanel>
