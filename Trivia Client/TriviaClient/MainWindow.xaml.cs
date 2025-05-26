@@ -25,5 +25,10 @@ namespace TriviaClient
         {
             BackgroundMusic.Volume = volume;
         }
+
+        public double GetVolume()
+        {
+            return BackgroundMusic.Volume;
+        }
     }
 }
