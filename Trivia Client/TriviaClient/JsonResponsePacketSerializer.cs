@@ -8,7 +8,9 @@ namespace TriviaClient
         public static LoginResponse DeserializeLoginResponse(byte[] buffer)
         {
             string jsonStr = Encoding.UTF8.GetString(buffer);
+
             var json = JObject.Parse(jsonStr);
+
 
             return new LoginResponse
             {
@@ -323,7 +325,7 @@ namespace TriviaClient
 
             return new ErrorResponse
             {
-                Status = (ResponseCode)json["status"].Value<int>(),
+                Status = (ResponseCode)json["status"].Value<int>(), // Cast status to enum type
                 Message = json["message"].Value<string>()
             };
         }
