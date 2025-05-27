@@ -7,7 +7,7 @@
         <Frame Name="MainFrame" NavigationUIVisibility="Hidden"/>
 
         <MediaElement Name="BackgroundMusic"
-                      Source="Sounds/otherside.mp3"
+                      Source=".Sounds/otherside.mp3"
                       LoadedBehavior="Play"
                       UnloadedBehavior="Stop"
                       MediaEnded="BackgroundMusic_MediaEnded"
