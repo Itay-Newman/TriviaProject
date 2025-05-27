@@ -92,7 +92,7 @@ namespace TriviaClient
             return Encoding.UTF8.GetBytes(json);
         }
 
-        // For requests that don't need data (just message codes)
+        // Returns an empty byte array for requests that don't require data
         public static byte[] SerializeEmptyRequest()
         {
             return new byte[0];
