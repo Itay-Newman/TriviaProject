@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json;
+﻿using System.Text;
 using Newtonsoft.Json.Linq;
 
 namespace TriviaClient
@@ -118,9 +115,15 @@ namespace TriviaClient
             string jsonStr = Encoding.UTF8.GetString(buffer);
             var json = JObject.Parse(jsonStr);
 
+            int statusValue = json["status"].Value<int>();
+            if (statusValue < 0)
+            {
+                throw new InvalidOperationException($"Server returned error status: {statusValue}");
+            }
+
             return new CreateRoomResponse
             {
-                Status = json["status"].Value<uint>()
+                Status = (uint)statusValue
             };
         }
 

@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace TriviaClient.Pages
@@ -13,20 +13,67 @@ namespace TriviaClient.Pages
             InitializeComponent();
         }
 
-        private void JoinRoom_Click(object sender, RoutedEventArgs e)
+        private async void JoinRoom_Click(object sender, RoutedEventArgs e)
         {
-            // Ensure MainFrame is properly referenced
-            var mainWindow = Application.Current.MainWindow as MainWindow;
-            if (mainWindow != null)
+            if (RoomsList.SelectedItem is RoomData selectedRoom)
             {
-                mainWindow.MainFrame.Navigate(new RoomBeforeGame());
+                var request = new JoinRoomRequest { RoomId = selectedRoom.Id };
+                byte[] requestData = JsonRequestPacketSerializer.SerializeJoinRoomRequest(request);
+                byte joinRoomCode = 24;
+
+                var communicator = ClientCommunicator.Instance;
+                if (!await communicator.ConnectAsync())
+                {
+                    MessageBox.Show("Failed to connect to server.");
+                    return;
+                }
+
+                await communicator.SendRequestAsync(joinRoomCode, requestData);
+                var (responseCode, responseBody) = await communicator.ReadResponseAsync();
+
+                var joinRoomResponse = JsonResponsePacketDeserializer.DeserializeJoinRoomResponse(responseBody);
+
+                if (joinRoomResponse.Status == 1)
+                {
+                    MessageBox.Show("Joined room successfully!");
+                    // Optionally navigate to the room lobby
+                }
+                else
+                {
+                    MessageBox.Show("Failed to join room.");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a room to join.");
             }
         }
 
-        private void Refresh_Click(object sender, RoutedEventArgs e)
+        private async void Refresh_Click(object sender, RoutedEventArgs e)
         {
-            // Logic to refresh the room list
-            MessageBox.Show("Room list refreshed!");
+            byte getRoomsCode = 22; 
+
+            var communicator = ClientCommunicator.Instance;
+            if (!await communicator.ConnectAsync())
+            {
+                MessageBox.Show("Failed to connect to server.");
+                return;
+            }
+
+            await communicator.SendRequestAsync(getRoomsCode, JsonRequestPacketSerializer.SerializeEmptyRequest());
+            var (responseCode, responseBody) = await communicator.ReadResponseAsync();
+
+            var getRoomsResponse = JsonResponsePacketDeserializer.DeserializeGetRoomsResponse(responseBody);
+
+            if (getRoomsResponse.Status == 1)
+            {
+                // Bind the room list to your UI
+                RoomsList.ItemsSource = getRoomsResponse.Rooms;
+            }
+            else
+            {
+                MessageBox.Show("Failed to fetch room list.");
+            }
         }
     }
 }

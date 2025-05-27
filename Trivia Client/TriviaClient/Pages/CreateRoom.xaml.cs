@@ -13,13 +13,44 @@ namespace TriviaClient.Pages
             InitializeComponent();
         }
 
-        private void CreateRoom_Click(object sender, RoutedEventArgs e)
+        private async void CreateRoom_Click(object sender, RoutedEventArgs e)
         {
-            // Ensure MainFrame is properly referenced
-            var mainWindow = Application.Current.MainWindow as MainWindow;
-            if (mainWindow != null)
+            string roomName = RoomName.Text;
+            uint maxUsers = uint.Parse(PlayerCount.Text);
+            uint questionCount = uint.Parse(QuestionCount.Text);
+            uint answerTimeout = uint.Parse(QuestionTime.Text);
+
+            var request = new CreateRoomRequest
             {
-                mainWindow.MainFrame.Navigate(new RoomBeforeGame());
+                RoomName = roomName,
+                MaxUsers = maxUsers,
+                QuestionCount = questionCount,
+                AnswerTimeout = answerTimeout
+            };
+
+            byte[] requestData = JsonRequestPacketSerializer.SerializeCreateRoomRequest(request);
+            byte createRoomCode = 25;
+
+            var communicator = ClientCommunicator.Instance;
+            if (!await communicator.ConnectAsync())
+            {
+                MessageBox.Show("Failed to connect to server.");
+                return;
+            }
+
+            await communicator.SendRequestAsync(createRoomCode, requestData);
+            var (responseCode, responseBody) = await communicator.ReadResponseAsync();
+
+            var createRoomResponse = JsonResponsePacketDeserializer.DeserializeCreateRoomResponse(responseBody);
+
+            if (createRoomResponse.Status == 1)
+            {
+                MessageBox.Show("Room created successfully!");
+                // Optionally navigate to the room lobby
+            }
+            else
+            {
+                MessageBox.Show("Failed to create room.");
             }
         }
     }
