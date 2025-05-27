@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace TriviaClient.Pages
@@ -19,7 +19,7 @@ namespace TriviaClient.Pages
             {
                 var request = new JoinRoomRequest { RoomId = selectedRoom.Id };
                 byte[] requestData = JsonRequestPacketSerializer.SerializeJoinRoomRequest(request);
-                byte joinRoomCode = 4; // Replace with your actual code
+                byte joinRoomCode = 24;
 
                 var communicator = ClientCommunicator.Instance;
                 if (!await communicator.ConnectAsync())
