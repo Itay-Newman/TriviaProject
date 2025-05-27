@@ -54,7 +54,7 @@ RequestResult LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 		const SignupRequest signupRequest = JsonRequestPacketDeserializer::deserializeSignupRequest(requestInfo.buffer);
 		const SignupResponse signupResponse{ m_LoginManager.signUp(signupRequest.username, signupRequest.password, signupRequest.email) };
 
-		if (signupResponse.status == -1)
+		if (signupResponse.status == 1)
 		{
 			response.newHandler = m_HandlerFactory.createMenuRequestHandler(signupRequest.username);
 		}

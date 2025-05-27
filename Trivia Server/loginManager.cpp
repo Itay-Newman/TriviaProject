@@ -18,7 +18,7 @@ int LoginManager::signUp(const std::string& username, const std::string& passwor
 		std::cout << "User already exists" << std::endl;
 		return USER_ALREADY_EXISTS;
 	}
-	
+
 	if (this->m_Database.addUser(username, password, email))
 	{
 		std::cout << "User added successfully" << std::endl;

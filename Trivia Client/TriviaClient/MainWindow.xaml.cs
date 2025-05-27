@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Windows;
-using TriviaClient.Pages;
+﻿using System.Windows;
 
 namespace TriviaClient
 {
@@ -16,7 +13,7 @@ namespace TriviaClient
 
             _ = InitializeConnectionAsync();
 
-            MainFrame.Navigate(new MainMenuPage());
+            MainFrame.Navigate(new SignInPage());
         }
 
         private async Task InitializeConnectionAsync()
