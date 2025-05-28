@@ -17,6 +17,7 @@ bool MenuRequestHandler::isRequestRelevant(const RequestInfo& requestInfo)
 			code == static_cast<unsigned char>(RequestCodes::GET_ROOMS_REQUEST) ||
 			code == static_cast<unsigned char>(RequestCodes::GET_PLAYERS_IN_ROOM_REQUEST) ||
 			code == static_cast<unsigned char>(RequestCodes::JOIN_ROOM_REQUEST) ||
+			code == static_cast<unsigned char>(RequestCodes::GET_STATISTICS_REQUEST) ||
 			code == static_cast<unsigned char>(RequestCodes::LOGOUT_REQUEST);
 	}
 	return false;
@@ -39,6 +40,8 @@ RequestResult MenuRequestHandler::handleRequest(const RequestInfo& requestInfo)
 			return handleGetPlayersInRoomRequest(requestInfo);
 		case RequestCodes::JOIN_ROOM_REQUEST:
 			return handleJoinRoomRequest(requestInfo);
+		case RequestCodes::GET_STATISTICS_REQUEST:
+			return handleGetStatisticsRequest(requestInfo);
 		case RequestCodes::LOGOUT_REQUEST:
 			return handleLogoutRequest(requestInfo);
 		default:
@@ -102,7 +105,7 @@ RequestResult MenuRequestHandler::handleCreateRoomRequest(const RequestInfo& req
 
 		// Prepare the response
 		CreateRoomResponse response;
-		response.status = 1; // Success
+		response.status = (unsigned int)Status::SUCCESS;
 
 		// Serialize the response
 		RequestResult result;
@@ -136,7 +139,7 @@ RequestResult MenuRequestHandler::handleGetRoomsRequest(const RequestInfo& reque
 		std::vector<RoomData> rooms = m_roomManager->getRooms();
 
 		GetRoomsResponse response;
-		response.status = 1;
+		response.status = (unsigned int)Status::SUCCESS;
 		response.rooms = rooms;
 
 		RequestResult result;
@@ -174,7 +177,7 @@ RequestResult MenuRequestHandler::handleGetPlayersInRoomRequest(const RequestInf
 
 		// Prepare the response
 		GetPlayersInRoomResponse response;
-		response.rooms = users;
+		response.users = users;
 
 		// Serialize the response
 		RequestResult result;
@@ -212,7 +215,7 @@ RequestResult MenuRequestHandler::handleJoinRoomRequest(const RequestInfo& reque
 
 		// Prepare the response
 		JoinRoomResponse response;
-		response.status = success ? 1 : 0;
+		response.status = success ? (unsigned int)Status::SUCCESS : (unsigned int)Status::FAILURE;
 
 		// Serialize the response
 		RequestResult result;
@@ -260,7 +263,7 @@ RequestResult MenuRequestHandler::handleGetStatisticsRequest(const RequestInfo& 
 
 		// Prepare the response
 		GetHighScoreResponse response;
-		response.status = 1; // Success
+		response.status = (unsigned int)Status::SUCCESS;
 
 		// Add high scores
 		statistics.push_back("\nHigh Scores:");
@@ -303,7 +306,7 @@ RequestResult MenuRequestHandler::handleLogoutRequest(const RequestInfo& request
 
 		// Prepare the response
 		LogoutResponse response;
-		response.status = 1; // Assuming success since logOut doesn't return a status
+		response.status = (unsigned int)Status::SUCCESS; // Assuming success since logOut doesn't return a status
 
 		// Serialize the response
 		RequestResult result;

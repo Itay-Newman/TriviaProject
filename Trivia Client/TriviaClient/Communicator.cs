@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace TriviaClient
 {
@@ -28,20 +29,20 @@ namespace TriviaClient
         public async Task<bool> ConnectAsync()
         {
             try
-            {             
+            {
                 if (IsConnected)
                     return true;
 
                 _client = new TcpClient();
                 await _client.ConnectAsync(SERVER_IP, SERVER_PORT);
-               
+
                 _stream = _client.GetStream();
                 return true;
             }
-            
+
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] ConnectAsync failed: {ex.Message}");
+                MessageBox.Show($"[ERROR] ConnectAsync failed: {ex.Message}", "Error");
                 return false;
             }
         }
@@ -59,10 +60,10 @@ namespace TriviaClient
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(sizeBytes);
 
-            byte[] finalBuffer = new byte[1 + 4 + messageBody.Length];
+            byte[] finalBuffer = new byte[1 + 4 + messageBody.Length]; // 1 byte for message code, 4 bytes for size, and the rest for the message body
             finalBuffer[0] = messageCode;
-            Array.Copy(sizeBytes, 0, finalBuffer, 1, 4);
-            Array.Copy(messageBody, 0, finalBuffer, 5, messageBody.Length);
+            Array.Copy(sizeBytes, 0, finalBuffer, 1, 4); // Copying the size bytes into the final buffer starting from index 1
+            Array.Copy(messageBody, 0, finalBuffer, 5, messageBody.Length); // Copying the message body into the final buffer starting from index 5
 
             // Write the buffer to the network stream
             await _stream.WriteAsync(finalBuffer, 0, finalBuffer.Length);
@@ -122,7 +123,7 @@ namespace TriviaClient
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] Disconnect failed: {ex.Message}");
+                MessageBox.Show($"[ERROR] Disconnect failed: {ex.Message}", "Error");
             }
         }
     }

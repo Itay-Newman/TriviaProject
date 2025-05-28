@@ -8,7 +8,11 @@
 class IRequestHandler;
 // All structs needed for JsonResponsePacketSerializer and JsonRequestPacketDeserializer
 
-// There are only 2 statuses: 1 - success, 0 - fail
+enum class Status
+{
+	SUCCESS = 1, // Operation was successful
+	FAILURE = 0, // Operation failed
+};
 
 enum class ResponseCode
 {
@@ -48,6 +52,7 @@ enum class RequestCodes
 	GET_ROOM_STATE_REQUEST = 27,
 	LEAVE_ROOM_REQUEST = 28,
 	// More request codes can be added as needed in the future
+	GET_STATISTICS_REQUEST = 30
 };
 
 struct RoomData
@@ -149,7 +154,7 @@ struct GetRoomsResponse
 
 struct GetPlayersInRoomResponse
 {
-	std::vector<std::string> rooms;
+	std::vector<std::string> users;
 };
 
 struct GetHighScoreResponse

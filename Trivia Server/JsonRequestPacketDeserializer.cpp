@@ -1,70 +1,72 @@
 #include "JsonRequestPacketDeserializer.h"
 
+json JsonRequestPacketDeserializer::parseJson(const std::vector<unsigned char>& buffer)
+{
+	std::string jsonStr(buffer.begin(), buffer.end());
+	return json::parse(jsonStr);
+}
+
 LoginRequest JsonRequestPacketDeserializer::deserializeLoginRequest(const std::vector<unsigned char>& buffer)
 {
-	LoginRequest loginRequest;
+	auto j = parseJson(buffer);
 
-	// Parse the JSON from the buffer
-	std::string jsonStr(buffer.begin(), buffer.end());
-	nlohmann::json j = nlohmann::json::parse(jsonStr);
-
-	loginRequest.username = j.at("username");
-	loginRequest.password = j.at("password");
-
-	return loginRequest;
+	return LoginRequest{
+		j.at("Username").get<std::string>(),
+		j.at("Password").get<std::string>()
+	};
 }
 
 SignupRequest JsonRequestPacketDeserializer::deserializeSignupRequest(const std::vector<unsigned char>& buffer)
 {
-	SignupRequest signupRequest;
+	auto j = parseJson(buffer);
 
-	// Parse the JSON from the buffer
-	std::string jsonStr(buffer.begin(), buffer.end());
-	nlohmann::json j = nlohmann::json::parse(jsonStr);
-
-	// Extract fields from JSON to the struct
-	signupRequest.username = j["username"];
-	signupRequest.password = j["password"];
-	signupRequest.email = j["email"];
-
-	return signupRequest;
+	return SignupRequest{
+		j.at("Username").get<std::string>(),
+		j.at("Password").get<std::string>(),
+		j.at("Email").get<std::string>()
+	};
 }
 
-GetPlayersInRoomRequest JsonRequestPacketDeserializer::deserializeGetPlayersInRoomRequest(const std::vector<unsigned char>& buffer) const
+GetPlayersInRoomRequest JsonRequestPacketDeserializer::deserializeGetPlayersInRoomRequest(const std::vector<unsigned char>& buffer)
 {
-	GetPlayersInRoomRequest getPlayersRequest;
+	auto j = parseJson(buffer);
 
-	std::string jsonStr(buffer.begin(), buffer.end());
-	nlohmann::json j = nlohmann::json::parse(jsonStr);
-
-	getPlayersRequest.roomId = j["roomId"];
-
-	return getPlayersRequest;
+	return GetPlayersInRoomRequest{
+		j.at("roomId").get<unsigned int>()
+	};
 }
 
-JoinRoomRequest JsonRequestPacketDeserializer::deserializeJoinRoomRequest(const std::vector<unsigned char>& buffer) const
+JoinRoomRequest JsonRequestPacketDeserializer::deserializeJoinRoomRequest(const std::vector<unsigned char>& buffer)
 {
-	JoinRoomRequest joinRoomRequest;
+	auto j = parseJson(buffer);
 
-	std::string jsonStr(buffer.begin(), buffer.end());
-	nlohmann::json j = nlohmann::json::parse(jsonStr);
-
-	joinRoomRequest.roomId = j["roomId"];
-
-	return joinRoomRequest;
+	return JoinRoomRequest{
+		j.at("roomId").get<unsigned int>()
+	};
 }
 
-CreateRoomRequest JsonRequestPacketDeserializer::deserializeCreateRoomRequest(const std::vector<unsigned char>& buffer) const
+CreateRoomRequest JsonRequestPacketDeserializer::deserializeCreateRoomRequest(const std::vector<unsigned char>& buffer)
 {
-	CreateRoomRequest createRoomRequest;
+	auto j = parseJson(buffer);
 
-	std::string jsonStr(buffer.begin(), buffer.end());
-	nlohmann::json j = nlohmann::json::parse(jsonStr);
+	return CreateRoomRequest{
+		j.at("roomName").get<std::string>(),
+		j.at("maxUsers").get<unsigned int>(),
+		j.at("questionCount").get<unsigned int>(),
+		j.at("answerTimeout").get<unsigned int>()
+	};
+}
 
-	createRoomRequest.roomName = j["roomName"];
-	createRoomRequest.maxUsers = j["maxUsers"];
-	createRoomRequest.questionCount = j["questionCount"];
-	createRoomRequest.answerTimeout = j["answerTimeout"];
-
-	return createRoomRequest;
+bool JsonRequestPacketDeserializer::isRequestWithNoData(unsigned int requestCode)
+{
+	// List request codes that don't need parsing of extra data
+	switch (requestCode)
+	{
+	case 6:  // GET_HIGH_SCORE_REQUEST
+	case 29: // LOGOUT_REQUEST
+	case 22: // GET_ROOMS_REQUEST
+		return true;
+	default:
+		return false;
+	}
 }
