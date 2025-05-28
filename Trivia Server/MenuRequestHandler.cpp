@@ -102,7 +102,7 @@ RequestResult MenuRequestHandler::handleCreateRoomRequest(const RequestInfo& req
 
 		// Prepare the response
 		CreateRoomResponse response;
-		response.status = 1; // Success
+		response.status = (unsigned int)Status::FAILURE;
 
 		// Serialize the response
 		RequestResult result;
@@ -136,7 +136,7 @@ RequestResult MenuRequestHandler::handleGetRoomsRequest(const RequestInfo& reque
 		std::vector<RoomData> rooms = m_roomManager->getRooms();
 
 		GetRoomsResponse response;
-		response.status = 1;
+		response.status = (unsigned int)Status::SUCCESS;
 		response.rooms = rooms;
 
 		RequestResult result;
@@ -212,7 +212,7 @@ RequestResult MenuRequestHandler::handleJoinRoomRequest(const RequestInfo& reque
 
 		// Prepare the response
 		JoinRoomResponse response;
-		response.status = success ? 1 : 0;
+		response.status = success ? (unsigned int)Status::SUCCESS : (unsigned int)Status::FAILURE;
 
 		// Serialize the response
 		RequestResult result;
@@ -260,7 +260,7 @@ RequestResult MenuRequestHandler::handleGetStatisticsRequest(const RequestInfo& 
 
 		// Prepare the response
 		GetHighScoreResponse response;
-		response.status = 1; // Success
+		response.status = (unsigned int)Status::SUCCESS; // Success
 
 		// Add high scores
 		statistics.push_back("\nHigh Scores:");
@@ -303,7 +303,7 @@ RequestResult MenuRequestHandler::handleLogoutRequest(const RequestInfo& request
 
 		// Prepare the response
 		LogoutResponse response;
-		response.status = 1; // Assuming success since logOut doesn't return a status
+		response.status = (unsigned int)Status::SUCCESS; // Assuming success since logOut doesn't return a status
 
 		// Serialize the response
 		RequestResult result;

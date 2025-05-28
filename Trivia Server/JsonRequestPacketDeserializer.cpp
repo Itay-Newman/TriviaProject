@@ -23,9 +23,9 @@ SignupRequest JsonRequestPacketDeserializer::deserializeSignupRequest(const std:
 	nlohmann::json j = nlohmann::json::parse(jsonStr);
 
 	// Extract fields from JSON to the struct
-	signupRequest.username = j["username"];
-	signupRequest.password = j["password"];
-	signupRequest.email = j["email"];
+	signupRequest.username = j.at("username");
+	signupRequest.password = j.at("password");
+	signupRequest.email = j.at("email");
 
 	return signupRequest;
 }
@@ -37,7 +37,7 @@ GetPlayersInRoomRequest JsonRequestPacketDeserializer::deserializeGetPlayersInRo
 	std::string jsonStr(buffer.begin(), buffer.end());
 	nlohmann::json j = nlohmann::json::parse(jsonStr);
 
-	getPlayersRequest.roomId = j["roomId"];
+	getPlayersRequest.roomId = j.at("roomId");
 
 	return getPlayersRequest;
 }
@@ -49,7 +49,7 @@ JoinRoomRequest JsonRequestPacketDeserializer::deserializeJoinRoomRequest(const 
 	std::string jsonStr(buffer.begin(), buffer.end());
 	nlohmann::json j = nlohmann::json::parse(jsonStr);
 
-	joinRoomRequest.roomId = j["roomId"];
+	joinRoomRequest.roomId = j.at("roomId");
 
 	return joinRoomRequest;
 }
@@ -61,10 +61,10 @@ CreateRoomRequest JsonRequestPacketDeserializer::deserializeCreateRoomRequest(co
 	std::string jsonStr(buffer.begin(), buffer.end());
 	nlohmann::json j = nlohmann::json::parse(jsonStr);
 
-	createRoomRequest.roomName = j["roomName"];
-	createRoomRequest.maxUsers = j["maxUsers"];
-	createRoomRequest.questionCount = j["questionCount"];
-	createRoomRequest.answerTimeout = j["answerTimeout"];
+	createRoomRequest.roomName = j.at("roomName");
+	createRoomRequest.maxUsers = j.at("maxUsers");
+	createRoomRequest.questionCount = j.at("questionCount");
+	createRoomRequest.answerTimeout = j.at("answerTimeout");
 
 	return createRoomRequest;
 }

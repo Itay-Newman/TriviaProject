@@ -8,7 +8,11 @@
 class IRequestHandler;
 // All structs needed for JsonResponsePacketSerializer and JsonRequestPacketDeserializer
 
-// There are only 2 statuses: 1 - success, 0 - fail
+enum class Status
+{
+	SUCCESS = 1, // Operation was successful
+	FAILURE = 0, // Operation failed
+};
 
 enum class ResponseCode
 {
