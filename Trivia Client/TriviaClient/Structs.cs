@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace TriviaClient
+﻿namespace TriviaClient
 {
     public enum StatusCode
     {
@@ -44,7 +41,8 @@ namespace TriviaClient
         CREATE_ROOM_REQUEST = 25,
         CLOSE_ROOM_REQUEST = 26,
         GET_ROOM_STATE_REQUEST = 27,
-        LEAVE_ROOM_REQUEST = 28
+        LEAVE_ROOM_REQUEST = 28,
+        GET_STATISTICS_REQUEST = 30
     }
 
     // Data structures

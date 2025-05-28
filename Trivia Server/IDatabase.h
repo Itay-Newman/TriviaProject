@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 
 class IDatabase
 {
@@ -8,6 +9,7 @@ public:
 	virtual bool doesUserExist(const std::string& name) const = 0;
 	virtual bool doesPasswordMatch(const std::string& name, const std::string& password) const = 0;
 	virtual bool addUser(const std::string& name, const std::string& password, const std::string& email) const = 0;
+	virtual std::vector<std::string> getAllUsernames() const = 0;
 
 	// Statistics methods
 	virtual double getPlayerAverageAnswerTime(const std::string& username) const = 0;

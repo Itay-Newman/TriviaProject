@@ -21,8 +21,9 @@ public:
 
 	bool isRequestRelevant(const RequestInfo& requestInfo) override;
 	RequestResult handleRequest(const RequestInfo& requestInfo) override;
+
 private:
-	LoginManager& m_LoginManager;
-	RequestHandlerFactory& m_HandlerFactory;
+	LoginManager& m_loginManager;
+	RequestHandlerFactory& m_handlerFactory;
 	IDatabase& m_database;
 };

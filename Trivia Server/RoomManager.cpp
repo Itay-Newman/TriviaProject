@@ -1,5 +1,6 @@
 #include "RoomManager.h"
 #include "Room.h"
+#include <iostream>
 
 RoomManager::RoomManager() : m_nextRoomId(1)
 {
@@ -7,22 +8,17 @@ RoomManager::RoomManager() : m_nextRoomId(1)
 
 RoomManager::~RoomManager()
 {
-	// Clean up all rooms
-	m_rooms.clear();
+	this->m_rooms.clear();
 }
 
 unsigned int RoomManager::createRoom(const std::string& creator, const std::string& roomName, unsigned int maxPlayers,
 	unsigned int numOfQuestionsInGame, unsigned int timePerQuestion)
 {
-	// Create a new room
-	Room room = Room(m_nextRoomId, roomName, maxPlayers, numOfQuestionsInGame, timePerQuestion, creator);
+	Room room(this->m_nextRoomId, roomName, maxPlayers, numOfQuestionsInGame, timePerQuestion, creator);
+	this->m_rooms.insert({ this->m_nextRoomId, room });
 
-	// Add the room to the map
-	m_rooms.insert({ m_nextRoomId, room });
-
-	// Increment the next room ID
-	unsigned int currentRoomId = m_nextRoomId;
-	m_nextRoomId++;
+	unsigned int currentRoomId = this->m_nextRoomId;
+	this->m_nextRoomId++;
 
 	std::cout << "Room " << roomName << " created with ID " << currentRoomId << " by " << creator << std::endl;
 	return currentRoomId;
@@ -30,11 +26,10 @@ unsigned int RoomManager::createRoom(const std::string& creator, const std::stri
 
 bool RoomManager::deleteRoom(unsigned int roomId)
 {
-	// Find the room
-	auto it = m_rooms.find(roomId);
-	if (it != m_rooms.end())
+	auto it = this->m_rooms.find(roomId);
+	if (it != this->m_rooms.end())
 	{
-		m_rooms.erase(it);
+		this->m_rooms.erase(it);
 		std::cout << "Room " << roomId << " deleted" << std::endl;
 		return true;
 	}
@@ -45,24 +40,20 @@ bool RoomManager::deleteRoom(unsigned int roomId)
 
 RoomState RoomManager::getRoomState(unsigned int roomId) const
 {
-	// Find the room
-	auto it = m_rooms.find(roomId);
-	if (it != m_rooms.end())
+	auto it = this->m_rooms.find(roomId);
+	if (it != this->m_rooms.end())
 	{
-		Room room = it->second;
+		const Room& room = it->second;
 
-		// Check if the room is active
 		if (!room.getIsActive())
 		{
 			return RoomState::CLOSED;
 		}
 
-		// For now, we'll assume that if the room is active and has users, it's in the waiting state
-		// Later, you can add game state checks here
+		// TODO: implement better game state checks
 		return RoomState::WAITING_FOR_PLAYERS;
 	}
 
-	// Room not found, return closed state
 	return RoomState::CLOSED;
 }
 
@@ -70,12 +61,9 @@ std::vector<RoomData> RoomManager::getRooms() const
 {
 	std::vector<RoomData> roomsData;
 
-	// Convert all active rooms to RoomData structs
-	for (const auto& pair : m_rooms)
+	for (const auto& pair : this->m_rooms)
 	{
-		Room room = pair.second;
-
-		// Only include active rooms
+		const Room& room = pair.second;
 		if (room.getIsActive())
 		{
 			RoomData data;
@@ -95,8 +83,8 @@ std::vector<RoomData> RoomManager::getRooms() const
 
 std::optional<std::reference_wrapper<Room>> RoomManager::getRoom(unsigned int roomId)
 {
-	auto it = m_rooms.find(roomId);
-	if (it != m_rooms.end())
+	auto it = this->m_rooms.find(roomId);
+	if (it != this->m_rooms.end())
 	{
 		return it->second;
 	}
@@ -106,7 +94,7 @@ std::optional<std::reference_wrapper<Room>> RoomManager::getRoom(unsigned int ro
 
 bool RoomManager::addUserToRoom(unsigned int roomId, const std::string& username)
 {
-	auto maybeRoom = getRoom(roomId);
+	auto maybeRoom = this->getRoom(roomId);
 	if (maybeRoom)
 	{
 		return maybeRoom->get().addUser(username);
@@ -118,7 +106,7 @@ bool RoomManager::addUserToRoom(unsigned int roomId, const std::string& username
 
 bool RoomManager::removeUserFromRoom(unsigned int roomId, const std::string& username)
 {
-	auto maybeRoom = getRoom(roomId);
+	auto maybeRoom = this->getRoom(roomId);
 	if (maybeRoom)
 	{
 		return maybeRoom->get().removeUser(username);
@@ -130,24 +118,22 @@ bool RoomManager::removeUserFromRoom(unsigned int roomId, const std::string& use
 
 std::vector<std::string> RoomManager::getUsersInRoom(unsigned int roomId) const
 {
-	auto it = m_rooms.find(roomId);
-	if (it != m_rooms.end())
+	auto it = this->m_rooms.find(roomId);
+	if (it != this->m_rooms.end())
 	{
 		return it->second.getAllUsers();
 	}
 
-	// Return empty vector if room not found
-	return std::vector<std::string>();
+	return {};
 }
 
 bool RoomManager::isRoomActive(unsigned int roomId) const
 {
-	auto it = m_rooms.find(roomId);
-	if (it != m_rooms.end())
+	auto it = this->m_rooms.find(roomId);
+	if (it != this->m_rooms.end())
 	{
 		return it->second.getIsActive();
 	}
 
-	// Room not found, return false
 	return false;
 }

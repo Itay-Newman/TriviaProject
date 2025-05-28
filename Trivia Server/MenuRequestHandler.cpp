@@ -17,6 +17,7 @@ bool MenuRequestHandler::isRequestRelevant(const RequestInfo& requestInfo)
 			code == static_cast<unsigned char>(RequestCodes::GET_ROOMS_REQUEST) ||
 			code == static_cast<unsigned char>(RequestCodes::GET_PLAYERS_IN_ROOM_REQUEST) ||
 			code == static_cast<unsigned char>(RequestCodes::JOIN_ROOM_REQUEST) ||
+			code == static_cast<unsigned char>(RequestCodes::GET_STATISTICS_REQUEST) ||
 			code == static_cast<unsigned char>(RequestCodes::LOGOUT_REQUEST);
 	}
 	return false;
@@ -39,6 +40,8 @@ RequestResult MenuRequestHandler::handleRequest(const RequestInfo& requestInfo)
 			return handleGetPlayersInRoomRequest(requestInfo);
 		case RequestCodes::JOIN_ROOM_REQUEST:
 			return handleJoinRoomRequest(requestInfo);
+		case RequestCodes::GET_STATISTICS_REQUEST:
+			return handleGetStatisticsRequest(requestInfo);
 		case RequestCodes::LOGOUT_REQUEST:
 			return handleLogoutRequest(requestInfo);
 		default:
@@ -102,7 +105,7 @@ RequestResult MenuRequestHandler::handleCreateRoomRequest(const RequestInfo& req
 
 		// Prepare the response
 		CreateRoomResponse response;
-		response.status = (unsigned int)Status::FAILURE;
+		response.status = (unsigned int)Status::SUCCESS;
 
 		// Serialize the response
 		RequestResult result;
@@ -174,7 +177,7 @@ RequestResult MenuRequestHandler::handleGetPlayersInRoomRequest(const RequestInf
 
 		// Prepare the response
 		GetPlayersInRoomResponse response;
-		response.rooms = users;
+		response.users = users;
 
 		// Serialize the response
 		RequestResult result;
@@ -260,7 +263,7 @@ RequestResult MenuRequestHandler::handleGetStatisticsRequest(const RequestInfo& 
 
 		// Prepare the response
 		GetHighScoreResponse response;
-		response.status = (unsigned int)Status::SUCCESS; // Success
+		response.status = (unsigned int)Status::SUCCESS;
 
 		// Add high scores
 		statistics.push_back("\nHigh Scores:");

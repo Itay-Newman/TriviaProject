@@ -23,7 +23,7 @@ public:
 
 	// Room management functions
 	unsigned int createRoom(const std::string& creator, const std::string& roomName, unsigned int maxPlayers,
-	unsigned int numOfQuestionsInGame, unsigned int timePerQuestion);
+		unsigned int numOfQuestionsInGame, unsigned int timePerQuestion);
 	bool deleteRoom(unsigned int roomId);
 	RoomState getRoomState(unsigned int roomId) const;
 	std::vector<RoomData> getRooms() const;
