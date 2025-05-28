@@ -3,6 +3,8 @@
 #include "JsonResponsePacketSerializer.h"
 #include "JsonRequestPacketDeserializer.h"
 
+#define PORT 8888
+
 Communicator::Communicator(RequestHandlerFactory& handlerFactory)
 	: m_serverSocket(INVALID_SOCKET), m_isRunning(false), m_handlerFactory(handlerFactory)
 {
@@ -109,7 +111,7 @@ bool Communicator::bindAndListen()
 	sockaddr_in serverAddr;
 	serverAddr.sin_family = AF_INET; // IPv4
 	serverAddr.sin_addr.s_addr = INADDR_ANY;
-	serverAddr.sin_port = htons(8888); // Using port 8888
+	serverAddr.sin_port = htons(PORT);
 
 	// Binding the socket
 	if (bind(m_serverSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)

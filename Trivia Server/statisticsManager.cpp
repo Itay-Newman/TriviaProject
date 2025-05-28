@@ -11,10 +11,10 @@ PlayerStatistics StatisticsManager::getPlayerStatistics(const std::string& usern
 	stats.username = username;
 
 	// Get statistics from database
-	stats.averageAnswerTime = dynamic_cast<SqliteDataBase&>(m_database).getPlayerAverageAnswerTime(username);
-	stats.correctAnswers = dynamic_cast<SqliteDataBase&>(m_database).getNumOfCorrectAnswers(username);
-	stats.wrongAnswers = dynamic_cast<SqliteDataBase&>(m_database).getNumOfWrongAnswers(username);
-	stats.totalGames = dynamic_cast<SqliteDataBase&>(m_database).getNumOfPlayerGames(username);
+	stats.averageAnswerTime = m_database.getPlayerAverageAnswerTime(username);
+	stats.correctAnswers = m_database.getNumOfCorrectAnswers(username);
+	stats.wrongAnswers = m_database.getNumOfWrongAnswers(username);
+	stats.totalGames = m_database.getNumOfPlayerGames(username);
 
 	// We'll reward faster average answer times
 	if (stats.totalGames > 0 && stats.averageAnswerTime > 0)
@@ -54,7 +54,8 @@ std::vector<PlayerStatistics> StatisticsManager::getHighScores() const
 			return a.score > b.score;
 		});
 
-	if (highScores.size() > 5) {
+	if (highScores.size() > 5)
+	{
 		highScores.resize(5);
 	}
 
