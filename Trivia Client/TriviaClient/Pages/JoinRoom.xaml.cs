@@ -19,7 +19,7 @@ namespace TriviaClient.Pages
             {
                 var request = new JoinRoomRequest { RoomId = selectedRoom.Id };
                 byte[] requestData = JsonRequestPacketSerializer.SerializeJoinRoomRequest(request);
-                byte joinRoomCode = 24;
+                byte joinRoomCode = (byte)TriviaClient.RequestCodes.JOIN_ROOM_REQUEST;
 
                 var communicator = ClientCommunicator.Instance;
                 if (!await communicator.ConnectAsync())
@@ -33,7 +33,7 @@ namespace TriviaClient.Pages
 
                 var joinRoomResponse = JsonResponsePacketDeserializer.DeserializeJoinRoomResponse(responseBody);
 
-                if (joinRoomResponse.Status == 1)
+                if (joinRoomResponse.Status == (uint)TriviaClient.StatusCode.OK)
                 {
                     MessageBox.Show("Joined room successfully!");
                     // Optionally navigate to the room lobby
@@ -51,7 +51,7 @@ namespace TriviaClient.Pages
 
         private async void Refresh_Click(object sender, RoutedEventArgs e)
         {
-            byte getRoomsCode = 22; 
+            byte getRoomsCode = (byte)TriviaClient.RequestCodes.GET_ROOMS_REQUEST;
 
             var communicator = ClientCommunicator.Instance;
             if (!await communicator.ConnectAsync())
@@ -65,7 +65,7 @@ namespace TriviaClient.Pages
 
             var getRoomsResponse = JsonResponsePacketDeserializer.DeserializeGetRoomsResponse(responseBody);
 
-            if (getRoomsResponse.Status == 1)
+            if (getRoomsResponse.Status == (uint)TriviaClient.StatusCode.OK)
             {
                 // Bind the room list to your UI
                 RoomsList.ItemsSource = getRoomsResponse.Rooms;

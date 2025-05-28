@@ -3,6 +3,12 @@ using System.Collections.Generic;
 
 namespace TriviaClient
 {
+    public enum StatusCode
+    {
+        ERROR = 0,
+        OK = 1,
+    }
+
     // Enums matching server side
     public enum ResponseCode
     {

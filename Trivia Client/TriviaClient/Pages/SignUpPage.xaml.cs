@@ -25,7 +25,7 @@ namespace TriviaClient
             };
 
             byte[] requestData = JsonRequestPacketSerializer.SerializeSignupRequest(request);
-            byte signupCode = 21; // Adjust if your protocol uses a different code
+            byte signupCode = (byte)TriviaClient.RequestCodes.SIGNUP_REQUEST;
 
             var communicator = ClientCommunicator.Instance;
             if (!await communicator.ConnectAsync())
@@ -39,11 +39,10 @@ namespace TriviaClient
 
             var signupResponse = JsonResponsePacketDeserializer.DeserializeSignupResponse(responseBody);
 
-            if (signupResponse.Status == 1)
+            if (signupResponse.Status == (uint)TriviaClient.StatusCode.OK)
             {
                 MessageBox.Show("Sign up successful! You can now sign in.");
-                // Optionally navigate to sign-in page
-                NavigationService.Navigate(new MainMenuPage()); // Adjust as necessary
+                NavigationService.Navigate(new MainMenuPage());
             }
             else
             {

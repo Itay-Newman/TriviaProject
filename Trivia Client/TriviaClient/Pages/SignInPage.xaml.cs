@@ -16,15 +16,13 @@ namespace TriviaClient
 
         private async void SignInButton_Click(object sender, RoutedEventArgs e)
         {
-            // Example: Assume you have TextBoxes named UsernameBox and PasswordBox
             string username = Username.Text;
             string password = Password.Text;
 
             var request = new LoginRequest { Username = username, Password = password };
             byte[] requestData = JsonRequestPacketSerializer.SerializeLoginRequest(request);
 
-            // Message code for login (replace with your actual code, e.g., 1)
-            byte loginCode = 20;
+            byte loginCode = (byte)TriviaClient.RequestCodes.LOGIN_REQUEST;
 
             var communicator = ClientCommunicator.Instance;
             if (!await communicator.ConnectAsync())
@@ -38,7 +36,7 @@ namespace TriviaClient
 
             var loginResponse = JsonResponsePacketDeserializer.DeserializeLoginResponse(responseBody);
 
-            if (loginResponse.Status == 1)
+            if (loginResponse.Status == (uint)TriviaClient.StatusCode.OK)
             {
                 // Success: Navigate to main menu
                 NavigationService.Navigate(new Pages.MainMenuPage());
