@@ -41,7 +41,6 @@ namespace TriviaClient
 
             if (signupResponse.Status == (uint)TriviaClient.StatusCode.OK)
             {
-                MessageBox.Show("Sign up successful! You can now sign in.");
                 NavigationService.Navigate(new MainMenuPage());
             }
             else

@@ -11,8 +11,8 @@ LoginRequest JsonRequestPacketDeserializer::deserializeLoginRequest(const std::v
 	auto j = parseJson(buffer);
 
 	return LoginRequest{
-		j.at("username").get<std::string>(),
-		j.at("password").get<std::string>()
+		j.at("Username").get<std::string>(),
+		j.at("Password").get<std::string>()
 	};
 }
 
@@ -21,9 +21,9 @@ SignupRequest JsonRequestPacketDeserializer::deserializeSignupRequest(const std:
 	auto j = parseJson(buffer);
 
 	return SignupRequest{
-		j.at("username").get<std::string>(),
-		j.at("password").get<std::string>(),
-		j.at("email").get<std::string>()
+		j.at("Username").get<std::string>(),
+		j.at("Password").get<std::string>(),
+		j.at("Email").get<std::string>()
 	};
 }
 
