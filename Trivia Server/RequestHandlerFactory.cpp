@@ -4,14 +4,16 @@
 RequestHandlerFactory::RequestHandlerFactory(IDatabase& database)
 	: m_Database(database)
 {
-	m_LoginManager = new LoginManager(database);
-	m_RoomManager = new RoomManager();
+	this->m_LoginManager = new LoginManager(this->m_Database);
+	this->m_RoomManager = new RoomManager();
+	this->m_statisticsManager = new StatisticsManager(this->m_Database);
 }
 
 RequestHandlerFactory::~RequestHandlerFactory()
 {
-	delete m_LoginManager;
-	delete m_RoomManager;
+	delete this->m_LoginManager;
+	delete this->m_RoomManager;
+	delete this->m_statisticsManager;
 }
 
 LoginRequestHandler* RequestHandlerFactory::createLoginRequestHandler()
@@ -21,7 +23,13 @@ LoginRequestHandler* RequestHandlerFactory::createLoginRequestHandler()
 
 MenuRequestHandler* RequestHandlerFactory::createMenuRequestHandler(const std::string& username)
 {
-	return new MenuRequestHandler(this->m_Database, this->m_LoginManager, this->m_RoomManager, this->m_statisticsManager, username);
+	return new MenuRequestHandler(
+		this->m_Database,
+		this->m_LoginManager,
+		this->m_RoomManager,
+		this->m_statisticsManager,
+		username
+	);
 }
 
 LoginManager& RequestHandlerFactory::getLoginManager()

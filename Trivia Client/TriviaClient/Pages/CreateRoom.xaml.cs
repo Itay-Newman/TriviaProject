@@ -29,7 +29,7 @@ namespace TriviaClient.Pages
             };
 
             byte[] requestData = JsonRequestPacketSerializer.SerializeCreateRoomRequest(request);
-            byte createRoomCode = 25;
+            byte createRoomCode = (byte)TriviaClient.RequestCodes.CREATE_ROOM_REQUEST;
 
             var communicator = ClientCommunicator.Instance;
             if (!await communicator.ConnectAsync())

@@ -11,20 +11,20 @@ class LoginRequestHandler;
 class RequestHandlerFactory
 {
 public:
-    explicit RequestHandlerFactory(IDatabase& database);
-    ~RequestHandlerFactory();
+	explicit RequestHandlerFactory(IDatabase& database);
+	~RequestHandlerFactory();
 
-    LoginRequestHandler* createLoginRequestHandler();
-    MenuRequestHandler* createMenuRequestHandler(const std::string& username);
+	LoginRequestHandler* createLoginRequestHandler();
+	MenuRequestHandler* createMenuRequestHandler(const std::string& username);
 
-    LoginManager& getLoginManager();
-    IDatabase& getDataBase();
-    RoomManager& getRoomManager();
-    StatisticsManager& getStatisticsManager();
+	LoginManager& getLoginManager();
+	IDatabase& getDataBase();
+	RoomManager& getRoomManager();
+	StatisticsManager& getStatisticsManager();
 
 private:
-    IDatabase& m_Database;
-    LoginManager* m_LoginManager;
-    RoomManager* m_RoomManager;
-    StatisticsManager* m_statisticsManager;
+	IDatabase& m_Database;
+	LoginManager* m_LoginManager;
+	RoomManager* m_RoomManager;
+	StatisticsManager* m_statisticsManager;
 };

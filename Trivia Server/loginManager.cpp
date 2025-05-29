@@ -1,12 +1,5 @@
 #include "loginManager.h"
 
-#define LOGIN_SUCCESS 1
-#define LOGIN_FAILURE -1
-#define SIGNUP_SUCCESS 1
-#define USER_ALREADY_EXISTS -1
-#define SIGNUP_FAILURE -2
-#define USER_NOT_FOUND -2
-
 LoginManager::LoginManager(IDatabase& database) : m_Database(database)
 {
 }
@@ -16,18 +9,18 @@ int LoginManager::signUp(const std::string& username, const std::string& passwor
 	if (this->m_Database.doesUserExist(username))
 	{
 		std::cout << "User already exists" << std::endl;
-		return USER_ALREADY_EXISTS;
+		return static_cast<int>(Status::FAILURE);
 	}
 
 	if (this->m_Database.addUser(username, password, email))
 	{
 		std::cout << "User added successfully" << std::endl;
-		return SIGNUP_SUCCESS;
+		return static_cast<int>(Status::SUCCESS);
 	}
 	else
 	{
 		std::cout << "Failed to add user" << std::endl;
-		return SIGNUP_FAILURE;
+		return static_cast<int>(Status::FAILURE);
 	}
 }
 
@@ -41,18 +34,18 @@ int LoginManager::signIn(const std::string& username, const std::string& passwor
 
 			std::cout << "User signed in successfully" << std::endl;
 			this->loggedUsers.push_back(loggedUser);
-			return LOGIN_SUCCESS; //! User signed in successfully
+			return static_cast<int>(Status::SUCCESS);
 		}
 		else
 		{
 			std::cout << "Incorrect password" << std::endl;
-			return LOGIN_FAILURE; //! Incorrect password
+			return static_cast<int>(Status::FAILURE);
 		}
 	}
 	else
 	{
 		std::cout << "User does not exist" << std::endl;
-		return USER_NOT_FOUND; //! User does not exist
+		return static_cast<int>(Status::FAILURE);
 	}
 }
 
