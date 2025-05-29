@@ -8,7 +8,11 @@
 class IRequestHandler;
 // All structs needed for JsonResponsePacketSerializer and JsonRequestPacketDeserializer
 
-// There are only 2 statuses: 1 - success, 0 - fail
+enum class Status
+{
+	SUCCESS = 1, // Operation was successful
+	FAILURE = 0, // Operation failed
+};
 
 enum class ResponseCode
 {
@@ -37,8 +41,18 @@ enum class ResponseCode
 enum class RequestCodes
 {
 	LOGIN_REQUEST = 20,
-	SIGNUP_REQUEST = 21
-	// Will add more request codes as needed
+	SIGNUP_REQUEST = 21,
+	LOGOUT_REQUEST = 29,
+	// Room-related request codes
+	GET_ROOMS_REQUEST = 22,
+	GET_PLAYERS_IN_ROOM_REQUEST = 23,
+	JOIN_ROOM_REQUEST = 24,
+	CREATE_ROOM_REQUEST = 25,
+	CLOSE_ROOM_REQUEST = 26,
+	GET_ROOM_STATE_REQUEST = 27,
+	LEAVE_ROOM_REQUEST = 28,
+	// More request codes can be added as needed in the future
+	GET_STATISTICS_REQUEST = 30
 };
 
 struct RoomData
@@ -72,6 +86,50 @@ struct SignupRequest
 	std::string email;
 };
 
+// Room-related request structs
+struct GetRoomsRequest
+{
+	// No additional data needed
+};
+
+struct GetPlayersInRoomRequest
+{
+	unsigned int roomId;
+};
+
+struct JoinRoomRequest
+{
+	unsigned int roomId;
+};
+
+struct CreateRoomRequest
+{
+	std::string roomName;
+	unsigned int maxUsers;
+	unsigned int questionCount;
+	unsigned int answerTimeout;
+};
+
+struct CloseRoomRequest
+{
+	unsigned int roomId;
+};
+
+struct GetRoomStateRequest
+{
+	unsigned int roomId;
+};
+
+struct LeaveRoomRequest
+{
+	unsigned int roomId;
+};
+
+struct LogoutRequest
+{
+	// No additional data needed, username is handled by the handler
+};
+
 // Response structs
 struct LoginResponse
 {
@@ -96,7 +154,7 @@ struct GetRoomsResponse
 
 struct GetPlayersInRoomResponse
 {
-	std::vector<std::string> rooms;
+	std::vector<std::string> users;
 };
 
 struct GetHighScoreResponse
