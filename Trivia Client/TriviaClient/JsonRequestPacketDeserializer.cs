@@ -1,257 +1,73 @@
 ﻿using System.Text;
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace TriviaClient
 {
     public static class JsonResponsePacketDeserializer
     {
-        private static JObject Parse(byte[] buffer)
+        private static T Deserialize<T>(byte[] buffer)
         {
-            string jsonStr = Encoding.UTF8.GetString(buffer);
-            return JObject.Parse(jsonStr);
+            string json = Encoding.UTF8.GetString(buffer);
+            return JsonConvert.DeserializeObject<T>(json);
         }
 
-        public static LoginResponse DeserializeLoginResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            return new LoginResponse { Status = json["status"].Value<uint>() };
-        }
+        public static LoginResponse DeserializeLoginResponse(byte[] buffer) =>
+            Deserialize<LoginResponse>(buffer);
 
-        public static SignupResponse DeserializeSignupResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            return new SignupResponse { Status = json["status"].Value<uint>() };
-        }
+        public static SignupResponse DeserializeSignupResponse(byte[] buffer) =>
+            Deserialize<SignupResponse>(buffer);
 
-        public static LogoutResponse DeserializeLogoutResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            return new LogoutResponse { Status = json["status"].Value<uint>() };
-        }
+        public static LogoutResponse DeserializeLogoutResponse(byte[] buffer) =>
+            Deserialize<LogoutResponse>(buffer);
 
-        public static GetRoomsResponse DeserializeGetRoomsResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            var response = new GetRoomsResponse
-            {
-                Status = json["status"].Value<uint>(),
-                Rooms = new List<RoomData>()
-            };
+        public static GetRoomsResponse DeserializeGetRoomsResponse(byte[] buffer) =>
+            Deserialize<GetRoomsResponse>(buffer);
 
-            if (json["rooms"] != null)
-            {
-                foreach (var roomJson in json["rooms"])
-                {
-                    response.Rooms.Add(new RoomData
-                    {
-                        Id = roomJson["id"].Value<uint>(),
-                        Name = roomJson["name"].Value<string>(),
-                        MaxPlayers = roomJson["maxPlayers"].Value<uint>(),
-                        NumOfQuestionsInGame = roomJson["numOfQuestionsInGame"].Value<uint>(),
-                        TimePerQuestion = roomJson["timePerQuestion"].Value<uint>(),
-                        IsActive = roomJson["isActive"].Value<uint>()
-                    });
-                }
-            }
+        public static GetPlayersInRoomResponse DeserializeGetPlayersInRoomResponse(byte[] buffer) =>
+            Deserialize<GetPlayersInRoomResponse>(buffer);
 
-            return response;
-        }
-
-        public static GetPlayersInRoomResponse DeserializeGetPlayersInRoomResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            var response = new GetPlayersInRoomResponse { Rooms = new List<string>() };
-
-            if (json["rooms"] != null)
-            {
-                if (json["rooms"].Type == JTokenType.Array)
-                {
-                    foreach (var room in json["rooms"])
-                        response.Rooms.Add(room.Value<string>());
-                }
-                else
-                {
-                    response.Rooms.Add(json["rooms"].Value<string>());
-                }
-            }
-
-            return response;
-        }
-
-        public static JoinRoomResponse DeserializeJoinRoomResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            return new JoinRoomResponse { Status = json["status"].Value<uint>() };
-        }
+        public static JoinRoomResponse DeserializeJoinRoomResponse(byte[] buffer) =>
+            Deserialize<JoinRoomResponse>(buffer);
 
         public static CreateRoomResponse DeserializeCreateRoomResponse(byte[] buffer)
         {
-            var json = Parse(buffer);
-            int status = json["status"].Value<int>();
-            if (status < 0)
-                throw new InvalidOperationException($"Server returned error status: {status}");
-
-            return new CreateRoomResponse { Status = (uint)status };
-        }
-
-        public static GetHighScoreResponse DeserializeGetHighScoreResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            var response = new GetHighScoreResponse
-            {
-                Status = json["status"].Value<uint>(),
-                Statistics = new List<string>()
-            };
-
-            if (json["statistics"] != null)
-            {
-                if (json["statistics"].Type == JTokenType.Array)
-                {
-                    foreach (var stat in json["statistics"])
-                        response.Statistics.Add(stat.Value<string>());
-                }
-                else
-                {
-                    response.Statistics.Add(json["statistics"].Value<string>());
-                }
-            }
-
+            var response = Deserialize<CreateRoomResponse>(buffer);
+            if (response.Status < 0)
+                throw new InvalidOperationException($"Server returned error status: {response.Status}");
             return response;
         }
 
-        public static GetPersonalStatsResponse DeserializeGetPersonalStatsResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            var response = new GetPersonalStatsResponse
-            {
-                Status = json["status"].Value<uint>(),
-                Statistics = new List<string>()
-            };
+        public static GetHighScoreResponse DeserializeGetHighScoreResponse(byte[] buffer) =>
+            Deserialize<GetHighScoreResponse>(buffer);
 
-            if (json["statistics"] != null)
-            {
-                if (json["statistics"].Type == JTokenType.Array)
-                {
-                    foreach (var stat in json["statistics"])
-                        response.Statistics.Add(stat.Value<string>());
-                }
-                else
-                {
-                    response.Statistics.Add(json["statistics"].Value<string>());
-                }
-            }
+        public static GetPersonalStatsResponse DeserializeGetPersonalStatsResponse(byte[] buffer) =>
+            Deserialize<GetPersonalStatsResponse>(buffer);
 
-            return response;
-        }
+        public static CloseRoomResponse DeserializeCloseRoomResponse(byte[] buffer) =>
+            Deserialize<CloseRoomResponse>(buffer);
 
-        public static CloseRoomResponse DeserializeCloseRoomResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            return new CloseRoomResponse { Status = json["status"].Value<uint>() };
-        }
+        public static StartGameResponse DeserializeStartGameResponse(byte[] buffer) =>
+            Deserialize<StartGameResponse>(buffer);
 
-        public static StartGameResponse DeserializeStartGameResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            return new StartGameResponse { Status = json["status"].Value<uint>() };
-        }
+        public static GetRoomStateResponse DeserializeGetRoomStateResponse(byte[] buffer) =>
+            Deserialize<GetRoomStateResponse>(buffer);
 
-        public static GetRoomStateResponse DeserializeGetRoomStateResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            var response = new GetRoomStateResponse
-            {
-                Status = json["status"].Value<uint>(),
-                HasGameBegun = json["hasGameBegun"].Value<bool>(),
-                Players = new List<string>(),
-                QuestionCount = json["questionCount"].Value<uint>(),
-                AnswerTimeout = json["answerTimeout"].Value<uint>()
-            };
+        public static LeaveRoomResponse DeserializeLeaveRoomResponse(byte[] buffer) =>
+            Deserialize<LeaveRoomResponse>(buffer);
 
-            if (json["players"] != null)
-            {
-                foreach (var player in json["players"])
-                    response.Players.Add(player.Value<string>());
-            }
+        public static LeaveGameResponse DeserializeLeaveGameResponse(byte[] buffer) =>
+            Deserialize<LeaveGameResponse>(buffer);
 
-            return response;
-        }
+        public static GetQuestionResponse DeserializeGetQuestionResponse(byte[] buffer) =>
+            Deserialize<GetQuestionResponse>(buffer);
 
-        public static LeaveRoomResponse DeserializeLeaveRoomResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            return new LeaveRoomResponse { Status = json["status"].Value<uint>() };
-        }
+        public static SubmitAnswerResponse DeserializeSubmitAnswerResponse(byte[] buffer) =>
+            Deserialize<SubmitAnswerResponse>(buffer);
 
-        public static LeaveGameResponse DeserializeLeaveGameResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            return new LeaveGameResponse { Status = json["status"].Value<uint>() };
-        }
+        public static GetGameResultsResponse DeserializeGetGameResultsResponse(byte[] buffer) =>
+            Deserialize<GetGameResultsResponse>(buffer);
 
-        public static GetQuestionResponse DeserializeGetQuestionResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            var response = new GetQuestionResponse
-            {
-                Status = json["status"].Value<uint>(),
-                Question = json["question"].Value<string>(),
-                Answers = new List<string>()
-            };
-
-            if (json["answers"] != null)
-            {
-                foreach (var answer in json["answers"])
-                    response.Answers.Add(answer.Value<string>());
-            }
-
-            return response;
-        }
-
-        public static SubmitAnswerResponse DeserializeSubmitAnswerResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            return new SubmitAnswerResponse
-            {
-                Status = json["status"].Value<uint>(),
-                CorrectAnswerId = json["correctAnswerId"].Value<uint>()
-            };
-        }
-
-        public static GetGameResultsResponse DeserializeGetGameResultsResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            var response = new GetGameResultsResponse
-            {
-                Status = json["status"].Value<uint>(),
-                Results = new List<PlayerResults>()
-            };
-
-            if (json["results"] != null)
-            {
-                foreach (var result in json["results"])
-                {
-                    response.Results.Add(new PlayerResults
-                    {
-                        Username = result["username"].Value<string>(),
-                        CorrectAnswerCount = result["correctAnswerCount"].Value<uint>(),
-                        WrongAnswerCount = result["wrongAnswerCount"].Value<uint>(),
-                        AverageAnswerTime = result["averageAnswerTime"].Value<uint>()
-                    });
-                }
-            }
-
-            return response;
-        }
-
-        public static ErrorResponse DeserializeErrorResponse(byte[] buffer)
-        {
-            var json = Parse(buffer);
-            return new ErrorResponse
-            {
-                Status = (ResponseCode)json["status"].Value<int>(),
-                Message = json["message"].Value<string>()
-            };
-        }
+        public static ErrorResponse DeserializeErrorResponse(byte[] buffer) =>
+            Deserialize<ErrorResponse>(buffer);
     }
 }
