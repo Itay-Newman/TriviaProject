@@ -1,0 +1,23 @@
+﻿<Page x:Class="TriviaClient.Pages.PersonalStats"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TriviaClient.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="410" d:DesignWidth="540"
+      Title="Personal Stats">
+
+    <Grid Background="Transparent">
+        <Border Background="#AA000000" CornerRadius="10" Padding="20" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel>
+                <TextBlock Text="Personal Statistics" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+
+                <TextBlock x:Name="AvgTime" Text="Average Time: " FontSize="18" Foreground="White" Margin="0,5"/>
+                <TextBlock x:Name="CorrectAnswers" Text="Correct Answers: " FontSize="18" Foreground="White" Margin="0,5"/>
+                <TextBlock x:Name="WrongAnswers" Text="Wrong Answers: " FontSize="18" Foreground="White" Margin="0,5"/>
+                <TextBlock x:Name="GamesPlayed" Text="Games Played: " FontSize="18" Foreground="White" Margin="0,5"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

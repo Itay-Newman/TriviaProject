@@ -1,0 +1,37 @@
+﻿<Page x:Class="TriviaClient.Pages.CreateRoom"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TriviaClient.Pages"
+      xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+      mc:Ignorable="d" 
+      d:DesignHeight="410" d:DesignWidth="540"
+      Title="Create Room">
+
+    <Grid Background="Transparent">
+        <!-- Foreground UI -->
+        <Grid Panel.ZIndex="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Title -->
+            <TextBlock Text="Create Room" FontSize="36" FontWeight="Bold" Foreground="White" 
+                       HorizontalAlignment="Center" Margin="0,15"/>
+
+            <!-- Form with dark background -->
+            <Border Grid.Row="1" Background="#AA000000" CornerRadius="10" Padding="20" Margin="0,5,0,40" HorizontalAlignment="Center" Width="320">
+                <StackPanel>
+                    <xctk:WatermarkTextBox x:Name="RoomName" Height="30" FontSize="15" Margin="0,5" Watermark="Room Name"/>
+                    <xctk:WatermarkTextBox x:Name="QuestionTime" Height="30" FontSize="15" Margin="0,5" Watermark="Time per Question (sec)"/>
+                    <xctk:WatermarkTextBox x:Name="PlayerCount" Height="30" FontSize="15" Margin="0,5" Watermark="Max Players"/>
+                    <xctk:WatermarkTextBox x:Name="QuestionCount" Height="30" FontSize="15" Margin="0,5" Watermark="Question Number"></xctk:WatermarkTextBox>
+
+                    <Button Content="Create" Height="45" FontSize="20" Margin="0,5,0,0" Click="CreateRoom_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

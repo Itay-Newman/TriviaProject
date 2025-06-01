@@ -5,7 +5,8 @@
 #include "IRequestHandler.h"  
 #include "SqliteDataBase.h"  
 #include "LoggedUser.h"  
-#include "IDatabase.h"  
+#include "IDatabase.h"
+#include "structs.h"
 
 class LoginManager
 {
