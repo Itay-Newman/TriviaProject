@@ -17,7 +17,7 @@ namespace TriviaClient
 
         private const int SERVER_PORT = 8888;
 
-        // This is a "singleton" for ClientCommunicator, if _instance is null, it creates a new ClientCommunicator and assigns it. else, it just returns the existing instance. plus, it makes sure only ONE instance ever exists across the program (singleton).
+        // This is a "singleton" for ClientCommunicator, if the _instance is null, it creates a new ClientCommunicator and assigns it. else, it just returns the existing instance. plus, it makes sure only ONE instance ever exists across the program (singleton).
         public static ClientCommunicator Instance => _instance ??= new ClientCommunicator();
 
         private ClientCommunicator() { }
