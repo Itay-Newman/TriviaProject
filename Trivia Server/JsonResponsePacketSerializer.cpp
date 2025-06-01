@@ -1,5 +1,11 @@
 #include "JsonResponsePacketSerializer.h"
 
+std::vector<unsigned char> JsonResponsePacketSerializer::toBytes(const json& j)
+{
+	std::string jsonString = j.dump();
+	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+}
+
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const ErrorResponse& response)
 {
 	nlohmann::json j = {
@@ -7,9 +13,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"message", response.message}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const LoginResponse& response)
@@ -18,9 +22,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"status", response.status}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const SignupResponse& response)
@@ -29,9 +31,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"status", response.status}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const LogoutResponse& response)
@@ -40,9 +40,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"status", response.status}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetRoomsResponse& response)
@@ -64,20 +62,16 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 			});
 	}
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetPlayersInRoomResponse& response)
 {
 	nlohmann::json j = {
-		{"rooms", response.rooms}
+		{"rooms", response.users}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const JoinRoomResponse& response)
@@ -86,9 +80,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"status", response.status}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const CreateRoomResponse& response)
@@ -97,9 +89,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"status", response.status}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetHighScoreResponse& response)
@@ -109,9 +99,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"statistics", response.statistics}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetPersonalStatsResponse& response)
@@ -121,9 +109,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"statistics", response.statistics}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const CloseRoomResponse& response)
@@ -132,9 +118,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"status", response.status}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const StartGameResponse& response)
@@ -143,9 +127,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"status", response.status}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetRoomStateResponse& response)
@@ -158,9 +140,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"answerTimeout", response.answerTimeout}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const LeaveRoomResponse& response)
@@ -169,9 +149,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"status", response.status}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetGameResultsResponse& response)
@@ -191,9 +169,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 			});
 	}
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const SubmitAnswerResponse& response)
@@ -203,9 +179,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"correctAnswerId", response.correctAnswerId}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetQuestionResponse& response)
@@ -216,9 +190,7 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"answers", response.answers}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
 
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const LeaveGameResponse& response)
@@ -227,7 +199,6 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 		{"status", response.status}
 	};
 
-	std::string jsonString = j.dump();
-
-	return std::vector<unsigned char>(jsonString.begin(), jsonString.end());
+	return toBytes(j);
 }
+

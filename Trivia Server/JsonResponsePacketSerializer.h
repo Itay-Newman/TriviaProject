@@ -1,12 +1,16 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #include "Structs.h"
 #include "json.hpp"
+
+using nlohmann::json;
 
 class JsonResponsePacketSerializer
 {
 public:
+	// Main entry points - serialize specific response types
 	static std::vector<unsigned char> serializeResponse(const ErrorResponse& response);
 	static std::vector<unsigned char> serializeResponse(const LoginResponse& response);
 	static std::vector<unsigned char> serializeResponse(const SignupResponse& response);
@@ -28,4 +32,8 @@ public:
 	static std::vector<unsigned char> serializeResponse(const SubmitAnswerResponse& response);
 	static std::vector<unsigned char> serializeResponse(const GetQuestionResponse& response);
 	static std::vector<unsigned char> serializeResponse(const LeaveGameResponse& response);
+
+private:
+	// Utility: converts json to vector<unsigned char>
+	static std::vector<unsigned char> toBytes(const json& j);
 };

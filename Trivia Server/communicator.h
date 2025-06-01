@@ -11,30 +11,34 @@
 #include <string>
 #include <Windows.h>
 #include "RequestHandlerFactory.h"
+#include <mutex>
 
 #pragma comment(lib, "ws2_32.lib")
 
 class Communicator
 {
 public:
-    Communicator(RequestHandlerFactory& handlerFactory);
-    ~Communicator();
+	Communicator(RequestHandlerFactory& handlerFactory);
+	~Communicator();
 
-    void startHandleRequests();
-    void close();
+	void startHandleRequests();
+	void close();
 
 private:
-    SOCKET m_serverSocket;
-    std::map<SOCKET, IRequestHandler*> m_clients;
-    std::vector<std::thread> m_clientThreads;
-    RequestHandlerFactory& m_handlerFactory;
-    bool m_isRunning;
+	SOCKET m_serverSocket;
+	std::map<SOCKET, IRequestHandler*> m_clients;
+	std::vector<std::thread> m_clientThreads;
+	RequestHandlerFactory& m_handlerFactory;
+	bool m_isRunning;
 
-    bool bindAndListen();
-    void handleNewClient(SOCKET clientSocket);
-    std::vector<unsigned char> getBufferFromSocket(SOCKET sc, int bytesToRead);
-    void sendBuffer(SOCKET sc, const std::vector<unsigned char>& buffer);
-    void sendResponse(SOCKET sc, int messageCode, const std::vector<unsigned char>& buffer);
-    RequestInfo getRequestFromClient(SOCKET clientSocket);
-    bool initializeWinsock();
+	std::mutex m_clientsMutex;
+	std::mutex m_clientThreadsMutex;
+
+	bool bindAndListen();
+	void handleNewClient(SOCKET clientSocket);
+	std::vector<unsigned char> getBufferFromSocket(SOCKET sc, int bytesToRead);
+	void sendBuffer(SOCKET sc, const std::vector<unsigned char>& buffer);
+	void sendResponse(SOCKET sc, int messageCode, const std::vector<unsigned char>& buffer);
+	RequestInfo getRequestFromClient(SOCKET clientSocket);
+	bool initializeWinsock();
 };
