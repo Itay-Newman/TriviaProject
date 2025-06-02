@@ -50,6 +50,7 @@ enum class RequestCodes
 	CREATE_ROOM_REQUEST = 25,
 	CLOSE_ROOM_REQUEST = 26,
 	GET_ROOM_STATE_REQUEST = 27,
+	START_GAME_REQUEST = 31,
 	LEAVE_ROOM_REQUEST = 28,
 	// More request codes can be added as needed in the future
 	GET_STATISTICS_REQUEST = 30

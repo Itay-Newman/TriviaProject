@@ -3,8 +3,6 @@
 #include "JsonResponsePacketSerializer.h"
 #include "JsonRequestPacketDeserializer.h"
 
-#define PORT 8888
-
 Communicator::Communicator(RequestHandlerFactory& handlerFactory)
 	: m_serverSocket(INVALID_SOCKET), m_isRunning(false), m_handlerFactory(handlerFactory)
 {
@@ -17,18 +15,29 @@ Communicator::~Communicator()
 
 void Communicator::startHandleRequests()
 {
-	if (!initializeWinsock()) return;
-	if (!bindAndListen()) return;
+	if (!initializeWinsock())
+	{
+		return;
+	}
+
+	if (!bindAndListen())
+	{
+		return;
+	}
 
 	m_isRunning = true;
 
+	// Loop for accepting clients
 	while (m_isRunning)
 	{
+		// Accept a client and handle it
 		SOCKET clientSocket = accept(m_serverSocket, NULL, NULL);
 		if (clientSocket == INVALID_SOCKET)
 		{
-			if (m_isRunning)
+			if (m_isRunning) // Showing the error only if still running
+			{
 				std::cerr << "Accept failed with error: " << WSAGetLastError() << std::endl;
+			}
 			continue;
 		}
 
@@ -36,26 +45,18 @@ void Communicator::startHandleRequests()
 
 		LoginRequestHandler* handler = m_handlerFactory.createLoginRequestHandler();
 
-		// Store handler for this socket
-		{
-			std::lock_guard<std::mutex> lock(m_clientsMutex);
-			m_clients[clientSocket] = handler;
-		}
-		// Launch a thread to deal with the client
-		{
-			std::lock_guard<std::mutex> lock(m_clientThreadsMutex);
-			m_clientThreads.emplace_back(&Communicator::handleNewClient, this, clientSocket);
-		}
+		// Creating a thread to handle this client
+		m_clients[clientSocket] = handler;
+		m_clientThreads.push_back(std::thread(&Communicator::handleNewClient, this, clientSocket));
 	}
 
-	// Wait for all threads to finish before shutting down
+	// Waiting for all client threads to finish
+	for (auto& t : m_clientThreads)
 	{
-		std::lock_guard<std::mutex> lock(m_clientThreadsMutex);
-		for (auto& t : m_clientThreads)
+		if (t.joinable())
 		{
-			if (t.joinable()) t.join();
+			t.join();
 		}
-		m_clientThreads.clear();
 	}
 }
 
@@ -63,16 +64,15 @@ void Communicator::close()
 {
 	m_isRunning = false;
 
+	// Close all client sockets
+	for (auto& client : m_clients)
 	{
-		std::lock_guard<std::mutex> lock(m_clientsMutex);
-		for (auto& client : m_clients)
-		{
-			closesocket(client.first);
-			delete client.second;
-		}
-		m_clients.clear();
+		closesocket(client.first);
+		delete client.second;
 	}
+	m_clients.clear();
 
+	// Close server socket
 	if (m_serverSocket != INVALID_SOCKET)
 	{
 		closesocket(m_serverSocket);
@@ -96,6 +96,7 @@ bool Communicator::initializeWinsock()
 
 bool Communicator::bindAndListen()
 {
+	// Creating socket
 	m_serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (m_serverSocket == INVALID_SOCKET)
 	{
@@ -104,11 +105,13 @@ bool Communicator::bindAndListen()
 		return false;
 	}
 
+	// Address info
 	sockaddr_in serverAddr;
-	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_family = AF_INET; // IPv4
 	serverAddr.sin_addr.s_addr = INADDR_ANY;
-	serverAddr.sin_port = htons(PORT);
+	serverAddr.sin_port = htons(8888); // Using port 8888
 
+	// Binding the socket
 	if (bind(m_serverSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
 	{
 		std::cerr << "Bind failed with error: " << WSAGetLastError() << std::endl;
@@ -117,6 +120,7 @@ bool Communicator::bindAndListen()
 		return false;
 	}
 
+	// Listening for incoming connections
 	if (listen(m_serverSocket, SOMAXCONN) == SOCKET_ERROR)
 	{
 		std::cerr << "Listening failed with error: " << WSAGetLastError() << std::endl;
@@ -133,42 +137,50 @@ void Communicator::handleNewClient(SOCKET clientSocket)
 {
 	try
 	{
-		IRequestHandler* handler;
-		{
-			std::lock_guard<std::mutex> lock(m_clientsMutex);
-			handler = m_clients[clientSocket];
-		}
+		// Get the handler for this client
+		IRequestHandler* handler = m_clients[clientSocket];
 
 		bool clientConnected = true;
 		while (m_isRunning && clientConnected)
 		{
 			try
 			{
+				// Get request from client
 				RequestInfo requestInfo = getRequestFromClient(clientSocket);
 
 				std::cout << "Received request from client " << clientSocket
 					<< ", message code: " << requestInfo.id
 					<< ", buffer size: " << requestInfo.buffer.size() << std::endl;
-
+				// Print the actual message content
 				if (!requestInfo.buffer.empty())
 				{
 					std::string messageContent(requestInfo.buffer.begin(), requestInfo.buffer.end());
 					std::cout << "Message content: " << messageContent << std::endl;
 				}
 
+				// Check if request is relevant to the current handler
 				if (!handler->isRequestRelevant(requestInfo))
 				{
 					ErrorResponse errorResponse;
 					errorResponse.message = "Request not relevant to current handler";
-					auto buffer = JsonResponsePacketSerializer::serializeResponse(errorResponse);
+					std::vector<unsigned char> buffer = JsonResponsePacketSerializer::serializeResponse(errorResponse);
+
 					sendResponse(clientSocket, 0, buffer);
-					std::cout << "Sent error response to client " << clientSocket << std::endl;
+					std::cout << "Sent error response to client " << clientSocket << ": Request not relevant" << std::endl;
 					continue;
 				}
 
+				// Handle the request
 				RequestResult responseInfo = handler->handleRequest(requestInfo);
+
+				// Send response to client
 				sendResponse(clientSocket, static_cast<int>(responseInfo.id), responseInfo.response);
-				std::cout << "Sent response to client " << clientSocket << std::endl;
+				std::cout << "Sent response to client " << clientSocket
+					<< ", message code: " << static_cast<int>(responseInfo.id)
+					<< ", buffer size: " << responseInfo.response.size() << std::endl;
+
+				// If we need to update the handler, we could do it here
+				// For now, we'll keep using the same handler
 			}
 			catch (const std::exception& e)
 			{
@@ -177,21 +189,12 @@ void Communicator::handleNewClient(SOCKET clientSocket)
 			}
 		}
 
+		// Client disconnected or server is shutting down
 		std::cout << "Client disconnected. Socket: " << clientSocket << std::endl;
 	}
 	catch (const std::exception& e)
 	{
 		std::cerr << "Error in client handler: " << e.what() << std::endl;
-	}
-
-	{
-		std::lock_guard<std::mutex> lock(m_clientsMutex);
-		auto it = m_clients.find(clientSocket);
-		if (it != m_clients.end())
-		{
-			delete it->second;
-			m_clients.erase(it);
-		}
 	}
 
 	closesocket(clientSocket);
@@ -201,12 +204,23 @@ std::vector<unsigned char> Communicator::getBufferFromSocket(SOCKET sc, int byte
 {
 	std::vector<unsigned char> buffer(bytesToRead);
 	int bytesReceived = 0;
+	int result;
 
+	// Keep reading until we have all the data we need
 	while (bytesReceived < bytesToRead)
 	{
-		int result = recv(sc, reinterpret_cast<char*>(&buffer[bytesReceived]), bytesToRead - bytesReceived, 0);
-		if (result == SOCKET_ERROR) throw std::exception("Error receiving data from socket");
-		if (result == 0) throw std::exception("Connection closed by client");
+		result = recv(sc, reinterpret_cast<char*>(&buffer[bytesReceived]), bytesToRead - bytesReceived, 0);
+
+		if (result == SOCKET_ERROR)
+		{
+			throw std::exception("Error receiving data from socket");
+		}
+
+		if (result == 0)
+		{
+			throw std::exception("Connection closed by client");
+		}
+
 		bytesReceived += result;
 	}
 
@@ -217,27 +231,40 @@ void Communicator::sendBuffer(SOCKET sc, const std::vector<unsigned char>& buffe
 {
 	int bytesSent = 0;
 	int bytesToSend = buffer.size();
+	int result;
 
+	// Keep sending until all data is sent
 	while (bytesSent < bytesToSend)
 	{
-		int result = send(sc, reinterpret_cast<const char*>(&buffer[bytesSent]), bytesToSend - bytesSent, 0);
-		if (result == SOCKET_ERROR) throw std::exception("Error sending data to socket");
+		result = send(sc, reinterpret_cast<const char*>(&buffer[bytesSent]), bytesToSend - bytesSent, 0);
+
+		if (result == SOCKET_ERROR)
+		{
+			throw std::exception("Error sending data to socket");
+		}
+
 		bytesSent += result;
 	}
 }
 
 void Communicator::sendResponse(SOCKET sc, int messageCode, const std::vector<unsigned char>& buffer)
 {
-	// Format: [1 byte code][4 byte size][payload]
 	std::vector<unsigned char> fullResponse;
+
+	// Add message code (1 byte)
 	fullResponse.push_back(static_cast<unsigned char>(messageCode));
 
+	// Add message size (4 bytes)
 	uint32_t messageSize = buffer.size();
 	for (int i = 3; i >= 0; i--)
+	{
 		fullResponse.push_back((messageSize >> (i * 8)) & 0xFF);
+	}
 
+	// Add the actual message
 	fullResponse.insert(fullResponse.end(), buffer.begin(), buffer.end());
 
+	// Send the full response
 	sendBuffer(sc, fullResponse);
 }
 
@@ -246,19 +273,23 @@ RequestInfo Communicator::getRequestFromClient(SOCKET clientSocket)
 	RequestInfo requestInfo;
 	requestInfo.receivalTime = std::chrono::system_clock::now();
 
+	// Read message code (1 byte)
 	std::vector<unsigned char> codeBuffer = getBufferFromSocket(clientSocket, 1);
 	requestInfo.id = static_cast<int>(codeBuffer[0]);
 
+	// Read message size (4 bytes)
 	std::vector<unsigned char> sizeBuffer = getBufferFromSocket(clientSocket, 4);
 	uint32_t messageSize = 0;
 	for (int i = 0; i < 4; i++)
+	{
 		messageSize = (messageSize << 8) | sizeBuffer[i];
+	}
 
-	if (messageSize > 1000000)
-		throw std::exception("Message size too large, possible DOS attack");
-
+	// Read the actual message
 	if (messageSize > 0)
+	{
 		requestInfo.buffer = getBufferFromSocket(clientSocket, messageSize);
+	}
 
 	return requestInfo;
 }
