@@ -21,9 +21,9 @@ LoginRequestHandler* RequestHandlerFactory::createLoginRequestHandler()
 	return new LoginRequestHandler(*this, this->m_Database);
 }
 
-MenuRequestHandler* RequestHandlerFactory::createMenuRequestHandler(const std::string& username)
+MenuRequestHandler RequestHandlerFactory::createMenuRequestHandler(const std::string& username)
 {
-	return new MenuRequestHandler(
+	return MenuRequestHandler(
 		this->m_Database,
 		this->m_LoginManager,
 		this->m_RoomManager,

@@ -179,8 +179,12 @@ void Communicator::handleNewClient(SOCKET clientSocket)
 					<< ", message code: " << static_cast<int>(responseInfo.id)
 					<< ", buffer size: " << responseInfo.response.size() << std::endl;
 
-				// If we need to update the handler, we could do it here
-				// For now, we'll keep using the same handler
+				if (responseInfo.newHandler != nullptr && responseInfo.newHandler != handler)
+				{
+					delete handler; // Clean up the old handler
+					handler = responseInfo.newHandler;
+					m_clients[clientSocket] = handler;
+				}
 			}
 			catch (const std::exception& e)
 			{
@@ -263,6 +267,12 @@ void Communicator::sendResponse(SOCKET sc, int messageCode, const std::vector<un
 
 	// Add the actual message
 	fullResponse.insert(fullResponse.end(), buffer.begin(), buffer.end());
+
+	if (!buffer.empty())
+	{
+		std::string sentMessageContent(buffer.begin(), buffer.end());
+		std::cout << "Message content (sent): " << sentMessageContent << std::endl;
+	}
 
 	// Send the full response
 	sendBuffer(sc, fullResponse);
