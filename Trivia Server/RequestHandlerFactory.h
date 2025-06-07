@@ -7,6 +7,8 @@
 #include "StatisticsManager.h"
 
 class LoginRequestHandler;
+class RoomAdminRequestHandler;
+class RoomMemberRequestHandler;
 
 class RequestHandlerFactory
 {
@@ -15,7 +17,9 @@ public:
 	~RequestHandlerFactory();
 
 	LoginRequestHandler* createLoginRequestHandler();
-	MenuRequestHandler createMenuRequestHandler(const std::string& username);
+	MenuRequestHandler* createMenuRequestHandler(const std::string& username);
+	RoomAdminRequestHandler* createRoomAdminRequestHandler(const std::string& username);
+	RoomMemberRequestHandler* createRoomMemberRequestHandler(const std::string& username);
 
 	LoginManager& getLoginManager();
 	IDatabase& getDataBase();
