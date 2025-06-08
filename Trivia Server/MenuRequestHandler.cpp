@@ -9,52 +9,44 @@ MenuRequestHandler::MenuRequestHandler(IDatabase& database, LoginManager* loginM
 
 bool MenuRequestHandler::isRequestRelevant(const RequestInfo& requestInfo)
 {
-	// Check if the request code is for one of the supported requests
-	if (requestInfo.buffer.size() >= 1)
-	{
-		unsigned char code = requestInfo.buffer[0];
-		return code == static_cast<unsigned char>(RequestCodes::CREATE_ROOM_REQUEST) ||
-			code == static_cast<unsigned char>(RequestCodes::GET_ROOMS_REQUEST) ||
-			code == static_cast<unsigned char>(RequestCodes::GET_PLAYERS_IN_ROOM_REQUEST) ||
-			code == static_cast<unsigned char>(RequestCodes::JOIN_ROOM_REQUEST) ||
-			code == static_cast<unsigned char>(RequestCodes::GET_STATISTICS_REQUEST) ||
-			code == static_cast<unsigned char>(RequestCodes::LOGOUT_REQUEST);
-	}
+	int code = requestInfo.id;
+	return code == static_cast<unsigned char>(RequestCodes::CREATE_ROOM_REQUEST) ||
+		code == static_cast<unsigned char>(RequestCodes::GET_ROOMS_REQUEST) ||
+		code == static_cast<unsigned char>(RequestCodes::GET_PLAYERS_IN_ROOM_REQUEST) ||
+		code == static_cast<unsigned char>(RequestCodes::JOIN_ROOM_REQUEST) ||
+		code == static_cast<unsigned char>(RequestCodes::GET_STATISTICS_REQUEST) ||
+		code == static_cast<unsigned char>(RequestCodes::LOGOUT_REQUEST);
 	return false;
 }
 
 RequestResult MenuRequestHandler::handleRequest(const RequestInfo& requestInfo)
 {
-	// Handle the request based on the message code
-	if (requestInfo.buffer.size() >= 1)
+	unsigned char code = requestInfo.id;
+
+	switch (static_cast<RequestCodes>(code))
 	{
-		unsigned char code = requestInfo.buffer[0];
+	case RequestCodes::CREATE_ROOM_REQUEST:
+		return handleCreateRoomRequest(requestInfo);
+	case RequestCodes::GET_ROOMS_REQUEST:
+		return handleGetRoomsRequest(requestInfo);
+	case RequestCodes::GET_PLAYERS_IN_ROOM_REQUEST:
+		return handleGetPlayersInRoomRequest(requestInfo);
+	case RequestCodes::JOIN_ROOM_REQUEST:
+		return handleJoinRoomRequest(requestInfo);
+	case RequestCodes::GET_STATISTICS_REQUEST:
+		return handleGetStatisticsRequest(requestInfo);
+	case RequestCodes::LOGOUT_REQUEST:
+		return handleLogoutRequest(requestInfo);
+	default:
+		ErrorResponse errorResponse;
+		errorResponse.status = ResponseCode::ERROR_RESPONSE;
+		errorResponse.message = "Request type not supported";
 
-		switch (static_cast<RequestCodes>(code))
-		{
-		case RequestCodes::CREATE_ROOM_REQUEST:
-			return handleCreateRoomRequest(requestInfo);
-		case RequestCodes::GET_ROOMS_REQUEST:
-			return handleGetRoomsRequest(requestInfo);
-		case RequestCodes::GET_PLAYERS_IN_ROOM_REQUEST:
-			return handleGetPlayersInRoomRequest(requestInfo);
-		case RequestCodes::JOIN_ROOM_REQUEST:
-			return handleJoinRoomRequest(requestInfo);
-		case RequestCodes::GET_STATISTICS_REQUEST:
-			return handleGetStatisticsRequest(requestInfo);
-		case RequestCodes::LOGOUT_REQUEST:
-			return handleLogoutRequest(requestInfo);
-		default:
-			ErrorResponse errorResponse;
-			errorResponse.status = ResponseCode::ERROR_RESPONSE;
-			errorResponse.message = "Request type not supported";
-
-			RequestResult result;
-			result.id = ResponseCode::ERROR_RESPONSE;
-			result.response = JsonResponsePacketSerializer::serializeResponse(errorResponse);
-			result.newHandler = this;
-			return result;
-		}
+		RequestResult result;
+		result.id = ResponseCode::ERROR_RESPONSE;
+		result.response = JsonResponsePacketSerializer::serializeResponse(errorResponse);
+		result.newHandler = this;
+		return result;
 	}
 
 	ErrorResponse errorResponse;
@@ -97,10 +89,10 @@ RequestResult MenuRequestHandler::handleCreateRoomRequest(const RequestInfo& req
 		// Create the room using the room manager
 		unsigned int roomId = m_roomManager->createRoom(
 			m_username,
-			createRoomRequest.roomName,
-			createRoomRequest.maxUsers,
-			createRoomRequest.questionCount,
-			createRoomRequest.answerTimeout
+			createRoomRequest.RoomName,
+			createRoomRequest.MaxUsers,
+			createRoomRequest.QuestionCount,
+			createRoomRequest.AnswerTimeout
 		);
 
 		// Prepare the response

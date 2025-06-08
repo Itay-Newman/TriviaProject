@@ -46,7 +46,10 @@ void Communicator::startHandleRequests()
 		LoginRequestHandler* handler = m_handlerFactory.createLoginRequestHandler();
 
 		// Creating a thread to handle this client
-		m_clients[clientSocket] = handler;
+		{
+			std::lock_guard<std::mutex> lock(m_clientsMutex);
+			m_clients[clientSocket] = handler;
+		}
 		m_clientThreads.push_back(std::thread(&Communicator::handleNewClient, this, clientSocket));
 	}
 
@@ -65,12 +68,20 @@ void Communicator::close()
 	m_isRunning = false;
 
 	// Close all client sockets
-	for (auto& client : m_clients)
 	{
-		closesocket(client.first);
-		delete client.second;
+		std::lock_guard<std::mutex> lock(m_clientsMutex);
+		for (auto& client : m_clients)
+		{
+			closesocket(client.first);
+			delete client.second;
+		}
+		m_clients.clear();
 	}
-	m_clients.clear();
+
+	{
+		std::lock_guard<std::mutex> lock(m_userSocketsMutex);
+		m_userSockets.clear();
+	}
 
 	// Close server socket
 	if (m_serverSocket != INVALID_SOCKET)
@@ -80,6 +91,54 @@ void Communicator::close()
 	}
 
 	WSACleanup();
+}
+
+void Communicator::sendMessageToUser(const std::string& username, int messageCode, const std::vector<unsigned char>& buffer)
+{
+	std::lock_guard<std::mutex> lock(m_userSocketsMutex);
+	auto it = m_userSockets.find(username);
+	if (it != m_userSockets.end())
+	{
+		try
+		{
+			sendResponse(it->second, messageCode, buffer);
+			std::cout << "Sent message to user " << username << " (socket " << it->second << ")" << std::endl;
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << "Failed to send message to user " << username << ": " << e.what() << std::endl;
+		}
+	}
+	else
+	{
+		std::cout << "User " << username << " not found in active connections" << std::endl;
+	}
+}
+
+void Communicator::sendMessageToUsers(const std::vector<std::string>& usernames, int messageCode, const std::vector<unsigned char>& buffer)
+{
+	for (const std::string& username : usernames)
+	{
+		sendMessageToUser(username, messageCode, buffer);
+	}
+}
+
+void Communicator::registerUserSocket(const std::string& username, SOCKET socket)
+{
+	std::lock_guard<std::mutex> lock(m_userSocketsMutex);
+	m_userSockets[username] = socket;
+	std::cout << "Registered user " << username << " with socket " << socket << std::endl;
+}
+
+void Communicator::unregisterUserSocket(const std::string& username)
+{
+	std::lock_guard<std::mutex> lock(m_userSocketsMutex);
+	auto it = m_userSockets.find(username);
+	if (it != m_userSockets.end())
+	{
+		std::cout << "Unregistered user " << username << " from socket " << it->second << std::endl;
+		m_userSockets.erase(it);
+	}
 }
 
 bool Communicator::initializeWinsock()
@@ -138,7 +197,11 @@ void Communicator::handleNewClient(SOCKET clientSocket)
 	try
 	{
 		// Get the handler for this client
-		IRequestHandler* handler = m_clients[clientSocket];
+		IRequestHandler* handler;
+		{
+			std::lock_guard<std::mutex> lock(m_clientsMutex);
+			handler = m_clients[clientSocket];
+		}
 
 		bool clientConnected = true;
 		while (m_isRunning && clientConnected)
@@ -179,8 +242,15 @@ void Communicator::handleNewClient(SOCKET clientSocket)
 					<< ", message code: " << static_cast<int>(responseInfo.id)
 					<< ", buffer size: " << responseInfo.response.size() << std::endl;
 
-				// If we need to update the handler, we could do it here
-				// For now, we'll keep using the same handler
+				if (responseInfo.newHandler != nullptr && responseInfo.newHandler != handler)
+				{
+					delete handler; // Clean up the old handler
+					handler = responseInfo.newHandler;
+					{
+						std::lock_guard<std::mutex> lock(m_clientsMutex);
+						m_clients[clientSocket] = handler;
+					}
+				}
 			}
 			catch (const std::exception& e)
 			{
@@ -263,6 +333,12 @@ void Communicator::sendResponse(SOCKET sc, int messageCode, const std::vector<un
 
 	// Add the actual message
 	fullResponse.insert(fullResponse.end(), buffer.begin(), buffer.end());
+
+	if (!buffer.empty())
+	{
+		std::string sentMessageContent(buffer.begin(), buffer.end());
+		std::cout << "Message content (sent): " << sentMessageContent << std::endl;
+	}
 
 	// Send the full response
 	sendBuffer(sc, fullResponse);
