@@ -50,10 +50,10 @@ CreateRoomRequest JsonRequestPacketDeserializer::deserializeCreateRoomRequest(co
 	auto j = parseJson(buffer);
 
 	return CreateRoomRequest{
-		j.at("roomName").get<std::string>(),
-		j.at("maxUsers").get<unsigned int>(),
-		j.at("questionCount").get<unsigned int>(),
-		j.at("answerTimeout").get<unsigned int>()
+		j.at("RoomName").get<std::string>(),
+		j.at("MaxUsers").get<unsigned int>(),
+		j.at("QuestionCount").get<unsigned int>(),
+		j.at("AnswerTimeout").get<unsigned int>()
 	};
 }
 
