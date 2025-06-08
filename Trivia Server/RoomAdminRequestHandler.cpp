@@ -1,7 +1,9 @@
 #include "RoomAdminRequestHandler.h"
+#include "JsonRequestPacketDeserializer.h"
+#include "JsonResponsePacketSerializer.h"
 
-RoomAdminRequestHandler::RoomAdminRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager)
-	: BaseRoomRequestHandler(database, roomManager, statisticsManager)
+RoomAdminRequestHandler::RoomAdminRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username)
+	: BaseRoomRequestHandler(database, roomManager, statisticsManager), m_username(username)
 {
 }
 
@@ -43,13 +45,18 @@ RequestResult RoomAdminRequestHandler::handleCloseRoomRequest(const RequestInfo&
 {
 	try
 	{
-		JsonRequestPacketDeserializer deserializer;
-		CloseRoomRequest closeRoomRequest = deserializer.deserializeCloseRoomRequest(requestInfo.buffer);
+		std::optional<unsigned int> roomIdOpt = m_roomManager->getRoomIdByUser(m_username);
 
-		// Get users in room before deleting the room
-		std::vector<std::string> usersInRoom = m_roomManager->getUsersInRoom(closeRoomRequest.roomId);
+		if (!roomIdOpt.has_value())
+		{
+			return createErrorResponse("User is not in any room");
+		}
 
-		bool success = m_roomManager->deleteRoom(closeRoomRequest.roomId);
+		unsigned int roomId = roomIdOpt.value();
+
+		std::vector<std::string> usersInRoom = m_roomManager->getUsersInRoom(roomId);
+
+		bool success = m_roomManager->deleteRoom(roomId);
 
 		CloseRoomResponse response;
 		response.status = success ? (unsigned int)Status::SUCCESS : (unsigned int)Status::FAILURE;
@@ -66,7 +73,7 @@ RequestResult RoomAdminRequestHandler::handleCloseRoomRequest(const RequestInfo&
 			leaveResponse.status = (unsigned int)Status::SUCCESS;
 			std::vector<unsigned char> leaveResponseBuffer = JsonResponsePacketSerializer::serializeResponse(leaveResponse);
 
-			// havnt done yet: Send leaveResponseBuffer to all users in usersInRoom through the server/communicator
+			// TODO: Send leaveResponseBuffer to all users in usersInRoom through the server/communicator
 			// This would typically be done through a callback or notification system
 		}
 
@@ -82,9 +89,16 @@ RequestResult RoomAdminRequestHandler::handleStartGameRequest(const RequestInfo&
 {
 	try
 	{
-		// StartGameRequest has no data, only request code (similar to CloseRoomRequest pattern)
-		// We need to determine which room to start - this might need additional context
-		// For now, creating a successful response
+		std::optional<unsigned int> roomIdOpt = m_roomManager->getRoomIdByUser(m_username);
+
+		if (!roomIdOpt.has_value())
+		{
+			return createErrorResponse("User is not in any room");
+		}
+
+		unsigned int roomId = roomIdOpt.value();
+
+		std::vector<std::string> usersInRoom = m_roomManager->getUsersInRoom(roomId);
 
 		StartGameResponse response;
 		response.status = (unsigned int)Status::SUCCESS;
@@ -92,11 +106,61 @@ RequestResult RoomAdminRequestHandler::handleStartGameRequest(const RequestInfo&
 		RequestResult result;
 		result.id = ResponseCode::START_GAME_RESPONSE;
 		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = this; // Could be replaced with a GameRequestHandler in the future
+		result.newHandler = this; // Will be replaced with a GameRequestHandler in the future
 
-		// havnt done yet: Send StartGameResponse to all room members
-		// Need room ID to get users and notify them about game start
-		// This requires additional context about which room the admin is starting
+		// Send StartGameResponse to all room members
+		StartGameResponse startGameResponse;
+		startGameResponse.status = (unsigned int)Status::SUCCESS;
+		std::vector<unsigned char> startGameResponseBuffer = JsonResponsePacketSerializer::serializeResponse(startGameResponse);
+
+		// TODO: Send startGameResponseBuffer to all users in usersInRoom through the server/communicator
+		// This would typically be done through a callback or notification system
+
+		return result;
+	}
+	catch (const std::exception& e)
+	{
+		return createErrorResponse(e.what());
+	}
+}
+
+RequestResult RoomAdminRequestHandler::handleGetRoomStateRequest(const RequestInfo& requestInfo)
+{
+	try
+	{
+		std::optional<unsigned int> roomIdOpt = m_roomManager->getRoomIdByUser(m_username);
+
+		if (!roomIdOpt.has_value())
+		{
+			return createErrorResponse("User is not in any room");
+		}
+
+		unsigned int roomId = roomIdOpt.value();
+
+		// Get room object to access its properties
+		std::optional<std::reference_wrapper<Room>> roomOpt = m_roomManager->getRoom(roomId);
+		if (!roomOpt.has_value())
+		{
+			return createErrorResponse("Room not found");
+		}
+
+		Room& room = roomOpt->get();
+
+		RoomState roomState = m_roomManager->getRoomState(roomId);
+
+		std::vector<std::string> usersInRoom = room.getAllUsers();
+
+		GetRoomStateResponse response;
+		response.status = (unsigned int)Status::SUCCESS;
+		response.players = usersInRoom;
+		response.hasGameBegun = (roomState == RoomState::GAME_IN_PROGRESS);
+		response.questionCount = room.getNumOfQuestionsInGame();
+		response.answerTimeout = room.getTimePerQuestion();
+
+		RequestResult result;
+		result.id = ResponseCode::GET_ROOM_STATE_RESPONSE;
+		result.response = JsonResponsePacketSerializer::serializeResponse(response);
+		result.newHandler = this;
 
 		return result;
 	}

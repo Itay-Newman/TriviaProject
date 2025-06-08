@@ -34,12 +34,13 @@ MenuRequestHandler* RequestHandlerFactory::createMenuRequestHandler(const std::s
 	);
 }
 
-RoomAdminRequestHandler* RequestHandlerFactory::createRoomAdminRequestHandler()
+RoomAdminRequestHandler* RequestHandlerFactory::createRoomAdminRequestHandler(const std::string& username) 
 {
 	return new RoomAdminRequestHandler(
 		this->m_Database,
 		this->m_RoomManager,
-		this->m_statisticsManager
+		this->m_statisticsManager,
+		username
 	);
 }
 

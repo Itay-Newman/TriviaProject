@@ -13,6 +13,7 @@ public:
 
 private:
 	RequestResult handleLeaveRoomRequest(const RequestInfo& requestInfo);
+	RequestResult handleGetRoomStateRequest(const RequestInfo& requestInfo);
 
 	std::string m_username;
 };

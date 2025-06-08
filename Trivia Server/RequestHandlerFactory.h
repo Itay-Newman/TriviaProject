@@ -18,7 +18,7 @@ public:
 
 	LoginRequestHandler* createLoginRequestHandler();
 	MenuRequestHandler* createMenuRequestHandler(const std::string& username);
-	RoomAdminRequestHandler* createRoomAdminRequestHandler();
+	RoomAdminRequestHandler* createRoomAdminRequestHandler(const std::string& username);
 	RoomMemberRequestHandler* createRoomMemberRequestHandler(const std::string& username);
 
 	LoginManager& getLoginManager();
