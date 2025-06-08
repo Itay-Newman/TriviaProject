@@ -1,9 +1,11 @@
 #include "RoomMemberRequestHandler.h"
 #include "JsonRequestPacketDeserializer.h"
 #include "JsonResponsePacketSerializer.h"
+#include "Communicator.h"
 
-RoomMemberRequestHandler::RoomMemberRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username)
-	: BaseRoomRequestHandler(database, roomManager, statisticsManager), m_username(username)
+RoomMemberRequestHandler::RoomMemberRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager,
+	const std::string& username, Communicator* communicator)
+	: BaseRoomRequestHandler(database, roomManager, statisticsManager), m_username(username), m_communicator(communicator)
 {
 }
 
@@ -51,6 +53,9 @@ RequestResult RoomMemberRequestHandler::handleLeaveRoomRequest(const RequestInfo
 
 		unsigned int roomId = roomIdOpt.value();
 
+		// Get all users in the room BEFORE removing the user
+		std::vector<std::string> usersInRoom = m_roomManager->getUsersInRoom(roomId);
+
 		bool success = m_roomManager->removeUserFromRoom(roomId, m_username);
 
 		LeaveRoomResponse response;
@@ -60,6 +65,25 @@ RequestResult RoomMemberRequestHandler::handleLeaveRoomRequest(const RequestInfo
 		result.id = ResponseCode::LEAVE_ROOM_RESPONSE;
 		result.response = JsonResponsePacketSerializer::serializeResponse(response);
 		result.newHandler = this;
+
+		// Send LeaveRoomResponse to all remaining room members (excluding the user who left)
+		if (success && m_communicator != nullptr)
+		{
+			// Remove the leaving user from the list
+			usersInRoom.erase(std::remove(usersInRoom.begin(), usersInRoom.end(), m_username), usersInRoom.end());
+
+			if (!usersInRoom.empty())
+			{
+				LeaveRoomResponse leaveResponse;
+				leaveResponse.status = (unsigned int)Status::SUCCESS;
+				std::vector<unsigned char> leaveResponseBuffer = JsonResponsePacketSerializer::serializeResponse(leaveResponse);
+
+				// Send LeaveRoomResponse to all remaining users in the room
+				m_communicator->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::LEAVE_ROOM_RESPONSE), leaveResponseBuffer);
+
+				std::cout << "Sent LeaveRoomResponse to all " << usersInRoom.size() << " remaining users in room " << roomId << std::endl;
+			}
+		}
 
 		return result;
 	}

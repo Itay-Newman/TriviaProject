@@ -2,10 +2,13 @@
 
 #include "BaseRoomRequestHandler.h"
 
+class Communicator;
+
 class RoomAdminRequestHandler : public BaseRoomRequestHandler
 {
 public:
-	RoomAdminRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username);
+	RoomAdminRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager,
+		const std::string& username, Communicator* communicator);
 	~RoomAdminRequestHandler() = default;
 
 	virtual bool isRequestRelevant(const RequestInfo& requestInfo) override;
@@ -17,4 +20,5 @@ private:
 	RequestResult handleGetRoomStateRequest(const RequestInfo& requestInfo);
 
 	std::string m_username;
+	Communicator* m_communicator;
 };

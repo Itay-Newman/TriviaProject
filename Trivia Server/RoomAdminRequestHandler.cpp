@@ -1,9 +1,11 @@
 #include "RoomAdminRequestHandler.h"
 #include "JsonRequestPacketDeserializer.h"
 #include "JsonResponsePacketSerializer.h"
+#include "Communicator.h"
 
-RoomAdminRequestHandler::RoomAdminRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username)
-	: BaseRoomRequestHandler(database, roomManager, statisticsManager), m_username(username)
+RoomAdminRequestHandler::RoomAdminRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager,
+	const std::string& username, Communicator* communicator)
+	: BaseRoomRequestHandler(database, roomManager, statisticsManager), m_username(username), m_communicator(communicator)
 {
 }
 
@@ -54,6 +56,7 @@ RequestResult RoomAdminRequestHandler::handleCloseRoomRequest(const RequestInfo&
 
 		unsigned int roomId = roomIdOpt.value();
 
+		// Get all users in the room BEFORE deleting the room
 		std::vector<std::string> usersInRoom = m_roomManager->getUsersInRoom(roomId);
 
 		bool success = m_roomManager->deleteRoom(roomId);
@@ -67,14 +70,16 @@ RequestResult RoomAdminRequestHandler::handleCloseRoomRequest(const RequestInfo&
 		result.newHandler = this;
 
 		// Send LeaveRoomResponse to all room members
-		if (success)
+		if (success && m_communicator != nullptr)
 		{
 			LeaveRoomResponse leaveResponse;
 			leaveResponse.status = (unsigned int)Status::SUCCESS;
 			std::vector<unsigned char> leaveResponseBuffer = JsonResponsePacketSerializer::serializeResponse(leaveResponse);
 
-			// TODO: Send leaveResponseBuffer to all users in usersInRoom through the server/communicator
-			// This would typically be done through a callback or notification system
+			// Send LeaveRoomResponse to all users in the room
+			m_communicator->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::LEAVE_ROOM_RESPONSE), leaveResponseBuffer);
+
+			std::cout << "Sent LeaveRoomResponse to all " << usersInRoom.size() << " users in room " << roomId << std::endl;
 		}
 
 		return result;
@@ -109,12 +114,17 @@ RequestResult RoomAdminRequestHandler::handleStartGameRequest(const RequestInfo&
 		result.newHandler = this; // Will be replaced with a GameRequestHandler in the future
 
 		// Send StartGameResponse to all room members
-		StartGameResponse startGameResponse;
-		startGameResponse.status = (unsigned int)Status::SUCCESS;
-		std::vector<unsigned char> startGameResponseBuffer = JsonResponsePacketSerializer::serializeResponse(startGameResponse);
+		if (m_communicator != nullptr)
+		{
+			StartGameResponse startGameResponse;
+			startGameResponse.status = (unsigned int)Status::SUCCESS;
+			std::vector<unsigned char> startGameResponseBuffer = JsonResponsePacketSerializer::serializeResponse(startGameResponse);
 
-		// TODO: Send startGameResponseBuffer to all users in usersInRoom through the server/communicator
-		// This would typically be done through a callback or notification system
+			// Send StartGameResponse to all users in the room
+			m_communicator->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::START_GAME_RESPONSE), startGameResponseBuffer);
+
+			std::cout << "Sent StartGameResponse to all " << usersInRoom.size() << " users in room " << roomId << std::endl;
+		}
 
 		return result;
 	}

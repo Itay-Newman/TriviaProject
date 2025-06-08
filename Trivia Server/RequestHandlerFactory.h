@@ -9,12 +9,15 @@
 class LoginRequestHandler;
 class RoomAdminRequestHandler;
 class RoomMemberRequestHandler;
+class Communicator;
 
 class RequestHandlerFactory
 {
 public:
 	explicit RequestHandlerFactory(IDatabase& database);
 	~RequestHandlerFactory();
+
+	void setCommunicator(Communicator* communicator);
 
 	LoginRequestHandler* createLoginRequestHandler();
 	MenuRequestHandler* createMenuRequestHandler(const std::string& username);
@@ -31,4 +34,5 @@ private:
 	LoginManager* m_LoginManager;
 	RoomManager* m_RoomManager;
 	StatisticsManager* m_statisticsManager;
+	Communicator* m_communicator;
 };
