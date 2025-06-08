@@ -49,14 +49,30 @@ CreateRoomRequest JsonRequestPacketDeserializer::deserializeCreateRoomRequest(co
 {
 	auto j = parseJson(buffer);
 
-	std::cout << j;
-
 	return CreateRoomRequest{
-		j.at("RoomName").get<std::string>(),
-		j.at("MaxUsers").get<unsigned int>(),
-		j.at("QuestionCount").get<unsigned int>(),
-		j.at("AnswerTimeout").get<unsigned int>()
+		j.at("roomName").get<std::string>(),
+		j.at("maxUsers").get<unsigned int>(),
+		j.at("questionCount").get<unsigned int>(),
+		j.at("answerTimeout").get<unsigned int>()
 	};
+}
+
+CloseRoomRequest JsonRequestPacketDeserializer::deserializeCloseRoomRequest(const std::vector<unsigned char>& buffer)
+{
+	// No data to parse - user can only be admin of one room
+	return CloseRoomRequest{ 0 };
+}
+
+GetRoomStateRequest JsonRequestPacketDeserializer::deserializeGetRoomStateRequest(const std::vector<unsigned char>& buffer)
+{
+	// No data to parse - user can only be in one room
+	return GetRoomStateRequest{ 0 };
+}
+
+LeaveRoomRequest JsonRequestPacketDeserializer::deserializeLeaveRoomRequest(const std::vector<unsigned char>& buffer)
+{
+	// Same...
+	return LeaveRoomRequest{ 0 };
 }
 
 bool JsonRequestPacketDeserializer::isRequestWithNoData(unsigned int requestCode)
