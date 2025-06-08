@@ -34,6 +34,7 @@ public:
 	bool removeUserFromRoom(unsigned int roomId, const std::string& username);
 	std::vector<std::string> getUsersInRoom(unsigned int roomId) const;
 	bool isRoomActive(unsigned int roomId) const;
+	std::optional<unsigned int> getRoomIdByUser(const std::string& username) const;
 
 private:
 	unsigned int m_nextRoomId;

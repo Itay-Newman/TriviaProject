@@ -40,10 +40,10 @@ RequestResult LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 		response.response = JsonResponsePacketSerializer::serializeResponse(loginResponse);
 		response.id = ResponseCode::LOGIN_RESPONSE;
 
-		// Assuming status 0 = success, non-zero = failure
+		// Assuming status 1 = success, 0 = failure
 		if (loginResponse.status == (int)Status::SUCCESS)
 		{
-			response.newHandler = m_handlerFactory.createMenuRequestHandler(loginRequest.username);
+			response.newHandler = new MenuRequestHandler(m_handlerFactory.getDataBase(), &m_handlerFactory.getLoginManager(), &m_handlerFactory.getRoomManager(), &m_handlerFactory.getStatisticsManager(), loginRequest.username);
 		}
 		else
 		{
@@ -61,7 +61,7 @@ RequestResult LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 
 		if (signupResponse.status == (int)Status::SUCCESS)
 		{
-			response.newHandler = m_handlerFactory.createMenuRequestHandler(signupRequest.username);
+			response.newHandler = new MenuRequestHandler(m_handlerFactory.getDataBase(), &m_handlerFactory.getLoginManager(), &m_handlerFactory.getRoomManager(), &m_handlerFactory.getStatisticsManager(), signupRequest.username);
 		}
 		else
 		{
