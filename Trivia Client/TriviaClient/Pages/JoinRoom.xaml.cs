@@ -35,8 +35,7 @@ namespace TriviaClient.Pages
 
                 if (joinRoomResponse.Status == (uint)TriviaClient.StatusCode.OK)
                 {
-                    MessageBox.Show("Joined room successfully!");
-                    // Optionally navigate to the room lobby
+                    NavigationService.Navigate(new RoomBeforeGame(false));
                 }
                 else
                 {

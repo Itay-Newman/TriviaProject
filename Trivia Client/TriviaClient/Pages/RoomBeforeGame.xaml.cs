@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace TriviaClient.Pages
 {
@@ -20,9 +8,33 @@ namespace TriviaClient.Pages
     /// </summary>
     public partial class RoomBeforeGame : Page
     {
-        public RoomBeforeGame()
+        public RoomBeforeGame(bool isAdmin)
         {
             InitializeComponent();
+
+            if (isAdmin)
+            {
+                AdminControlsPanel.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                AdminControlsPanel.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void LeaveRoom_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Leaving room is not implemented yet.");
+        }
+
+        private void StartGame_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Starting game is not implemented yet.");
+        }
+
+        private void CloseRoom_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Closing room is not implemented yet.");
         }
     }
 }
