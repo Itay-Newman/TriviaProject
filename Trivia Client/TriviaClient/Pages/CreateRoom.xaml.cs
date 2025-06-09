@@ -45,7 +45,7 @@ namespace TriviaClient.Pages
 
             if (createRoomResponse.Status == 1)
             {
-                NavigationService.Navigate(new RoomBeforeGame());
+                NavigationService.Navigate(new RoomBeforeGame(true));
             }
             else
             {

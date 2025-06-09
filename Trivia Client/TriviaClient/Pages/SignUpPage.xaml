@@ -8,6 +8,48 @@
       mc:Ignorable="d"
       Title="Trivia Game" Height="450" Width="800" Background="Black">
 
+    <Page.Resources>
+        <!-- Stylish Button Style -->
+        <Style x:Key="ModernButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FF3A86FF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#66000000" BlurRadius="8" ShadowDepth="2"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF265DAB"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#FF1B3A6B"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#FFB0B0B0"/>
+                    <Setter Property="Foreground" Value="#FFEEEEEE"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
+
     <Grid>
         <Image Source="/Photos/download.jpeg" Stretch="Fill" Panel.ZIndex="0"/>
 
@@ -20,7 +62,7 @@
 
                 <xctk:WatermarkTextBox x:Name="Email" Watermark="Email" Height="45" FontSize="24" Margin="0,0,0,10"/>
 
-                <Button x:Name="SignUpButton" Content="Sign Up" Width="120" Height="45" FontSize="22" FontWeight="Bold" Background="Gray" Foreground="Black" Click="SignUpButton_Click"/>
+                <Button x:Name="SignUpButton" Content="Sign Up" Width="120" Height="45" FontSize="22" FontWeight="Bold" Click="SignUpButton_Click" Style="{StaticResource ModernButtonStyle}"/>
             </StackPanel>
         </Grid>
     </Grid>

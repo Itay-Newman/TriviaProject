@@ -24,12 +24,53 @@
             <!-- Form with dark background -->
             <Border Grid.Row="1" Background="#AA000000" CornerRadius="10" Padding="20" Margin="0,5,0,40" HorizontalAlignment="Center" Width="320">
                 <StackPanel>
+                    <!-- Stylish Button Style -->
+                    <StackPanel.Resources>
+                        <Style x:Key="ModernButtonStyle" TargetType="Button">
+                            <Setter Property="Background" Value="#FF3A86FF"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="FontSize" Value="16"/>
+                            <Setter Property="Padding" Value="8,4"/>
+                            <Setter Property="Margin" Value="0,8,0,0"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Effect">
+                                <Setter.Value>
+                                    <DropShadowEffect Color="#66000000" BlurRadius="8" ShadowDepth="2"/>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                                                SnapsToDevicePixels="True">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#FF265DAB"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Background" Value="#FF1B3A6B"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Background" Value="#FFB0B0B0"/>
+                                    <Setter Property="Foreground" Value="#FFEEEEEE"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Resources>
+
                     <xctk:WatermarkTextBox x:Name="RoomName" Height="30" FontSize="15" Margin="0,5" Watermark="Room Name"/>
                     <xctk:WatermarkTextBox x:Name="QuestionTime" Height="30" FontSize="15" Margin="0,5" Watermark="Time per Question (sec)"/>
                     <xctk:WatermarkTextBox x:Name="PlayerCount" Height="30" FontSize="15" Margin="0,5" Watermark="Max Players"/>
-                    <xctk:WatermarkTextBox x:Name="QuestionCount" Height="30" FontSize="15" Margin="0,5" Watermark="Question Number"></xctk:WatermarkTextBox>
+                    <xctk:WatermarkTextBox x:Name="QuestionCount" Height="30" FontSize="15" Margin="0,5" Watermark="Question Number"/>
 
-                    <Button Content="Create" Height="45" FontSize="20" Margin="0,5,0,0" Click="CreateRoom_Click"/>
+                    <Button Content="Create" Height="45" FontSize="20" Margin="0,5,0,0" Click="CreateRoom_Click" Style="{StaticResource ModernButtonStyle}"/>
                 </StackPanel>
             </Border>
         </Grid>

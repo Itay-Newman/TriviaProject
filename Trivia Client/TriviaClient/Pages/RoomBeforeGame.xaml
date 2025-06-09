@@ -10,6 +10,49 @@
     <Grid Background="Transparent">
         <Border Background="#AA000000" CornerRadius="10" Padding="20" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center">
             <StackPanel>
+
+                <!-- Stylish Button Style -->
+                <StackPanel.Resources>
+                    <Style x:Key="ModernButtonStyle" TargetType="Button">
+                        <Setter Property="Background" Value="#FF3A86FF"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="FontSize" Value="16"/>
+                        <Setter Property="Padding" Value="8,4"/>
+                        <Setter Property="Margin" Value="0,8,0,0"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect Color="#66000000" BlurRadius="8" ShadowDepth="2"/>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                             CornerRadius="8"
+                             SnapsToDevicePixels="True">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FF265DAB"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#FF1B3A6B"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#FFB0B0B0"/>
+                                <Setter Property="Foreground" Value="#FFEEEEEE"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Resources>
+
                 <TextBlock Text="Connected Players" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
                 <ListBox FontSize="18" Background="Transparent" BorderThickness="0" Foreground="White">
@@ -18,6 +61,14 @@
                     <ListBoxItem Content="Charlie"/>
                     <ListBoxItem Content="Dana"/>
                 </ListBox>
+
+                <Button Content="Leave Room" Width="150" Height="45" Click="LeaveRoom_Click" HorizontalAlignment="Center" Style="{StaticResource ModernButtonStyle}"/>
+
+                <StackPanel x:Name="AdminControlsPanel" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+
+                    <Button Content="Start Game" Width="150" Height="45" Margin="0,0,10,0" Click="StartGame_Click" Style="{StaticResource ModernButtonStyle}"/>
+                    <Button Content="Close Room" Width="150" Height="45" Margin="0,0,0,0" Click="CloseRoom_Click" Style="{StaticResource ModernButtonStyle}"/>
+                </StackPanel>
             </StackPanel>
         </Border>
     </Grid>
