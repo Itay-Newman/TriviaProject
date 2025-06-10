@@ -7,8 +7,6 @@
 #include "StatisticsManager.h"
 
 class LoginRequestHandler;
-class RoomAdminRequestHandler;
-class RoomMemberRequestHandler;
 class Communicator;
 
 class RequestHandlerFactory
@@ -28,6 +26,7 @@ public:
 	IDatabase& getDataBase();
 	RoomManager& getRoomManager();
 	StatisticsManager& getStatisticsManager();
+	Communicator* getCommunicator();
 
 private:
 	IDatabase& m_Database;

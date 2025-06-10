@@ -1,23 +1,19 @@
 #pragma once
 
-#include "BaseRoomRequestHandler.h"
+#include "RequestHandlerFactory.h"
 
-class Communicator;
+class RequestHandlerFactory;
 
 class RoomMemberRequestHandler : public BaseRoomRequestHandler
 {
 public:
-	RoomMemberRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager,
-		const std::string& username, Communicator* communicator);
+	RoomMemberRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username, RequestHandlerFactory* handlerFactory);
 	~RoomMemberRequestHandler() = default;
 
-	virtual bool isRequestRelevant(const RequestInfo& requestInfo) override;
-	virtual RequestResult handleRequest(const RequestInfo& requestInfo) override;
+	virtual bool isRequestRelevant(const RequestInfo& requestInfo);
+	virtual RequestResult handleRequest(const RequestInfo& requestInfo);
 
 private:
 	RequestResult handleLeaveRoomRequest(const RequestInfo& requestInfo);
 	RequestResult handleGetRoomStateRequest(const RequestInfo& requestInfo);
-
-	std::string m_username;
-	Communicator* m_communicator;
 };

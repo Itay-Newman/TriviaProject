@@ -4,9 +4,10 @@
 #include "Communicator.h"
 
 RoomMemberRequestHandler::RoomMemberRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager,
-	const std::string& username, Communicator* communicator)
-	: BaseRoomRequestHandler(database, roomManager, statisticsManager), m_username(username), m_communicator(communicator)
+	const std::string& username, RequestHandlerFactory* handlerFactory)
+	: BaseRoomRequestHandler(database, roomManager, statisticsManager, handlerFactory)
 {
+	this->m_username = username;
 }
 
 bool RoomMemberRequestHandler::isRequestRelevant(const RequestInfo& requestInfo)
@@ -67,7 +68,7 @@ RequestResult RoomMemberRequestHandler::handleLeaveRoomRequest(const RequestInfo
 		result.newHandler = this;
 
 		// Send LeaveRoomResponse to all remaining room members (excluding the user who left)
-		if (success && m_communicator != nullptr)
+		if (success && this->m_HandlerFactory.getCommunicator() != nullptr)
 		{
 			// Remove the leaving user from the list
 			usersInRoom.erase(std::remove(usersInRoom.begin(), usersInRoom.end(), m_username), usersInRoom.end());
@@ -79,7 +80,7 @@ RequestResult RoomMemberRequestHandler::handleLeaveRoomRequest(const RequestInfo
 				std::vector<unsigned char> leaveResponseBuffer = JsonResponsePacketSerializer::serializeResponse(leaveResponse);
 
 				// Send LeaveRoomResponse to all remaining users in the room
-				m_communicator->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::LEAVE_ROOM_RESPONSE), leaveResponseBuffer);
+				this->m_HandlerFactory.getCommunicator()->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::LEAVE_ROOM_RESPONSE), leaveResponseBuffer);
 
 				std::cout << "Sent LeaveRoomResponse to all " << usersInRoom.size() << " remaining users in room " << roomId << std::endl;
 			}

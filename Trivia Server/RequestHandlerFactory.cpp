@@ -47,7 +47,7 @@ RoomAdminRequestHandler* RequestHandlerFactory::createRoomAdminRequestHandler(co
 		this->m_RoomManager,
 		this->m_statisticsManager,
 		username,
-		this->m_communicator
+		this
 	);
 }
 
@@ -58,7 +58,7 @@ RoomMemberRequestHandler* RequestHandlerFactory::createRoomMemberRequestHandler(
 		this->m_RoomManager,
 		this->m_statisticsManager,
 		username,
-		this->m_communicator
+		this
 	);
 }
 
@@ -80,4 +80,9 @@ RoomManager& RequestHandlerFactory::getRoomManager()
 StatisticsManager& RequestHandlerFactory::getStatisticsManager()
 {
 	return *this->m_statisticsManager;
+}
+
+Communicator* RequestHandlerFactory::getCommunicator()
+{
+	return this->m_communicator;
 }

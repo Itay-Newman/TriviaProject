@@ -5,6 +5,8 @@
 #include "IDatabase.h"
 #include "RoomManager.h"
 #include "StatisticsManager.h"
+#include "RoomAdminRequestHandler.h"
+#include "RoomMemberRequestHandler.h"
 
 class MenuRequestHandler : public IRequestHandler
 {

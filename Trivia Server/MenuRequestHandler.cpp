@@ -103,7 +103,7 @@ RequestResult MenuRequestHandler::handleCreateRoomRequest(const RequestInfo& req
 		RequestResult result;
 		result.id = ResponseCode::CREATE_ROOM_RESPONSE;
 		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = this;
+		result.newHandler = new RoomAdminRequestHandler(m_database, m_roomManager, m_statisticsManager, m_username);
 
 		return result;
 	}
@@ -213,7 +213,7 @@ RequestResult MenuRequestHandler::handleJoinRoomRequest(const RequestInfo& reque
 		RequestResult result;
 		result.id = ResponseCode::JOIN_ROOM_RESPONSE;
 		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = this;
+		result.newHandler = new RoomMemberRequestHandler(m_database, m_roomManager, m_statisticsManager, m_username);
 
 		return result;
 	}

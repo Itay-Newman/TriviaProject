@@ -103,7 +103,6 @@
 
     public struct GetRoomStateRequest
     {
-        public uint RoomId { get; set; }
     }
 
     public struct LeaveRoomRequest
@@ -135,7 +134,8 @@
 
     public struct GetPlayersInRoomResponse
     {
-        public List<string> Rooms { get; set; }
+        public uint Status { get; set; }
+        public List<string> users { get; set; }
     }
 
     public struct GetHighScoreResponse

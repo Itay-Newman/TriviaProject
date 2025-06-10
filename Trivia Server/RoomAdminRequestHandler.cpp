@@ -2,11 +2,12 @@
 #include "JsonRequestPacketDeserializer.h"
 #include "JsonResponsePacketSerializer.h"
 #include "Communicator.h"
+#include "Server.h"
 
 RoomAdminRequestHandler::RoomAdminRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager,
-	const std::string& username, Communicator* communicator)
-	: BaseRoomRequestHandler(database, roomManager, statisticsManager), m_username(username), m_communicator(communicator)
+	const std::string& username, RequestHandlerFactory* handlerFactory) : BaseRoomRequestHandler(database, roomManager, statisticsManager, handlerFactory)
 {
+	this->m_username = username;
 }
 
 bool RoomAdminRequestHandler::isRequestRelevant(const RequestInfo& requestInfo)
@@ -70,16 +71,18 @@ RequestResult RoomAdminRequestHandler::handleCloseRoomRequest(const RequestInfo&
 		result.newHandler = this;
 
 		// Send LeaveRoomResponse to all room members
-		if (success && m_communicator != nullptr)
+		if (success)
 		{
 			LeaveRoomResponse leaveResponse;
 			leaveResponse.status = (unsigned int)Status::SUCCESS;
 			std::vector<unsigned char> leaveResponseBuffer = JsonResponsePacketSerializer::serializeResponse(leaveResponse);
 
 			// Send LeaveRoomResponse to all users in the room
-			m_communicator->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::LEAVE_ROOM_RESPONSE), leaveResponseBuffer);
-
-			std::cout << "Sent LeaveRoomResponse to all " << usersInRoom.size() << " users in room " << roomId << std::endl;
+			if (this->m_HandlerFactory.getCommunicator() != nullptr)
+			{
+				this->m_HandlerFactory.getCommunicator()->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::LEAVE_ROOM_RESPONSE), leaveResponseBuffer);
+				std::cout << "Sent LeaveRoomResponse to all " << usersInRoom.size() << " users in room " << roomId << std::endl;
+			}
 		}
 
 		return result;
@@ -114,14 +117,14 @@ RequestResult RoomAdminRequestHandler::handleStartGameRequest(const RequestInfo&
 		result.newHandler = this; // Will be replaced with a GameRequestHandler in the future
 
 		// Send StartGameResponse to all room members
-		if (m_communicator != nullptr)
+		if (this->m_HandlerFactory.getCommunicator() != nullptr)
 		{
 			StartGameResponse startGameResponse;
 			startGameResponse.status = (unsigned int)Status::SUCCESS;
 			std::vector<unsigned char> startGameResponseBuffer = JsonResponsePacketSerializer::serializeResponse(startGameResponse);
 
 			// Send StartGameResponse to all users in the room
-			m_communicator->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::START_GAME_RESPONSE), startGameResponseBuffer);
+			this->m_HandlerFactory.getCommunicator()->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::START_GAME_RESPONSE), startGameResponseBuffer);
 
 			std::cout << "Sent StartGameResponse to all " << usersInRoom.size() << " users in room " << roomId << std::endl;
 		}
