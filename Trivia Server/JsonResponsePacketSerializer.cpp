@@ -68,7 +68,8 @@ std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const
 std::vector<unsigned char> JsonResponsePacketSerializer::serializeResponse(const GetPlayersInRoomResponse& response)
 {
 	nlohmann::json j = {
-		{"rooms", response.users}
+		{"status", response.status },
+		{"players", response.users }
 	};
 
 	return toBytes(j);

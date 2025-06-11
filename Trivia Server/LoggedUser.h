@@ -13,6 +13,7 @@ public:
 	~LoggedUser() = default;
 
 	std::string getUsername() const;
+	void setUsername(std::string username);
 private:
-	std::string username;
+	std::string m_username;
 };

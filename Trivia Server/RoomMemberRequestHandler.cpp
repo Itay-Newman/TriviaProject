@@ -1,43 +1,34 @@
-#include "RoomMemberRequestHandler.h"
-#include "JsonRequestPacketDeserializer.h"
-#include "JsonResponsePacketSerializer.h"
-#include "Communicator.h"
+#include "BaseRoomRequestHandler.h"
+#include "MenuRequestHandler.h"
 
 RoomMemberRequestHandler::RoomMemberRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager,
-	const std::string& username, Communicator* communicator)
-	: BaseRoomRequestHandler(database, roomManager, statisticsManager), m_username(username), m_communicator(communicator)
+	const std::string& username, RequestHandlerFactory* handlerFactory)
+	: BaseRoomRequestHandler(database, roomManager, statisticsManager, handlerFactory)
 {
+	this->m_username = username;
 }
 
 bool RoomMemberRequestHandler::isRequestRelevant(const RequestInfo& requestInfo)
 {
-	if (requestInfo.buffer.size() >= 1)
-	{
-		unsigned char code = requestInfo.buffer[0];
-		return code == static_cast<unsigned char>(RequestCodes::LEAVE_ROOM_REQUEST) ||
-			code == static_cast<unsigned char>(RequestCodes::GET_ROOM_STATE_REQUEST);
-	}
+	unsigned int code = requestInfo.id;
+	return code == static_cast<unsigned int>(RequestCodes::LEAVE_ROOM_REQUEST) ||
+		code == static_cast<unsigned int>(RequestCodes::GET_ROOM_STATE_REQUEST);
 	return false;
 }
 
 RequestResult RoomMemberRequestHandler::handleRequest(const RequestInfo& requestInfo)
 {
-	if (requestInfo.buffer.size() >= 1)
+	unsigned int code = requestInfo.id;
+
+	switch (static_cast<RequestCodes>(code))
 	{
-		unsigned char code = requestInfo.buffer[0];
-
-		switch (static_cast<RequestCodes>(code))
-		{
-		case RequestCodes::LEAVE_ROOM_REQUEST:
-			return handleLeaveRoomRequest(requestInfo);
-		case RequestCodes::GET_ROOM_STATE_REQUEST:
-			return handleGetRoomStateRequest(requestInfo);
-		default:
-			return createErrorResponse("Request type not supported");
-		}
+	case RequestCodes::LEAVE_ROOM_REQUEST:
+		return handleLeaveRoomRequest(requestInfo);
+	case RequestCodes::GET_ROOM_STATE_REQUEST:
+		return handleGetRoomStateRequest(requestInfo);
+	default:
+		return createErrorResponse("Request type not supported");
 	}
-
-	return createErrorResponse("Invalid request format");
 }
 
 RequestResult RoomMemberRequestHandler::handleLeaveRoomRequest(const RequestInfo& requestInfo)
@@ -64,10 +55,10 @@ RequestResult RoomMemberRequestHandler::handleLeaveRoomRequest(const RequestInfo
 		RequestResult result;
 		result.id = ResponseCode::LEAVE_ROOM_RESPONSE;
 		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = this;
+		result.newHandler = dynamic_cast<IRequestHandler*>(m_HandlerFactory.createMenuRequestHandler(m_username));
 
 		// Send LeaveRoomResponse to all remaining room members (excluding the user who left)
-		if (success && m_communicator != nullptr)
+		if (success && this->m_HandlerFactory.getCommunicator() != nullptr)
 		{
 			// Remove the leaving user from the list
 			usersInRoom.erase(std::remove(usersInRoom.begin(), usersInRoom.end(), m_username), usersInRoom.end());
@@ -79,7 +70,7 @@ RequestResult RoomMemberRequestHandler::handleLeaveRoomRequest(const RequestInfo
 				std::vector<unsigned char> leaveResponseBuffer = JsonResponsePacketSerializer::serializeResponse(leaveResponse);
 
 				// Send LeaveRoomResponse to all remaining users in the room
-				m_communicator->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::LEAVE_ROOM_RESPONSE), leaveResponseBuffer);
+				this->m_HandlerFactory.getCommunicator()->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::LEAVE_ROOM_RESPONSE), leaveResponseBuffer);
 
 				std::cout << "Sent LeaveRoomResponse to all " << usersInRoom.size() << " remaining users in room " << roomId << std::endl;
 			}

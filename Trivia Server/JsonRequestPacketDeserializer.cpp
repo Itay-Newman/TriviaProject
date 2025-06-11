@@ -41,7 +41,7 @@ JoinRoomRequest JsonRequestPacketDeserializer::deserializeJoinRoomRequest(const 
 	auto j = parseJson(buffer);
 
 	return JoinRoomRequest{
-		j.at("roomId").get<unsigned int>()
+		j.at("RoomId").get<unsigned int>()
 	};
 }
 
@@ -66,13 +66,13 @@ CloseRoomRequest JsonRequestPacketDeserializer::deserializeCloseRoomRequest(cons
 GetRoomStateRequest JsonRequestPacketDeserializer::deserializeGetRoomStateRequest(const std::vector<unsigned char>& buffer)
 {
 	// No data to parse - user can only be in one room
-	return GetRoomStateRequest{ 0 };
+	return GetRoomStateRequest{};
 }
 
 LeaveRoomRequest JsonRequestPacketDeserializer::deserializeLeaveRoomRequest(const std::vector<unsigned char>& buffer)
 {
 	// Same...
-	return LeaveRoomRequest{ 0 };
+	return LeaveRoomRequest{};
 }
 
 bool JsonRequestPacketDeserializer::isRequestWithNoData(unsigned int requestCode)

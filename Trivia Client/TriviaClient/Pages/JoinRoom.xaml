@@ -64,18 +64,26 @@
                        HorizontalAlignment="Center"
                        Margin="0,20"/>
 
-            <ListBox x:Name="RoomsList"
-                     Grid.Row="1"
-                     Margin="50,10"
-                     FontSize="20"
-                     Background="#AA000000"
-                     Foreground="White"
-                     BorderThickness="0"
-                     SelectionMode="Single"/>
+            <ListView x:Name="RoomsList"
+                      Grid.Row="1"
+                      Margin="50,10"
+                      FontSize="16"
+                      Background="#AA000000"
+                      Foreground="White"
+                      BorderThickness="0"
+                      SelectionMode="Single">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Name" Width="160" DisplayMemberBinding="{Binding Name}" />
+                        <GridViewColumn Header="Max Players" Width="90" DisplayMemberBinding="{Binding MaxPlayers}" />
+                        <GridViewColumn Header="Questions" Width="90" DisplayMemberBinding="{Binding NumOfQuestionsInGame}" />
+                        <GridViewColumn Header="Time/Q" Width="90" DisplayMemberBinding="{Binding TimePerQuestion}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
 
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,45">
                 <Button Content="Join Room" Width="150" Height="45" Margin="10,0" Click="JoinRoom_Click" Style="{StaticResource ModernButtonStyle}"/>
-                <Button Content="Refresh" Width="150" Height="45" Margin="10,0" Click="Refresh_Click" Style="{StaticResource ModernButtonStyle}"/>
             </StackPanel>
         </Grid>
     </Grid>
