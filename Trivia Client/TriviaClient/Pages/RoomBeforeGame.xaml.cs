@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TriviaClient.Pages
 {
@@ -8,14 +10,12 @@ namespace TriviaClient.Pages
     /// </summary>
     public partial class RoomBeforeGame : Page
     {
-        private Thread _refreshThread;
-        private bool _keepRefreshing = true;
-        private uint _roomId;
+        private CancellationTokenSource _refreshCancellation;
 
         public RoomBeforeGame(bool isAdmin)
         {
             InitializeComponent();
-            StartRefreshThread();
+            StartRoomRefreshLoop();
 
             this.Unloaded += RoomBeforeGame_Unloaded;
 
@@ -36,9 +36,7 @@ namespace TriviaClient.Pages
             var communicator = ClientCommunicator.Instance;
 
             if (!await communicator.ConnectAsync())
-            {
                 return;
-            }
 
             var request = new LeaveRoomRequest { };
             byte[] requestData = JsonRequestPacketSerializer.SerializeEmptyRequest();
@@ -51,6 +49,8 @@ namespace TriviaClient.Pages
 
             if (leaveRoomResponse.Status == (uint)TriviaClient.StatusCode.OK)
             {
+                _refreshCancellation?.Cancel();
+                _refreshCancellation?.Dispose();
                 NavigationService.Navigate(new JoinRoom());
             }
             else
@@ -64,9 +64,7 @@ namespace TriviaClient.Pages
             var communicator = ClientCommunicator.Instance;
 
             if (!await communicator.ConnectAsync())
-            {
                 return;
-            }
 
             var request = new StartGameResponse { };
             byte[] requestData = JsonRequestPacketSerializer.SerializeEmptyRequest();
@@ -92,9 +90,7 @@ namespace TriviaClient.Pages
             var communicator = ClientCommunicator.Instance;
 
             if (!await communicator.ConnectAsync())
-            {
                 return;
-            }
 
             var request = new CloseRoomRequest { };
             byte[] requestData = JsonRequestPacketSerializer.SerializeEmptyRequest();
@@ -104,9 +100,11 @@ namespace TriviaClient.Pages
             var (responseCode, responseBody) = await communicator.ReadResponseAsync();
 
             var closeRoomResponse = JsonResponsePacketDeserializer.DeserializeCloseRoomResponse(responseBody);
-            if (closeRoomResponse.Status == (uint)TriviaClient.StatusCode.OK)
 
+            if (closeRoomResponse.Status == (uint)TriviaClient.StatusCode.OK)
             {
+                _refreshCancellation?.Cancel();
+                _refreshCancellation?.Dispose();
                 NavigationService.Navigate(new JoinRoom());
             }
             else
@@ -115,48 +113,61 @@ namespace TriviaClient.Pages
             }
         }
 
-        private void StartRefreshThread()
+        private void StartRoomRefreshLoop()
         {
-            _refreshThread = new Thread(async () =>
+            _refreshCancellation = new CancellationTokenSource();
+            var token = _refreshCancellation.Token;
+
+            Task.Run(async () =>
             {
-                // Only run once for debugging
-                await Application.Current.Dispatcher.InvokeAsync(async () =>
+                while (!token.IsCancellationRequested)
                 {
-                    var communicator = ClientCommunicator.Instance;
-
-                    if (!await communicator.ConnectAsync())
-                        return;
-
-                    var request = new GetRoomStateRequest { };
-                    byte[] requestData = JsonRequestPacketSerializer.SerializeEmptyRequest();
-                    byte getPlayersCode = (byte)TriviaClient.RequestCodes.GET_ROOM_STATE_REQUEST;
-
-                    await communicator.SendRequestAsync(getPlayersCode, requestData);
-                    var (responseCode, responseBody) = await communicator.ReadResponseAsync();
-
-                    var getUsersResponse = JsonResponsePacketDeserializer.DeserializeGetRoomStateResponse(responseBody);
-
-                    if (getUsersResponse.Status == (uint)TriviaClient.StatusCode.OK)
+                    try
                     {
-                        PlayerList.ItemsSource = getUsersResponse.Players;
+                        var communicator = ClientCommunicator.Instance;
+
+                        if (!await communicator.ConnectAsync())
+                            continue;
+
+                        var request = new GetRoomStateRequest { };
+                        byte[] requestData = JsonRequestPacketSerializer.SerializeEmptyRequest();
+                        byte getPlayersCode = (byte)TriviaClient.RequestCodes.GET_ROOM_STATE_REQUEST;
+
+                        await communicator.SendRequestAsync(getPlayersCode, requestData);
+                        var (responseCode, responseBody) = await communicator.ReadResponseAsync();
+
+                        var getUsersResponse = JsonResponsePacketDeserializer.DeserializeGetRoomStateResponse(responseBody);
+
+                        if (getUsersResponse.Status == (uint)TriviaClient.StatusCode.OK)
+                        {
+                            await Dispatcher.InvokeAsync(() =>
+                            {
+                                PlayerList.ItemsSource = getUsersResponse.Players;
+                            });
+                        }
+                        else
+                        {
+                            await Dispatcher.InvokeAsync(() =>
+                            {
+                                MessageBox.Show("Failed to retrieve players in the room.");
+                            });
+                        }
                     }
-                    else
+                    catch
                     {
-                        MessageBox.Show("Failed to retrieve players in the room.");
+                        // eat shit and move on
                     }
-                });
 
-                Thread.Sleep(3000);
-            });
-
-            _refreshThread.IsBackground = true;
-            _refreshThread.Start();
+                    try { await Task.Delay(3000, token); }
+                    catch (TaskCanceledException) { break; }
+                }
+            }, token);
         }
 
         private void RoomBeforeGame_Unloaded(object sender, RoutedEventArgs e)
         {
-            _keepRefreshing = false;
-            _refreshThread?.Join();
+            _refreshCancellation?.Cancel();
+            _refreshCancellation?.Dispose();
         }
     }
 }
