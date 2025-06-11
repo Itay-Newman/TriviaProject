@@ -72,7 +72,7 @@ GetRoomStateRequest JsonRequestPacketDeserializer::deserializeGetRoomStateReques
 LeaveRoomRequest JsonRequestPacketDeserializer::deserializeLeaveRoomRequest(const std::vector<unsigned char>& buffer)
 {
 	// Same...
-	return LeaveRoomRequest{ 0 };
+	return LeaveRoomRequest{};
 }
 
 bool JsonRequestPacketDeserializer::isRequestWithNoData(unsigned int requestCode)

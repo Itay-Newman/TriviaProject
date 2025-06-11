@@ -6,9 +6,14 @@
 #include "StatisticsManager.h"
 #include "JsonRequestPacketDeserializer.h"
 #include "JsonResponsePacketSerializer.h"
-#include "RequestHandlerFactory.h"
+#include "Communicator.h"
+#include "Server.h"
 
+class RequestHandlerFactory;
+
+//! In order to avoid circular dependencies, all the handlers that are about the user but before the game, will be here
 // A class to solve code duplication between RoomAdminRequestHandler and RoomMemberRequestHandler
+
 class BaseRoomRequestHandler : public IRequestHandler
 {
 public:
@@ -29,4 +34,37 @@ protected:
 	RoomManager* m_roomManager;
 	StatisticsManager* m_statisticsManager;
 	RequestHandlerFactory& m_HandlerFactory;
+};
+
+
+
+class RoomAdminRequestHandler : public BaseRoomRequestHandler
+{
+public:
+	RoomAdminRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username, RequestHandlerFactory* handlerFactory);
+	~RoomAdminRequestHandler() = default;
+
+	virtual bool isRequestRelevant(const RequestInfo& requestInfo);
+	virtual RequestResult handleRequest(const RequestInfo& requestInfo);
+
+private:
+	RequestResult handleCloseRoomRequest(const RequestInfo& requestInfo);
+	RequestResult handleStartGameRequest(const RequestInfo& requestInfo);
+	RequestResult handleGetRoomStateRequest(const RequestInfo& requestInfo);
+};
+
+
+
+class RoomMemberRequestHandler : public BaseRoomRequestHandler
+{
+public:
+	RoomMemberRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username, RequestHandlerFactory* handlerFactory);
+	~RoomMemberRequestHandler() = default;
+
+	virtual bool isRequestRelevant(const RequestInfo& requestInfo);
+	virtual RequestResult handleRequest(const RequestInfo& requestInfo);
+
+private:
+	RequestResult handleLeaveRoomRequest(const RequestInfo& requestInfo);
+	RequestResult handleGetRoomStateRequest(const RequestInfo& requestInfo);
 };

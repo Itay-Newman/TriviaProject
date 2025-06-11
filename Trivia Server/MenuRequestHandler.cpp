@@ -2,8 +2,8 @@
 #include "JsonRequestPacketDeserializer.h"
 #include "JsonResponsePacketSerializer.h"
 
-MenuRequestHandler::MenuRequestHandler(IDatabase& database, LoginManager* loginManager, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username)
-	: m_database(database), m_loginManager(loginManager), m_roomManager(roomManager), m_statisticsManager(statisticsManager), m_username(username)
+MenuRequestHandler::MenuRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username, RequestHandlerFactory* handlerFactory)
+	: m_database(database), m_roomManager(roomManager), m_statisticsManager(statisticsManager), m_handlerFactory(*handlerFactory), m_user(username)
 {
 }
 
@@ -88,7 +88,7 @@ RequestResult MenuRequestHandler::handleCreateRoomRequest(const RequestInfo& req
 
 		// Create the room using the room manager
 		unsigned int roomId = m_roomManager->createRoom(
-			m_username,
+			m_user.getUsername(),
 			createRoomRequest.RoomName,
 			createRoomRequest.MaxUsers,
 			createRoomRequest.QuestionCount,
@@ -103,7 +103,7 @@ RequestResult MenuRequestHandler::handleCreateRoomRequest(const RequestInfo& req
 		RequestResult result;
 		result.id = ResponseCode::CREATE_ROOM_RESPONSE;
 		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = new RoomAdminRequestHandler(m_database, m_roomManager, m_statisticsManager, m_username);
+		result.newHandler = m_handlerFactory.createRoomAdminRequestHandler(m_user.getUsername());
 
 		return result;
 	}
@@ -203,7 +203,7 @@ RequestResult MenuRequestHandler::handleJoinRoomRequest(const RequestInfo& reque
 		JoinRoomRequest request = deserializer.deserializeJoinRoomRequest(requestInfo.buffer);
 
 		// Add the user to the room
-		bool success = m_roomManager->addUserToRoom(request.roomId, m_username);
+		bool success = m_roomManager->addUserToRoom(request.roomId, m_user.getUsername());
 
 		// Prepare the response
 		JoinRoomResponse response;
@@ -213,7 +213,7 @@ RequestResult MenuRequestHandler::handleJoinRoomRequest(const RequestInfo& reque
 		RequestResult result;
 		result.id = ResponseCode::JOIN_ROOM_RESPONSE;
 		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = new RoomMemberRequestHandler(m_database, m_roomManager, m_statisticsManager, m_username);
+		result.newHandler = m_handlerFactory.createRoomMemberRequestHandler(m_user.getUsername());
 
 		return result;
 	}
@@ -237,7 +237,7 @@ RequestResult MenuRequestHandler::handleGetStatisticsRequest(const RequestInfo& 
 	try
 	{
 		// Get the player's personal statistics
-		PlayerStatistics playerStats = m_statisticsManager->getPlayerStatistics(m_username);
+		PlayerStatistics playerStats = m_statisticsManager->getPlayerStatistics(m_user.getUsername());
 
 		// Get high scores
 		std::vector<PlayerStatistics> highScores = m_statisticsManager->getHighScores();
@@ -294,7 +294,7 @@ RequestResult MenuRequestHandler::handleLogoutRequest(const RequestInfo& request
 	try
 	{
 		// Log out the user using LoginManager's signOut method
-		m_loginManager->signOut(m_username);
+		this->m_handlerFactory.getLoginManager().signOut(m_user.getUsername());
 
 		// Prepare the response
 		LogoutResponse response;

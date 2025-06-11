@@ -2,12 +2,15 @@
 
 #include "IDatabase.h"
 #include "LoginManager.h"
-#include "MenuRequestHandler.h"
 #include "RoomManager.h"
 #include "StatisticsManager.h"
+#include "BaseRoomRequestHandler.h"
 
 class LoginRequestHandler;
 class Communicator;
+class RoomAdminRequestHandler;
+class RoomMemberRequestHandler;
+class MenuRequestHandler;
 
 class RequestHandlerFactory
 {

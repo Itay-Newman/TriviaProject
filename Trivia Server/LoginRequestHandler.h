@@ -6,6 +6,7 @@
 #include "LoginManager.h"
 #include "RequestHandlerFactory.h"
 #include "Structs.h"
+#include "MenuRequestHandler.h"
 
 class RequestHandlerFactory;
 

@@ -41,6 +41,11 @@ namespace TriviaClient.Pages
 
                 if (joinRoomResponse.Status == (uint)TriviaClient.StatusCode.OK)
                 {
+                    // Stop and dispose the timer to stop sending GET_ROOMS_REQUEST
+                    _timer?.Stop();
+                    _timer?.Dispose();
+                    _timer = null;
+
                     NavigationService.Navigate(new RoomBeforeGame(false));
                 }
                 else
@@ -86,7 +91,7 @@ namespace TriviaClient.Pages
 
                 if (getRoomsResponse.Status == (uint)TriviaClient.StatusCode.OK)
                 {
-                    Dispatcher.Invoke(() =>
+                    await Dispatcher.InvokeAsync(() =>
                     {
                         RoomsList.ItemsSource = getRoomsResponse.Rooms
                             .Where(r => r.IsActive != 0)

@@ -122,7 +122,6 @@ struct GetRoomStateRequest
 
 struct LeaveRoomRequest
 {
-	unsigned int roomId;
 };
 
 struct LogoutRequest

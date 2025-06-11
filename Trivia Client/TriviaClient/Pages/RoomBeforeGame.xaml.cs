@@ -31,55 +31,122 @@ namespace TriviaClient.Pages
             }
         }
 
-        private void LeaveRoom_Click(object sender, RoutedEventArgs e)
+        private async void LeaveRoom_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Leaving room is not implemented yet.");
+            var communicator = ClientCommunicator.Instance;
+
+            if (!await communicator.ConnectAsync())
+            {
+                return;
+            }
+
+            var request = new LeaveRoomRequest { };
+            byte[] requestData = JsonRequestPacketSerializer.SerializeEmptyRequest();
+            byte leaveRoomCode = (byte)TriviaClient.RequestCodes.LEAVE_ROOM_REQUEST;
+
+            await communicator.SendRequestAsync(leaveRoomCode, requestData);
+            var (responseCode, responseBody) = await communicator.ReadResponseAsync();
+
+            var leaveRoomResponse = JsonResponsePacketDeserializer.DeserializeLeaveRoomResponse(responseBody);
+
+            if (leaveRoomResponse.Status == (uint)TriviaClient.StatusCode.OK)
+            {
+                NavigationService.Navigate(new JoinRoom());
+            }
+            else
+            {
+                MessageBox.Show("Leave Room Failed");
+            }
         }
 
-        private void StartGame_Click(object sender, RoutedEventArgs e)
+        private async void StartGame_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Starting game is not implemented yet.");
+            var communicator = ClientCommunicator.Instance;
+
+            if (!await communicator.ConnectAsync())
+            {
+                return;
+            }
+
+            var request = new StartGameResponse { };
+            byte[] requestData = JsonRequestPacketSerializer.SerializeEmptyRequest();
+            byte startGameCode = (byte)TriviaClient.RequestCodes.STARTS_GAME_REQUEST;
+
+            await communicator.SendRequestAsync(startGameCode, requestData);
+            var (responseCode, responseBody) = await communicator.ReadResponseAsync();
+
+            var startGameResponse = JsonResponsePacketDeserializer.DeserializeStartGameResponse(responseBody);
+
+            if (startGameResponse.Status == (uint)TriviaClient.StatusCode.OK)
+            {
+                MessageBox.Show("Game started successfully!");
+            }
+            else
+            {
+                MessageBox.Show("Failed to start game.");
+            }
         }
 
-        private void CloseRoom_Click(object sender, RoutedEventArgs e)
+        private async void CloseRoom_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Closing room is not implemented yet.");
+            var communicator = ClientCommunicator.Instance;
+
+            if (!await communicator.ConnectAsync())
+            {
+                return;
+            }
+
+            var request = new CloseRoomRequest { };
+            byte[] requestData = JsonRequestPacketSerializer.SerializeEmptyRequest();
+            byte closeRoomCode = (byte)TriviaClient.RequestCodes.CLOSE_ROOM_REQUEST;
+
+            await communicator.SendRequestAsync(closeRoomCode, requestData);
+            var (responseCode, responseBody) = await communicator.ReadResponseAsync();
+
+            var closeRoomResponse = JsonResponsePacketDeserializer.DeserializeCloseRoomResponse(responseBody);
+            if (closeRoomResponse.Status == (uint)TriviaClient.StatusCode.OK)
+
+            {
+                NavigationService.Navigate(new JoinRoom());
+            }
+            else
+            {
+                MessageBox.Show("Failed to close room.");
+            }
         }
 
         private void StartRefreshThread()
         {
             _refreshThread = new Thread(async () =>
             {
-                while (_keepRefreshing)
+                // Only run once for debugging
+                await Application.Current.Dispatcher.InvokeAsync(async () =>
                 {
-                    await Application.Current.Dispatcher.InvokeAsync(async () =>
+                    var communicator = ClientCommunicator.Instance;
+
+                    if (!await communicator.ConnectAsync())
+                        return;
+
+                    var request = new GetRoomStateRequest { };
+                    byte[] requestData = JsonRequestPacketSerializer.SerializeEmptyRequest();
+                    byte getPlayersCode = (byte)TriviaClient.RequestCodes.GET_ROOM_STATE_REQUEST;
+
+                    await communicator.SendRequestAsync(getPlayersCode, requestData);
+                    var (responseCode, responseBody) = await communicator.ReadResponseAsync();
+
+                    var getUsersResponse = JsonResponsePacketDeserializer.DeserializeGetRoomStateResponse(responseBody);
+
+                    if (getUsersResponse.Status == (uint)TriviaClient.StatusCode.OK)
                     {
-                        var communicator = ClientCommunicator.Instance;
+                        PlayerList.ItemsSource = getUsersResponse.Players;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to retrieve players in the room.");
+                    }
+                });
 
-                        if (!await communicator.ConnectAsync())
-                            return;
-
-                        var request = new GetPlayersInRoomRequest { };
-                        byte[] requestData = JsonRequestPacketSerializer.SerializeEmptyRequest();
-                        byte getPlayersCode = (byte)TriviaClient.RequestCodes.GET_PLAYERS_IN_ROOM_REQUEST;
-
-                        await communicator.SendRequestAsync(getPlayersCode, requestData);
-                        var (responseCode, responseBody) = await communicator.ReadResponseAsync();
-
-                        var getUsersResponse = JsonResponsePacketDeserializer.DeserializeGetPlayersInRoomResponse(responseBody);
-
-                        if (getUsersResponse.Status == (uint)TriviaClient.StatusCode.OK)
-                        {
-                            PlayerList.ItemsSource = getUsersResponse.users;
-                        }
-                        else
-                        {
-                            MessageBox.Show("Failed to retrieve players in the room.");
-                        }
-                    });
-
-                    Thread.Sleep(3000);
-                }
+                Thread.Sleep(3000);
             });
 
             _refreshThread.IsBackground = true;
