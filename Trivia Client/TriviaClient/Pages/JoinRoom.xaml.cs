@@ -12,7 +12,7 @@ namespace TriviaClient.Pages
     public partial class JoinRoom : Page
     {
         private Timer _timer;
-
+        private bool clicked = false;
         public JoinRoom()
         {
             InitializeComponent();
@@ -21,6 +21,8 @@ namespace TriviaClient.Pages
 
         private async void JoinRoom_Click(object sender, RoutedEventArgs e)
         {
+            clicked = true;
+
             if (RoomsList.SelectedItem is RoomData selectedRoom)
             {
                 var request = new JoinRoomRequest { RoomId = selectedRoom.Id };
@@ -75,6 +77,10 @@ namespace TriviaClient.Pages
             // Stop timer while refreshing to avoid overlapping calls
             _timer?.Stop();
 
+            // Exit immediately if clicked is true
+            if (clicked)
+                return;
+
             try
             {
                 var communicator = ClientCommunicator.Instance;
@@ -101,8 +107,9 @@ namespace TriviaClient.Pages
             }
             finally
             {
-                // Restart timer
-                _timer?.Start();
+                // Only restart timer if not clicked
+                if (!clicked)
+                    _timer?.Start();
             }
         }
     }
