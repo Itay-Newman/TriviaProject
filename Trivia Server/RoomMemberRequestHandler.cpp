@@ -120,10 +120,12 @@ RequestResult RoomMemberRequestHandler::handleGetRoomStateRequest(const RequestI
 		};
 
 
-		RequestResult result;
-		result.id = ResponseCode::GET_ROOM_STATE_RESPONSE;
-		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = this;
+		RequestResult result
+		{
+			.id = ResponseCode::GET_ROOM_STATE_RESPONSE,
+			.response = JsonResponsePacketSerializer::serializeResponse(response),
+			.newHandler = this
+		};
 
 		return result;
 	}
