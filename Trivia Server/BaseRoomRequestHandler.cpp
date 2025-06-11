@@ -34,10 +34,12 @@ RequestResult BaseRoomRequestHandler::handleGetRoomStateRequest(const RequestInf
 
 		auto maybeRoom = m_roomManager->getRoom(roomIdOpt.value());
 
-		GetRoomStateResponse response;
-		response.status = (unsigned int)Status::SUCCESS;
-		response.hasGameBegun = (roomState == RoomState::GAME_IN_PROGRESS);
-		response.players = players;
+		GetRoomStateResponse response
+		{
+			.status = (unsigned int)Status::SUCCESS,
+			.hasGameBegun = (roomState == RoomState::GAME_IN_PROGRESS),
+			.players = players
+		};
 
 		if (maybeRoom)
 		{
