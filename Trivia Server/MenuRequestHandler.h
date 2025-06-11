@@ -13,7 +13,7 @@ class RequestHandlerFactory;
 class MenuRequestHandler : public IRequestHandler
 {
 public:
-	MenuRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username, RequestHandlerFactory* handlerFactory);
+	MenuRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username, RequestHandlerFactory& handlerFactory);
 	~MenuRequestHandler() = default;
 
 	virtual bool isRequestRelevant(const RequestInfo& requestInfo) override;

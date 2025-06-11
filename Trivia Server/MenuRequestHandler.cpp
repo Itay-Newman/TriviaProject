@@ -2,8 +2,8 @@
 #include "JsonRequestPacketDeserializer.h"
 #include "JsonResponsePacketSerializer.h"
 
-MenuRequestHandler::MenuRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username, RequestHandlerFactory* handlerFactory)
-	: m_database(database), m_roomManager(roomManager), m_statisticsManager(statisticsManager), m_handlerFactory(*handlerFactory), m_user(username)
+MenuRequestHandler::MenuRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username, RequestHandlerFactory& handlerFactory)
+	: m_database(database), m_roomManager(roomManager), m_statisticsManager(statisticsManager), m_handlerFactory(handlerFactory), m_user(username)
 {
 }
 
