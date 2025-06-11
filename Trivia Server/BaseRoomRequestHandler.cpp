@@ -27,7 +27,6 @@ RequestResult BaseRoomRequestHandler::handleGetRoomStateRequest(const RequestInf
 		std::optional<unsigned int> roomIdOpt = m_roomManager->getRoomIdByUser(this->m_username);
 
 		JsonRequestPacketDeserializer deserializer;
-		GetRoomStateRequest request = deserializer.deserializeGetRoomStateRequest(requestInfo.buffer);
 
 		RoomState roomState = m_roomManager->getRoomState(roomIdOpt.value());
 		std::vector<std::string> players = m_roomManager->getUsersInRoom(roomIdOpt.value());
