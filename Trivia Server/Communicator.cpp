@@ -271,7 +271,7 @@ std::vector<unsigned char> Communicator::getBufferFromSocket(SOCKET sc, int byte
 {
 	std::vector<unsigned char> buffer(bytesToRead);
 	int bytesReceived = 0;
-	int result;
+	int result = 0;
 
 	// Keep reading until we have all the data we need
 	while (bytesReceived < bytesToRead)
@@ -298,7 +298,7 @@ void Communicator::sendBuffer(SOCKET sc, const std::vector<unsigned char>& buffe
 {
 	int bytesSent = 0;
 	int bytesToSend = buffer.size();
-	int result;
+	int result = 0;
 
 	// Keep sending until all data is sent
 	while (bytesSent < bytesToSend)
