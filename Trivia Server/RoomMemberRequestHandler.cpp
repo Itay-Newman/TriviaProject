@@ -55,7 +55,7 @@ RequestResult RoomMemberRequestHandler::handleLeaveRoomRequest(const RequestInfo
 		RequestResult result;
 		result.id = ResponseCode::LEAVE_ROOM_RESPONSE;
 		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = dynamic_cast<IRequestHandler*>(m_HandlerFactory.createMenuRequestHandler(m_username));
+		result.newHandler = (m_HandlerFactory.createMenuRequestHandler(m_username));
 
 		// Send LeaveRoomResponse to all remaining room members (excluding the user who left)
 		if (success && this->m_HandlerFactory.getCommunicator() != nullptr)
@@ -110,12 +110,15 @@ RequestResult RoomMemberRequestHandler::handleGetRoomStateRequest(const RequestI
 
 		std::vector<std::string> usersInRoom = room.getAllUsers();
 
-		GetRoomStateResponse response;
-		response.status = (unsigned int)Status::SUCCESS;
-		response.players = usersInRoom;
-		response.hasGameBegun = (roomState == RoomState::GAME_IN_PROGRESS);
-		response.questionCount = room.getNumOfQuestionsInGame();
-		response.answerTimeout = room.getTimePerQuestion();
+		GetRoomStateResponse response
+		{
+			.status = (unsigned int)Status::SUCCESS,
+			.hasGameBegun = (roomState == RoomState::GAME_IN_PROGRESS),
+			.players = usersInRoom,
+			.questionCount = room.getNumOfQuestionsInGame(),
+			.answerTimeout = room.getTimePerQuestion()
+		};
+
 
 		RequestResult result;
 		result.id = ResponseCode::GET_ROOM_STATE_RESPONSE;
