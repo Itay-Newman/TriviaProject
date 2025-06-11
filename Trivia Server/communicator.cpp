@@ -2,6 +2,7 @@
 #include "LoginRequestHandler.h"
 #include "JsonResponsePacketSerializer.h"
 #include "JsonRequestPacketDeserializer.h"
+#include <windows.h>
 
 Communicator::Communicator(RequestHandlerFactory& handlerFactory)
 	: m_serverSocket(INVALID_SOCKET), m_isRunning(false), m_handlerFactory(handlerFactory)
@@ -17,11 +18,13 @@ void Communicator::startHandleRequests()
 {
 	if (!initializeWinsock())
 	{
+		MessageBoxA(NULL, "Failed to initialize Winsock\NBecause you A FAILURE\n", "Error", MB_OK | MB_ICONERROR);
 		return;
 	}
 
 	if (!bindAndListen())
 	{
+		MessageBoxA(NULL, "Failed to bind and listen on socket\NBecause you A FAILURE\n", "Error", MB_OK | MB_ICONERROR);
 		return;
 	}
 
