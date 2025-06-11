@@ -1,7 +1,7 @@
 #include "BaseRoomRequestHandler.h"
 
-BaseRoomRequestHandler::BaseRoomRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager)
-	: m_database(database), m_roomManager(roomManager), m_statisticsManager(statisticsManager)
+BaseRoomRequestHandler::BaseRoomRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager, RequestHandlerFactory* HandlerFactory)
+	: m_database(database), m_roomManager(roomManager), m_statisticsManager(statisticsManager), m_HandlerFactory(*HandlerFactory)
 {
 }
 
@@ -24,13 +24,15 @@ RequestResult BaseRoomRequestHandler::handleGetRoomStateRequest(const RequestInf
 {
 	try
 	{
+		std::optional<unsigned int> roomIdOpt = m_roomManager->getRoomIdByUser(this->m_username);
+
 		JsonRequestPacketDeserializer deserializer;
 		GetRoomStateRequest request = deserializer.deserializeGetRoomStateRequest(requestInfo.buffer);
 
-		RoomState roomState = m_roomManager->getRoomState(request.roomId);
-		std::vector<std::string> players = m_roomManager->getUsersInRoom(request.roomId);
+		RoomState roomState = m_roomManager->getRoomState(roomIdOpt.value());
+		std::vector<std::string> players = m_roomManager->getUsersInRoom(roomIdOpt.value());
 
-		auto maybeRoom = m_roomManager->getRoom(request.roomId);
+		auto maybeRoom = m_roomManager->getRoom(roomIdOpt.value());
 
 		GetRoomStateResponse response;
 		response.status = (unsigned int)Status::SUCCESS;

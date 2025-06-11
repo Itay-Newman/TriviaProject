@@ -10,8 +10,9 @@
 #include "IRequestHandler.h"
 #include <string>
 #include <Windows.h>
-#include "RequestHandlerFactory.h"
 #include <mutex>
+
+class RequestHandlerFactory;
 
 #pragma comment(lib, "ws2_32.lib")
 

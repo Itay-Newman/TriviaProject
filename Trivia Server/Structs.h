@@ -118,12 +118,10 @@ struct CloseRoomRequest
 
 struct GetRoomStateRequest
 {
-	unsigned int roomId;
 };
 
 struct LeaveRoomRequest
 {
-	unsigned int roomId;
 };
 
 struct LogoutRequest
@@ -155,6 +153,7 @@ struct GetRoomsResponse
 
 struct GetPlayersInRoomResponse
 {
+	unsigned int status;
 	std::vector<std::string> users;
 };
 

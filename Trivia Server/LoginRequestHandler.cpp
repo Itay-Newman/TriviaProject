@@ -43,7 +43,7 @@ RequestResult LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 		// Assuming status 1 = success, 0 = failure
 		if (loginResponse.status == (int)Status::SUCCESS)
 		{
-			response.newHandler = new MenuRequestHandler(m_handlerFactory.getDataBase(), &m_handlerFactory.getLoginManager(), &m_handlerFactory.getRoomManager(), &m_handlerFactory.getStatisticsManager(), loginRequest.username);
+			response.newHandler = dynamic_cast<IRequestHandler*>(m_handlerFactory.createMenuRequestHandler(loginRequest.username));
 		}
 		else
 		{
@@ -61,7 +61,7 @@ RequestResult LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 
 		if (signupResponse.status == (int)Status::SUCCESS)
 		{
-			response.newHandler = new MenuRequestHandler(m_handlerFactory.getDataBase(), &m_handlerFactory.getLoginManager(), &m_handlerFactory.getRoomManager(), &m_handlerFactory.getStatisticsManager(), signupRequest.username);
+			response.newHandler = dynamic_cast<IRequestHandler*>(m_handlerFactory.createMenuRequestHandler(signupRequest.username));
 		}
 		else
 		{

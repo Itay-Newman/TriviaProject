@@ -1,46 +1,36 @@
-#include "RoomAdminRequestHandler.h"
-#include "JsonRequestPacketDeserializer.h"
-#include "JsonResponsePacketSerializer.h"
-#include "Communicator.h"
+#include "BaseRoomRequestHandler.h"
+#include "MenuRequestHandler.h"
 
 RoomAdminRequestHandler::RoomAdminRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager,
-	const std::string& username, Communicator* communicator)
-	: BaseRoomRequestHandler(database, roomManager, statisticsManager), m_username(username), m_communicator(communicator)
+	const std::string& username, RequestHandlerFactory* handlerFactory) : BaseRoomRequestHandler(database, roomManager, statisticsManager, handlerFactory)
 {
+	this->m_username = username;
 }
 
 bool RoomAdminRequestHandler::isRequestRelevant(const RequestInfo& requestInfo)
 {
-	if (requestInfo.buffer.size() >= 1)
-	{
-		unsigned char code = requestInfo.buffer[0];
-		return code == static_cast<unsigned char>(RequestCodes::CLOSE_ROOM_REQUEST) ||
-			code == static_cast<unsigned char>(RequestCodes::START_GAME_REQUEST) ||
-			code == static_cast<unsigned char>(RequestCodes::GET_ROOM_STATE_REQUEST);
-	}
+	unsigned int code = requestInfo.id;
+	return code == static_cast<unsigned int>(RequestCodes::CLOSE_ROOM_REQUEST) ||
+		code == static_cast<unsigned int>(RequestCodes::START_GAME_REQUEST) ||
+		code == static_cast<unsigned int>(RequestCodes::GET_ROOM_STATE_REQUEST);
 	return false;
 }
 
 RequestResult RoomAdminRequestHandler::handleRequest(const RequestInfo& requestInfo)
 {
-	if (requestInfo.buffer.size() >= 1)
+	unsigned int code = requestInfo.id;
+
+	switch (static_cast<RequestCodes>(code))
 	{
-		unsigned char code = requestInfo.buffer[0];
-
-		switch (static_cast<RequestCodes>(code))
-		{
-		case RequestCodes::CLOSE_ROOM_REQUEST:
-			return handleCloseRoomRequest(requestInfo);
-		case RequestCodes::START_GAME_REQUEST:
-			return handleStartGameRequest(requestInfo);
-		case RequestCodes::GET_ROOM_STATE_REQUEST:
-			return handleGetRoomStateRequest(requestInfo);
-		default:
-			return createErrorResponse("Request type not supported");
-		}
+	case RequestCodes::CLOSE_ROOM_REQUEST:
+		return handleCloseRoomRequest(requestInfo);
+	case RequestCodes::START_GAME_REQUEST:
+		return handleStartGameRequest(requestInfo);
+	case RequestCodes::GET_ROOM_STATE_REQUEST:
+		return handleGetRoomStateRequest(requestInfo);
+	default:
+		return createErrorResponse("Request type not supported");
 	}
-
-	return createErrorResponse("Invalid request format");
 }
 
 RequestResult RoomAdminRequestHandler::handleCloseRoomRequest(const RequestInfo& requestInfo)
@@ -67,19 +57,21 @@ RequestResult RoomAdminRequestHandler::handleCloseRoomRequest(const RequestInfo&
 		RequestResult result;
 		result.id = ResponseCode::CLOSE_ROOM_RESPONSE;
 		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = this;
+		result.newHandler = dynamic_cast<IRequestHandler*>(m_HandlerFactory.createMenuRequestHandler(m_username));
 
 		// Send LeaveRoomResponse to all room members
-		if (success && m_communicator != nullptr)
+		if (success)
 		{
 			LeaveRoomResponse leaveResponse;
 			leaveResponse.status = (unsigned int)Status::SUCCESS;
 			std::vector<unsigned char> leaveResponseBuffer = JsonResponsePacketSerializer::serializeResponse(leaveResponse);
 
 			// Send LeaveRoomResponse to all users in the room
-			m_communicator->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::LEAVE_ROOM_RESPONSE), leaveResponseBuffer);
-
-			std::cout << "Sent LeaveRoomResponse to all " << usersInRoom.size() << " users in room " << roomId << std::endl;
+			if (this->m_HandlerFactory.getCommunicator() != nullptr)
+			{
+				this->m_HandlerFactory.getCommunicator()->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::LEAVE_ROOM_RESPONSE), leaveResponseBuffer);
+				std::cout << "Sent LeaveRoomResponse to all " << usersInRoom.size() << " users in room " << roomId << std::endl;
+			}
 		}
 
 		return result;
@@ -114,14 +106,14 @@ RequestResult RoomAdminRequestHandler::handleStartGameRequest(const RequestInfo&
 		result.newHandler = this; // Will be replaced with a GameRequestHandler in the future
 
 		// Send StartGameResponse to all room members
-		if (m_communicator != nullptr)
+		if (this->m_HandlerFactory.getCommunicator() != nullptr)
 		{
 			StartGameResponse startGameResponse;
 			startGameResponse.status = (unsigned int)Status::SUCCESS;
 			std::vector<unsigned char> startGameResponseBuffer = JsonResponsePacketSerializer::serializeResponse(startGameResponse);
 
 			// Send StartGameResponse to all users in the room
-			m_communicator->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::START_GAME_RESPONSE), startGameResponseBuffer);
+			this->m_HandlerFactory.getCommunicator()->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::START_GAME_RESPONSE), startGameResponseBuffer);
 
 			std::cout << "Sent StartGameResponse to all " << usersInRoom.size() << " users in room " << roomId << std::endl;
 		}

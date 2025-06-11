@@ -1,10 +1,10 @@
-﻿<Page x:Class="TriviaClient.Pages.RoomBeforeGame"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+﻿<Page x:Class="TriviaClient.Pages.RoomBeforeGame"  
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"  
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"  
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"   
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"   
+      mc:Ignorable="d"   
+      d:DesignHeight="450" d:DesignWidth="800"  
       Title="Room Users">
 
     <Grid Background="Transparent">
@@ -29,8 +29,8 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                             CornerRadius="8"
+                                    <Border Background="{TemplateBinding Background}"  
+                             CornerRadius="8"  
                              SnapsToDevicePixels="True">
                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
@@ -55,14 +55,15 @@
 
                 <TextBlock Text="Connected Players" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
-                <ListBox FontSize="18" Background="Transparent" BorderThickness="0" Foreground="White">
-                    <ListBoxItem Content="👑 Alice (Admin)" FontWeight="Bold" Foreground="Gold"/>
-                    <ListBoxItem Content="Bob"/>
-                    <ListBoxItem Content="Charlie"/>
-                    <ListBoxItem Content="Dana"/>
-                </ListBox>
+                <ListView x:Name="PlayerList" Margin="50,10" FontSize="20" Background="#AA000000" Foreground="White" BorderThickness="0" SelectionMode="Single">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="PlayerName" Width="240" DisplayMemberBinding="{Binding}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
 
-                <Button Content="Leave Room" Width="150" Height="45" Click="LeaveRoom_Click" HorizontalAlignment="Center" Style="{StaticResource ModernButtonStyle}"/>
+                <Button x:Name="LeaveRoom" Content="Leave Room" Width="150" Height="45" Click="LeaveRoom_Click" HorizontalAlignment="Center" Style="{StaticResource ModernButtonStyle}"/>
 
                 <StackPanel x:Name="AdminControlsPanel" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
 

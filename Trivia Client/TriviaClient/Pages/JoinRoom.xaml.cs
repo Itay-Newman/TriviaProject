@@ -1,5 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Navigation;
+
+using Timer = System.Timers.Timer;
 
 namespace TriviaClient.Pages
 {
@@ -8,9 +11,12 @@ namespace TriviaClient.Pages
     /// </summary>
     public partial class JoinRoom : Page
     {
+        private Timer _timer;
+
         public JoinRoom()
         {
             InitializeComponent();
+            RefreshRooms();
         }
 
         private async void JoinRoom_Click(object sender, RoutedEventArgs e)
@@ -35,6 +41,11 @@ namespace TriviaClient.Pages
 
                 if (joinRoomResponse.Status == (uint)TriviaClient.StatusCode.OK)
                 {
+                    // Stop and dispose the timer to stop sending GET_ROOMS_REQUEST
+                    _timer?.Stop();
+                    _timer?.Dispose();
+                    _timer = null;
+
                     NavigationService.Navigate(new RoomBeforeGame(false));
                 }
                 else
@@ -48,30 +59,50 @@ namespace TriviaClient.Pages
             }
         }
 
-        private async void Refresh_Click(object sender, RoutedEventArgs e)
+        private void RefreshRooms()
         {
-            byte getRoomsCode = (byte)TriviaClient.RequestCodes.GET_ROOMS_REQUEST;
+            _timer?.Stop();
+            _timer?.Dispose();
 
-            var communicator = ClientCommunicator.Instance;
-            if (!await communicator.ConnectAsync())
+            _timer = new Timer(3000);
+            _timer.Elapsed += Timer_Elapsed;
+            _timer.AutoReset = true;
+            _timer.Start();
+        }
+
+        private async void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            // Stop timer while refreshing to avoid overlapping calls
+            _timer?.Stop();
+
+            try
             {
-                MessageBox.Show("Failed to connect to server.");
-                return;
+                var communicator = ClientCommunicator.Instance;
+                if (!await communicator.ConnectAsync())
+                    return;
+
+                byte getRoomsCode = (byte)TriviaClient.RequestCodes.GET_ROOMS_REQUEST;
+                byte[] requestData = JsonRequestPacketSerializer.SerializeEmptyRequest();
+
+                await communicator.SendRequestAsync(getRoomsCode, requestData);
+                var (responseCode, responseBody) = await communicator.ReadResponseAsync();
+
+                var getRoomsResponse = JsonResponsePacketDeserializer.DeserializeGetRoomsResponse(responseBody);
+
+                if (getRoomsResponse.Status == (uint)TriviaClient.StatusCode.OK)
+                {
+                    await Dispatcher.InvokeAsync(() =>
+                    {
+                        RoomsList.ItemsSource = getRoomsResponse.Rooms
+                            .Where(r => r.IsActive != 0)
+                            .ToList();
+                    });
+                }
             }
-
-            await communicator.SendRequestAsync(getRoomsCode, JsonRequestPacketSerializer.SerializeEmptyRequest());
-            var (responseCode, responseBody) = await communicator.ReadResponseAsync();
-
-            var getRoomsResponse = JsonResponsePacketDeserializer.DeserializeGetRoomsResponse(responseBody);
-
-            if (getRoomsResponse.Status == (uint)TriviaClient.StatusCode.OK)
+            finally
             {
-                // Bind the room list to your UI
-                RoomsList.ItemsSource = getRoomsResponse.Rooms;
-            }
-            else
-            {
-                MessageBox.Show("Failed to fetch room list.");
+                // Restart timer
+                _timer?.Start();
             }
         }
     }
