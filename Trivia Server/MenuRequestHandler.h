@@ -5,11 +5,15 @@
 #include "IDatabase.h"
 #include "RoomManager.h"
 #include "StatisticsManager.h"
+#include "BaseRoomRequestHandler.h"
+#include "LoggedUser.h"
+
+class RequestHandlerFactory;
 
 class MenuRequestHandler : public IRequestHandler
 {
 public:
-	MenuRequestHandler(IDatabase& database, LoginManager* loginManager, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username);
+	MenuRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager, const std::string& username, RequestHandlerFactory& handlerFactory);
 	~MenuRequestHandler() = default;
 
 	virtual bool isRequestRelevant(const RequestInfo& requestInfo) override;
@@ -29,8 +33,9 @@ private:
 	RequestResult handleLogoutRequest(const RequestInfo& requestInfo);
 
 	IDatabase& m_database;
-	LoginManager* m_loginManager;
 	RoomManager* m_roomManager;
 	StatisticsManager* m_statisticsManager;
-	std::string m_username;
+	LoggedUser m_user;
+	RequestHandlerFactory& m_handlerFactory;
+
 };

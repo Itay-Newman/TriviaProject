@@ -42,7 +42,8 @@
         CLOSE_ROOM_REQUEST = 26,
         GET_ROOM_STATE_REQUEST = 27,
         LEAVE_ROOM_REQUEST = 28,
-        GET_STATISTICS_REQUEST = 30
+        GET_STATISTICS_REQUEST = 30,
+        STARTS_GAME_REQUEST = 31
     }
 
     // Data structures
@@ -103,12 +104,10 @@
 
     public struct GetRoomStateRequest
     {
-        public uint RoomId { get; set; }
     }
 
     public struct LeaveRoomRequest
     {
-        public uint RoomId { get; set; }
     }
 
     // Response structs (client receives these)
@@ -135,7 +134,8 @@
 
     public struct GetPlayersInRoomResponse
     {
-        public List<string> Rooms { get; set; }
+        public uint Status { get; set; }
+        public List<string> users { get; set; }
     }
 
     public struct GetHighScoreResponse

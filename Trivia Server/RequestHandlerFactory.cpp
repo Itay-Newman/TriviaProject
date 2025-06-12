@@ -1,8 +1,10 @@
 #include "RequestHandlerFactory.h"
 #include "LoginRequestHandler.h"
+#include "BaseRoomRequestHandler.h"
+#include "MenuRequestHandler.h"
 
 RequestHandlerFactory::RequestHandlerFactory(IDatabase& database)
-	: m_Database(database)
+	: m_Database(database), m_communicator(nullptr)
 {
 	this->m_LoginManager = new LoginManager(this->m_Database);
 	this->m_RoomManager = new RoomManager();
@@ -16,6 +18,11 @@ RequestHandlerFactory::~RequestHandlerFactory()
 	delete this->m_statisticsManager;
 }
 
+void RequestHandlerFactory::setCommunicator(Communicator* communicator)
+{
+	m_communicator = communicator;
+}
+
 LoginRequestHandler* RequestHandlerFactory::createLoginRequestHandler()
 {
 	return new LoginRequestHandler(*this, this->m_Database);
@@ -25,10 +32,32 @@ MenuRequestHandler* RequestHandlerFactory::createMenuRequestHandler(const std::s
 {
 	return new MenuRequestHandler(
 		this->m_Database,
-		this->m_LoginManager,
 		this->m_RoomManager,
 		this->m_statisticsManager,
-		username
+		username,
+		*this
+	);
+}
+
+RoomAdminRequestHandler* RequestHandlerFactory::createRoomAdminRequestHandler(const std::string& username)
+{
+	return new RoomAdminRequestHandler(
+		this->m_Database,
+		this->m_RoomManager,
+		this->m_statisticsManager,
+		username,
+		this
+	);
+}
+
+RoomMemberRequestHandler* RequestHandlerFactory::createRoomMemberRequestHandler(const std::string& username)
+{
+	return new RoomMemberRequestHandler(
+		this->m_Database,
+		this->m_RoomManager,
+		this->m_statisticsManager,
+		username,
+		this
 	);
 }
 
@@ -50,4 +79,9 @@ RoomManager& RequestHandlerFactory::getRoomManager()
 StatisticsManager& RequestHandlerFactory::getStatisticsManager()
 {
 	return *this->m_statisticsManager;
+}
+
+Communicator* RequestHandlerFactory::getCommunicator()
+{
+	return this->m_communicator;
 }

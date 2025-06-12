@@ -10,8 +10,9 @@
 #include "IRequestHandler.h"
 #include <string>
 #include <Windows.h>
-#include "RequestHandlerFactory.h"
 #include <mutex>
+
+class RequestHandlerFactory;
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -24,15 +25,21 @@ public:
 	void startHandleRequests();
 	void close();
 
+	// methods for broadcasting messages
+	void sendMessageToUser(const std::string& username, int messageCode, const std::vector<unsigned char>& buffer);
+	void sendMessageToUsers(const std::vector<std::string>& usernames, int messageCode, const std::vector<unsigned char>& buffer);
+
 private:
 	SOCKET m_serverSocket;
 	std::map<SOCKET, IRequestHandler*> m_clients;
+	std::map<std::string, SOCKET> m_userSockets;
 	std::vector<std::thread> m_clientThreads;
 	RequestHandlerFactory& m_handlerFactory;
 	bool m_isRunning;
 
 	std::mutex m_clientsMutex;
 	std::mutex m_clientThreadsMutex;
+	std::mutex m_userSocketsMutex;
 
 	bool bindAndListen();
 	void handleNewClient(SOCKET clientSocket);
@@ -41,4 +48,7 @@ private:
 	void sendResponse(SOCKET sc, int messageCode, const std::vector<unsigned char>& buffer);
 	RequestInfo getRequestFromClient(SOCKET clientSocket);
 	bool initializeWinsock();
+
+	void registerUserSocket(const std::string& username, SOCKET socket);
+	void unregisterUserSocket(const std::string& username);
 };
