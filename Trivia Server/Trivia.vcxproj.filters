@@ -60,6 +60,18 @@
     <ClCompile Include="statisticsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RoomAdminRequestHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RoomMemberRequestHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseRoomRequestHandler.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseRoomRequestHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Server.h">

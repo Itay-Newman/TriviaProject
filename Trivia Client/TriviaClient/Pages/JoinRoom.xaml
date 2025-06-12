@@ -7,6 +7,48 @@
       mc:Ignorable="d"
       Title="Join Room" d:DesignHeight="410" d:DesignWidth="540">
 
+    <Page.Resources>
+        <!-- Stylish Button Style -->
+        <Style x:Key="ModernButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FF3A86FF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#66000000" BlurRadius="8" ShadowDepth="2"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF265DAB"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#FF1B3A6B"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#FFB0B0B0"/>
+                    <Setter Property="Foreground" Value="#FFEEEEEE"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
+
     <Grid Background="Transparent">
         <Grid>
             <Grid.RowDefinitions>
@@ -22,18 +64,26 @@
                        HorizontalAlignment="Center"
                        Margin="0,20"/>
 
-            <ListBox x:Name="RoomsList"
-                     Grid.Row="1"
-                     Margin="50,10"
-                     FontSize="20"
-                     Background="#AA000000"
-                     Foreground="White"
-                     BorderThickness="0"
-                     SelectionMode="Single"/>
+            <ListView x:Name="RoomsList"
+                      Grid.Row="1"
+                      Margin="50,10"
+                      FontSize="16"
+                      Background="#AA000000"
+                      Foreground="White"
+                      BorderThickness="0"
+                      SelectionMode="Single">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Name" Width="160" DisplayMemberBinding="{Binding Name}" />
+                        <GridViewColumn Header="Max Players" Width="90" DisplayMemberBinding="{Binding MaxPlayers}" />
+                        <GridViewColumn Header="Questions" Width="90" DisplayMemberBinding="{Binding NumOfQuestionsInGame}" />
+                        <GridViewColumn Header="Time/Q" Width="90" DisplayMemberBinding="{Binding TimePerQuestion}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
 
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,45">
-                <Button Content="Join Room" Width="150" Height="45" Margin="10,0" Click="JoinRoom_Click"/>
-                <Button Content="Refresh" Width="150" Height="45" Margin="10,0" Click="Refresh_Click"/>
+                <Button Content="Join Room" Width="150" Height="45" Margin="10,0" Click="JoinRoom_Click" Style="{StaticResource ModernButtonStyle}"/>
             </StackPanel>
         </Grid>
     </Grid>

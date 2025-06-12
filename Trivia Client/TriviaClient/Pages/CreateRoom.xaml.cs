@@ -45,8 +45,7 @@ namespace TriviaClient.Pages
 
             if (createRoomResponse.Status == 1)
             {
-                MessageBox.Show("Room created successfully!");
-                // Optionally navigate to the room lobby
+                NavigationService.Navigate(new RoomBeforeGame(true));
             }
             else
             {

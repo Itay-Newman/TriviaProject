@@ -50,7 +50,7 @@ RoomState RoomManager::getRoomState(unsigned int roomId) const
 			return RoomState::CLOSED;
 		}
 
-		// TODO: implement better game state checks
+		// need to do: implement better game state checks
 		return RoomState::WAITING_FOR_PLAYERS;
 	}
 
@@ -136,4 +136,23 @@ bool RoomManager::isRoomActive(unsigned int roomId) const
 	}
 
 	return false;
+}
+
+std::optional<unsigned int> RoomManager::getRoomIdByUser(const std::string& username) const
+{
+	for (const auto& pair : this->m_rooms)
+	{
+		const Room& room = pair.second;
+		std::vector<std::string> users = room.getAllUsers();
+
+		for (const std::string& user : users)
+		{
+			if (user == username)
+			{
+				return room.getId();
+			}
+		}
+	}
+
+	return std::nullopt; // User not found in any room
 }
