@@ -41,7 +41,7 @@ JoinRoomRequest JsonRequestPacketDeserializer::deserializeJoinRoomRequest(const 
 	auto j = parseJson(buffer);
 
 	return JoinRoomRequest{
-		j.at("roomId").get<unsigned int>()
+		j.at("RoomId").get<unsigned int>()
 	};
 }
 
@@ -50,10 +50,10 @@ CreateRoomRequest JsonRequestPacketDeserializer::deserializeCreateRoomRequest(co
 	auto j = parseJson(buffer);
 
 	return CreateRoomRequest{
-		j.at("roomName").get<std::string>(),
-		j.at("maxUsers").get<unsigned int>(),
-		j.at("questionCount").get<unsigned int>(),
-		j.at("answerTimeout").get<unsigned int>()
+		j.at("RoomName").get<std::string>(),
+		j.at("MaxUsers").get<unsigned int>(),
+		j.at("QuestionCount").get<unsigned int>(),
+		j.at("AnswerTimeout").get<unsigned int>()
 	};
 }
 
@@ -65,6 +65,10 @@ bool JsonRequestPacketDeserializer::isRequestWithNoData(unsigned int requestCode
 	case 6:  // GET_HIGH_SCORE_REQUEST
 	case 29: // LOGOUT_REQUEST
 	case 22: // GET_ROOMS_REQUEST
+	case 26: // CLOSE_ROOM_REQUEST
+	case 31: // START_GAME_REQUEST
+	case 27: // GET_ROOM_STATE_REQUEST
+	case 28: // LEAVE_ROOM_REQUEST
 		return true;
 	default:
 		return false;

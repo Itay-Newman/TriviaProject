@@ -14,6 +14,47 @@
 
         <!-- Main layout grid on top of background -->
         <Grid>
+            <Grid.Resources>
+                <Style x:Key="ModernButtonStyle" TargetType="Button">
+                    <Setter Property="Background" Value="#FF3A86FF"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                    <Setter Property="FontSize" Value="18"/>
+                    <Setter Property="Padding" Value="8,4"/>
+                    <Setter Property="Margin" Value="10"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#66000000" BlurRadius="8" ShadowDepth="2"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}"
+                                        CornerRadius="8"
+                                        SnapsToDevicePixels="True">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#FF265DAB"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="#FF1B3A6B"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" Value="#FFB0B0B0"/>
+                            <Setter Property="Foreground" Value="#FFEEEEEE"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Resources>
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="220"/>
                 <ColumnDefinition Width="*"/>
@@ -30,12 +71,12 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Button Content="Create Room" FontSize="18" Margin="10" Click="CreateRoom_Click" Grid.Row="0"/>
-                <Button Content="Join Room" FontSize="18" Margin="10" Click="JoinRoom_Click" Grid.Row="1"/>
-                <Button Content="Personal Stats" FontSize="18" Margin="10" Click="PersonalStats_Click" Grid.Row="2"/>
-                <Button Content="Records" FontSize="18" Margin="10" Click="Records_Click" Grid.Row="3"/>
-                <Button Content="Settings" FontSize="18" Margin="10" Click="Settings_Click" Grid.Row="4"/>
-                <Button Content="Exit" FontSize="18" Margin="10" Click="ExitApp_Click" Grid.Row="5"/>
+                <Button Content="Create Room" Style="{StaticResource ModernButtonStyle}" Click="CreateRoom_Click" Grid.Row="0"/>
+                <Button Content="Join Room" Style="{StaticResource ModernButtonStyle}" Click="JoinRoom_Click" Grid.Row="1"/>
+                <Button Content="Personal Stats" Style="{StaticResource ModernButtonStyle}" Click="PersonalStats_Click" Grid.Row="2"/>
+                <Button Content="Records" Style="{StaticResource ModernButtonStyle}" Click="Records_Click" Grid.Row="3"/>
+                <Button Content="Settings" Style="{StaticResource ModernButtonStyle}" Click="Settings_Click" Grid.Row="4"/>
+                <Button Content="Exit" Style="{StaticResource ModernButtonStyle}" Click="ExitApp_Click" Grid.Row="5"/>
             </Grid>
 
             <!-- Main dynamic content area -->

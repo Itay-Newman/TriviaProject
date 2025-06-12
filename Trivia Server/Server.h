@@ -17,8 +17,10 @@ public:
 	void run();
 	void close();
 
-private:
+protected:
 	Communicator* m_communicator;
+
+private:
 	IDatabase* m_database;
 	RequestHandlerFactory* m_handlerFactory;
 	bool m_isRunning;

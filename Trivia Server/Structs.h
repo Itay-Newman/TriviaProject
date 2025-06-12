@@ -50,6 +50,7 @@ enum class RequestCodes
 	CREATE_ROOM_REQUEST = 25,
 	CLOSE_ROOM_REQUEST = 26,
 	GET_ROOM_STATE_REQUEST = 27,
+	START_GAME_REQUEST = 31,
 	LEAVE_ROOM_REQUEST = 28,
 	// More request codes can be added as needed in the future
 	GET_STATISTICS_REQUEST = 30
@@ -104,10 +105,10 @@ struct JoinRoomRequest
 
 struct CreateRoomRequest
 {
-	std::string roomName;
-	unsigned int maxUsers;
-	unsigned int questionCount;
-	unsigned int answerTimeout;
+	std::string RoomName;
+	unsigned int MaxUsers;
+	unsigned int QuestionCount;
+	unsigned int AnswerTimeout;
 };
 
 struct CloseRoomRequest
@@ -117,12 +118,10 @@ struct CloseRoomRequest
 
 struct GetRoomStateRequest
 {
-	unsigned int roomId;
 };
 
 struct LeaveRoomRequest
 {
-	unsigned int roomId;
 };
 
 struct LogoutRequest
@@ -154,6 +153,7 @@ struct GetRoomsResponse
 
 struct GetPlayersInRoomResponse
 {
+	unsigned int status;
 	std::vector<std::string> users;
 };
 
