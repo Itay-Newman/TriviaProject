@@ -57,24 +57,6 @@ CreateRoomRequest JsonRequestPacketDeserializer::deserializeCreateRoomRequest(co
 	};
 }
 
-CloseRoomRequest JsonRequestPacketDeserializer::deserializeCloseRoomRequest(const std::vector<unsigned char>& buffer)
-{
-	// No data to parse - user can only be admin of one room
-	return CloseRoomRequest{ 0 };
-}
-
-GetRoomStateRequest JsonRequestPacketDeserializer::deserializeGetRoomStateRequest(const std::vector<unsigned char>& buffer)
-{
-	// No data to parse - user can only be in one room
-	return GetRoomStateRequest{};
-}
-
-LeaveRoomRequest JsonRequestPacketDeserializer::deserializeLeaveRoomRequest(const std::vector<unsigned char>& buffer)
-{
-	// Same...
-	return LeaveRoomRequest{};
-}
-
 bool JsonRequestPacketDeserializer::isRequestWithNoData(unsigned int requestCode)
 {
 	// List request codes that don't need parsing of extra data

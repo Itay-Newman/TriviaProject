@@ -2,6 +2,7 @@
 #include "LoginRequestHandler.h"
 #include "JsonResponsePacketSerializer.h"
 #include "JsonRequestPacketDeserializer.h"
+#include <windows.h>
 
 Communicator::Communicator(RequestHandlerFactory& handlerFactory)
 	: m_serverSocket(INVALID_SOCKET), m_isRunning(false), m_handlerFactory(handlerFactory)
@@ -17,11 +18,13 @@ void Communicator::startHandleRequests()
 {
 	if (!initializeWinsock())
 	{
+		MessageBoxA(NULL, "Failed to initialize Winsock\NBecause you A FAILURE\n", "Error", MB_OK | MB_ICONERROR);
 		return;
 	}
 
 	if (!bindAndListen())
 	{
+		MessageBoxA(NULL, "Failed to bind and listen on socket\NBecause you A FAILURE\n", "Error", MB_OK | MB_ICONERROR);
 		return;
 	}
 
@@ -271,7 +274,7 @@ std::vector<unsigned char> Communicator::getBufferFromSocket(SOCKET sc, int byte
 {
 	std::vector<unsigned char> buffer(bytesToRead);
 	int bytesReceived = 0;
-	int result;
+	int result = 0;
 
 	// Keep reading until we have all the data we need
 	while (bytesReceived < bytesToRead)
@@ -298,7 +301,7 @@ void Communicator::sendBuffer(SOCKET sc, const std::vector<unsigned char>& buffe
 {
 	int bytesSent = 0;
 	int bytesToSend = buffer.size();
-	int result;
+	int result = 0;
 
 	// Keep sending until all data is sent
 	while (bytesSent < bytesToSend)
