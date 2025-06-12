@@ -18,13 +18,13 @@ void Communicator::startHandleRequests()
 {
 	if (!initializeWinsock())
 	{
-		MessageBoxA(NULL, "Failed to initialize Winsock\NBecause you A FAILURE\n", "Error", MB_OK | MB_ICONERROR);
+		std::cout << "Failed to initialize Winsock" << std::endl;
 		return;
 	}
 
 	if (!bindAndListen())
 	{
-		MessageBoxA(NULL, "Failed to bind and listen on socket\NBecause you A FAILURE\n", "Error", MB_OK | MB_ICONERROR);
+		std::cout << "Failed to bind and listen on socket" << std::endl;
 		return;
 	}
 
@@ -59,7 +59,10 @@ void Communicator::startHandleRequests()
 	// Waiting for all client threads to finish
 	for (auto& t : m_clientThreads)
 	{
-		t.join();
+		if (t.joinable())
+		{
+			t.join();
+		}
 	}
 }
 
