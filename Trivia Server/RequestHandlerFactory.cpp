@@ -35,7 +35,7 @@ MenuRequestHandler* RequestHandlerFactory::createMenuRequestHandler(const std::s
 		this->m_RoomManager,
 		this->m_statisticsManager,
 		username,
-		this
+		*this
 	);
 }
 

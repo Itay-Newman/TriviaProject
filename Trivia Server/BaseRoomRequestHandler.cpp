@@ -27,17 +27,18 @@ RequestResult BaseRoomRequestHandler::handleGetRoomStateRequest(const RequestInf
 		std::optional<unsigned int> roomIdOpt = m_roomManager->getRoomIdByUser(this->m_username);
 
 		JsonRequestPacketDeserializer deserializer;
-		GetRoomStateRequest request = deserializer.deserializeGetRoomStateRequest(requestInfo.buffer);
 
 		RoomState roomState = m_roomManager->getRoomState(roomIdOpt.value());
 		std::vector<std::string> players = m_roomManager->getUsersInRoom(roomIdOpt.value());
 
 		auto maybeRoom = m_roomManager->getRoom(roomIdOpt.value());
 
-		GetRoomStateResponse response;
-		response.status = (unsigned int)Status::SUCCESS;
-		response.hasGameBegun = (roomState == RoomState::GAME_IN_PROGRESS);
-		response.players = players;
+		GetRoomStateResponse response
+		{
+			.status = (unsigned int)Status::SUCCESS,
+			.hasGameBegun = (roomState == RoomState::GAME_IN_PROGRESS),
+			.players = players
+		};
 
 		if (maybeRoom)
 		{
