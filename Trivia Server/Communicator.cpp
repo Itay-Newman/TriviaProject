@@ -59,10 +59,7 @@ void Communicator::startHandleRequests()
 	// Waiting for all client threads to finish
 	for (auto& t : m_clientThreads)
 	{
-		if (t.joinable())
-		{
-			t.join();
-		}
+		t.join();
 	}
 }
 
