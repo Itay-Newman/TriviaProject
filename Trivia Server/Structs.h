@@ -10,8 +10,8 @@ class IRequestHandler;
 
 enum class Status
 {
-	SUCCESS = 1, // Operation was successful
-	FAILURE = 0, // Operation failed
+	SUCCESS = 1,
+	FAILURE = 0,
 };
 
 enum class ResponseCode
@@ -43,7 +43,6 @@ enum class RequestCodes
 	LOGIN_REQUEST = 20,
 	SIGNUP_REQUEST = 21,
 	LOGOUT_REQUEST = 29,
-	// Room-related request codes
 	GET_ROOMS_REQUEST = 22,
 	GET_PLAYERS_IN_ROOM_REQUEST = 23,
 	JOIN_ROOM_REQUEST = 24,
@@ -52,7 +51,10 @@ enum class RequestCodes
 	GET_ROOM_STATE_REQUEST = 27,
 	START_GAME_REQUEST = 31,
 	LEAVE_ROOM_REQUEST = 28,
-	// More request codes can be added as needed in the future
+	LEAVE_GAME_REQUEST = 32,
+	GET_QUESTION_REQUEST = 33,
+	SUBMIT_ANSWER_REQUEST = 34,
+	GET_GAME_RESULTS_REQUEST = 35,
 	GET_STATISTICS_REQUEST = 30
 };
 
@@ -87,7 +89,6 @@ struct SignupRequest
 	std::string email;
 };
 
-// Room-related request structs
 struct GetRoomsRequest
 {
 	// No additional data needed
@@ -124,9 +125,30 @@ struct LeaveRoomRequest
 {
 };
 
+struct LeaveGameRequest
+{
+	// There is no additional data needed - because user can only be in one game
+};
+
+struct GetQuestionRequest
+{
+	// There is no additional data needed here too - because user can only be in one game
+};
+
+struct SubmitAnswerRequest
+{
+	unsigned int answerId;
+	unsigned int answerTime;
+};
+
+struct GetGameResultsRequest
+{
+	// There is no additional data needed here too - because user can only be in one game
+};
+
 struct LogoutRequest
 {
-	// No additional data needed, username is handled by the handler
+	// There is no additional data needed here, username is handled by the handler
 };
 
 // Response structs
