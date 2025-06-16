@@ -1,4 +1,5 @@
 #include "SqliteDataBase.h"
+#include "GameManager.h"
 #include <iostream>
 #include "sqlite3.h"
 #include <io.h>
@@ -51,6 +52,26 @@ int stringVectorCallback(void* data, int argc, char** argv, char** azColName)
 	{
 		auto* vec = static_cast<std::vector<std::string>*>(data);
 		vec->push_back(argv[0]);
+	}
+	return 0;
+}
+
+int questionCallback(void* data, int argc, char** argv, char** azColName)
+{
+	if (argc == 5 && argv[0] && argv[1] && argv[2] && argv[3] && argv[4])
+	{
+		auto* questions = static_cast<std::vector<Question>*>(data);
+		Question question;
+
+		question.id = std::stoi(argv[0]);
+		question.questionText = argv[1];
+		question.correctAnswer = argv[2];
+
+		question.wrongAnswers.clear();
+		question.wrongAnswers.push_back(argv[3]);
+		question.wrongAnswers.push_back(argv[4]);
+
+		questions->push_back(question);
 	}
 	return 0;
 }
@@ -317,7 +338,6 @@ bool SqliteDataBase::addGameStatistics(const std::string& username, double avgTi
 	return rc == SQLITE_DONE;
 }
 
-
 std::vector<std::string> SqliteDataBase::getAllUsernames() const
 {
 	std::vector<std::string> users;
@@ -332,4 +352,71 @@ std::vector<std::string> SqliteDataBase::getPlayersWithStatistics() const
 	const std::string query = "SELECT UserName FROM Statistics;";
 	runQuery(db, query, stringVectorCallback, &players);
 	return players;
+}
+
+std::vector<Question> SqliteDataBase::getRandomQuestions(unsigned int count) const
+{
+	std::vector<Question> questions;
+
+	if (!this->db)
+	{
+		std::cerr << "Database is not initialized" << std::endl;
+		return questions;
+	}
+
+	const std::string query = "SELECT ID, QUESTION, C_ANSWER1, W_ANSWER2, W_ANSWER3, W_ANSWER4 FROM Questions ORDER BY RANDOM() LIMIT ?;";
+	sqlite3_stmt* stmt = nullptr;
+
+	if (sqlite3_prepare_v2(this->db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		std::cerr << "Failed to prepare statement for getRandomQuestions: " << sqlite3_errmsg(this->db) << std::endl;
+		return questions;
+	}
+
+	if (sqlite3_bind_int(stmt, 1, static_cast<int>(count)) != SQLITE_OK)
+	{
+		std::cerr << "Failed to bind count parameter: " << sqlite3_errmsg(this->db) << std::endl;
+		sqlite3_finalize(stmt);
+		return questions;
+	}
+
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		Question question;
+
+		question.id = sqlite3_column_int(stmt, 0);
+
+		const unsigned char* questionText = sqlite3_column_text(stmt, 1);
+		if (questionText)
+			question.questionText = reinterpret_cast<const char*>(questionText);
+
+		const unsigned char* correctAnswer = sqlite3_column_text(stmt, 2);
+		if (correctAnswer)
+			question.correctAnswer = reinterpret_cast<const char*>(correctAnswer);
+
+		question.wrongAnswers.clear();
+
+		const unsigned char* wrongAnswer2 = sqlite3_column_text(stmt, 3);
+		if (wrongAnswer2)
+			question.wrongAnswers.push_back(reinterpret_cast<const char*>(wrongAnswer2));
+
+		const unsigned char* wrongAnswer3 = sqlite3_column_text(stmt, 4);
+		if (wrongAnswer3)
+			question.wrongAnswers.push_back(reinterpret_cast<const char*>(wrongAnswer3));
+
+		const unsigned char* wrongAnswer4 = sqlite3_column_text(stmt, 5);
+		if (wrongAnswer4)
+			question.wrongAnswers.push_back(reinterpret_cast<const char*>(wrongAnswer4));
+
+		questions.push_back(question);
+	}
+
+	sqlite3_finalize(stmt);
+
+	if (questions.empty())
+	{
+		std::cerr << "No questions found in database" << std::endl;
+	}
+
+	return questions;
 }

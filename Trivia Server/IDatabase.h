@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 
+struct Question;
+
 class IDatabase
 {
 public:
@@ -11,7 +13,6 @@ public:
 	virtual bool addUser(const std::string& name, const std::string& password, const std::string& email) const = 0;
 	virtual std::vector<std::string> getAllUsernames() const = 0;
 
-	// Statistics methods
 	virtual double getPlayerAverageAnswerTime(const std::string& username) const = 0;
 	virtual int getNumOfCorrectAnswers(const std::string& username) const = 0;
 	virtual int getNumOfWrongAnswers(const std::string& username) const = 0;
@@ -24,4 +25,6 @@ public:
 	virtual bool initializeUserStatistics(const std::string& username) const = 0;
 
 	virtual std::vector<std::string> getPlayersWithStatistics() const = 0;
+
+	virtual std::vector<Question> getRandomQuestions(unsigned int count) const = 0;
 };
