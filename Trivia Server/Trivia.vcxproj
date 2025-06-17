@@ -132,7 +132,8 @@
   <ItemGroup>
     <ClCompile Include="BaseRoomRequestHandler.cpp" />
     <ClCompile Include="BaseRoomRequestHandler.h" />
-    <ClCompile Include="Communicator.cpp" />
+    <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="GameRequestHandler.cpp" />
     <ClCompile Include="JsonRequestPacketDeserializer.cpp" />
     <ClCompile Include="JsonResponsePacketSerializer.cpp" />
     <ClCompile Include="LoggedUser.cpp" />
@@ -152,6 +153,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="communicator.h" />
+    <ClInclude Include="GameManager.h" />
+    <ClInclude Include="GameRequestHandler.h" />
     <ClInclude Include="IDatabase.h" />
     <ClInclude Include="IRequestHandler.h" />
     <ClInclude Include="json.hpp" />
