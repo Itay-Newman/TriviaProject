@@ -59,20 +59,20 @@ RequestResult RoomAdminRequestHandler::handleCloseRoomRequest(const RequestInfo&
 		result.response = JsonResponsePacketSerializer::serializeResponse(response);
 		result.newHandler = dynamic_cast<IRequestHandler*>(m_HandlerFactory.createMenuRequestHandler(m_username));
 
-		// Send LeaveRoomResponse to all room members
-		if (success)
-		{
-			LeaveRoomResponse leaveResponse;
-			leaveResponse.status = (unsigned int)Status::SUCCESS;
-			std::vector<unsigned char> leaveResponseBuffer = JsonResponsePacketSerializer::serializeResponse(leaveResponse);
+		//// Send LeaveRoomResponse to all room members
+		//if (success)
+		//{
+		//	LeaveRoomResponse leaveResponse;
+		//	leaveResponse.status = (unsigned int)Status::SUCCESS;
+		//	std::vector<unsigned char> leaveResponseBuffer = JsonResponsePacketSerializer::serializeResponse(leaveResponse);
 
-			// Send LeaveRoomResponse to all users in the room
-			if (this->m_HandlerFactory.getCommunicator() != nullptr)
-			{
-				this->m_HandlerFactory.getCommunicator()->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::LEAVE_ROOM_RESPONSE), leaveResponseBuffer);
-				std::cout << "Sent LeaveRoomResponse to all " << usersInRoom.size() << " users in room " << roomId << std::endl;
-			}
-		}
+		//	// Send LeaveRoomResponse to all users in the room
+		//	if (this->m_HandlerFactory.getCommunicator() != nullptr)
+		//	{
+		//		this->m_HandlerFactory.getCommunicator()->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::LEAVE_ROOM_RESPONSE), leaveResponseBuffer);
+		//		std::cout << "Sent LeaveRoomResponse to all " << usersInRoom.size() << " users in room " << roomId << std::endl;
+		//	}
+		//}
 
 		return result;
 	}

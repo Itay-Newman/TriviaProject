@@ -88,45 +88,48 @@ RequestResult RoomMemberRequestHandler::handleGetRoomStateRequest(const RequestI
 {
 	try
 	{
+		GetRoomStateResponse response{};
+		RequestResult result{};
+
 		std::optional<unsigned int> roomIdOpt = m_roomManager->getRoomIdByUser(m_username);
 
 		if (!roomIdOpt.has_value())
 		{
-			return createErrorResponse("User is not in any room");
+			response.status = (unsigned int)Status::FAILURE;
+			response.hasGameBegun = 0;
+			response.players = std::vector<std::string>();
+			response.questionCount = 0;
+			response.answerTimeout = 0;
+
+			result.id = ResponseCode::GET_ROOM_STATE_RESPONSE;
+			result.response = JsonResponsePacketSerializer::serializeResponse(response);
+			result.newHandler = this->m_HandlerFactory.createMenuRequestHandler(this->m_username);
+
+			return result;
 		}
-
-		unsigned int roomId = roomIdOpt.value();
-
 		// Get room object to access its properties
-		std::optional<std::reference_wrapper<Room>> roomOpt = m_roomManager->getRoom(roomId);
-		if (!roomOpt.has_value())
+		else
 		{
-			return createErrorResponse("Room not found");
+			unsigned int roomId = roomIdOpt.value();
+
+			std::optional<std::reference_wrapper<Room>> roomOpt = m_roomManager->getRoom(roomId);
+
+			Room& room = roomOpt->get();
+
+			RoomState roomState = m_roomManager->getRoomState(roomId);
+
+			std::vector<std::string> usersInRoom = room.getAllUsers();
+
+			response.status = (unsigned int)Status::SUCCESS;
+			response.hasGameBegun = (roomState == RoomState::GAME_IN_PROGRESS);
+			response.players = usersInRoom;
+			response.questionCount = room.getNumOfQuestionsInGame();
+			response.answerTimeout = room.getTimePerQuestion();
+
+			result.id = ResponseCode::GET_ROOM_STATE_RESPONSE;
+			result.response = JsonResponsePacketSerializer::serializeResponse(response);
+			result.newHandler = this;
 		}
-
-		Room& room = roomOpt->get();
-
-		RoomState roomState = m_roomManager->getRoomState(roomId);
-
-		std::vector<std::string> usersInRoom = room.getAllUsers();
-
-		GetRoomStateResponse response
-		{
-			.status = (unsigned int)Status::SUCCESS,
-			.hasGameBegun = (roomState == RoomState::GAME_IN_PROGRESS),
-			.players = usersInRoom,
-			.questionCount = room.getNumOfQuestionsInGame(),
-			.answerTimeout = room.getTimePerQuestion()
-		};
-
-
-		RequestResult result
-		{
-			.id = ResponseCode::GET_ROOM_STATE_RESPONSE,
-			.response = JsonResponsePacketSerializer::serializeResponse(response),
-			.newHandler = this
-		};
-
 		return result;
 	}
 	catch (const std::exception& e)

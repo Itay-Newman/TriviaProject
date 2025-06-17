@@ -13,10 +13,13 @@ namespace TriviaClient.Pages
     {
         private Timer _timer;
         private bool clicked = false;
-        public JoinRoom()
+        private MainMenuPage m_mainMenu;
+        public JoinRoom(MainMenuPage mainMenu)
         {
             InitializeComponent();
             RefreshRooms();
+            m_mainMenu = mainMenu;
+            this.Unloaded += JoinRoom_Unloaded;
         }
 
         private async void JoinRoom_Click(object sender, RoutedEventArgs e)
@@ -48,7 +51,9 @@ namespace TriviaClient.Pages
                     _timer?.Dispose();
                     _timer = null;
 
-                    NavigationService.Navigate(new RoomBeforeGame(false));
+                    NavigationService.Navigate(new RoomBeforeGame(false, m_mainMenu));
+
+                    m_mainMenu.SetControlPanelEnabled(false);
                 }
                 else
                 {
@@ -111,6 +116,14 @@ namespace TriviaClient.Pages
                 if (!clicked)
                     _timer?.Start();
             }
+        }
+
+        private void JoinRoom_Unloaded(object sender, RoutedEventArgs e)
+        {
+            clicked = true; // Prevent further async work
+            _timer?.Stop();
+            _timer?.Dispose();
+            _timer = null;
         }
     }
 }
