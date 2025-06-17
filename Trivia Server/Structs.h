@@ -274,5 +274,5 @@ struct RequestResult
 {
 	ResponseCode id; // 0 for fail
 	std::vector<unsigned char> response;
-	IRequestHandler* newHandler;
+	IRequestHandler* newHandler = nullptr;
 };
