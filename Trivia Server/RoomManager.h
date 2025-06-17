@@ -8,13 +8,6 @@
 #include <optional>
 #include <functional>
 
-enum class RoomState
-{
-	WAITING_FOR_PLAYERS,
-	GAME_IN_PROGRESS,
-	CLOSED
-};
-
 class RoomManager
 {
 public:

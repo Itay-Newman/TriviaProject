@@ -131,7 +131,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BaseRoomRequestHandler.cpp" />
-    <ClCompile Include="communicator.cpp" />
     <ClCompile Include="BaseRoomRequestHandler.h" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameRequestHandler.cpp" />

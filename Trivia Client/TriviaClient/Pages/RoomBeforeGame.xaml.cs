@@ -1,7 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace TriviaClient.Pages
 {
@@ -11,12 +9,15 @@ namespace TriviaClient.Pages
     public partial class RoomBeforeGame : Page
     {
         private CancellationTokenSource _refreshCancellation;
+        private MainMenuPage m_mainMenu;
 
-        public RoomBeforeGame(bool isAdmin)
+        public RoomBeforeGame(bool isAdmin, MainMenuPage mainMenu)
         {
             InitializeComponent();
-            StartRoomRefreshLoop();
 
+            this.m_mainMenu = mainMenu;
+
+            StartRoomRefreshLoop();
             this.Unloaded += RoomBeforeGame_Unloaded;
 
             if (isAdmin)
@@ -30,6 +31,7 @@ namespace TriviaClient.Pages
                 LeaveRoom.Visibility = Visibility.Visible;
             }
         }
+
 
         private async void LeaveRoom_Click(object sender, RoutedEventArgs e)
         {
@@ -51,7 +53,7 @@ namespace TriviaClient.Pages
             {
                 _refreshCancellation?.Cancel();
                 _refreshCancellation?.Dispose();
-                NavigationService.Navigate(new JoinRoom());
+                NavigationService.Navigate(new JoinRoom(m_mainMenu));
             }
             else
             {
@@ -105,7 +107,7 @@ namespace TriviaClient.Pages
             {
                 _refreshCancellation?.Cancel();
                 _refreshCancellation?.Dispose();
-                NavigationService.Navigate(new JoinRoom());
+                NavigationService.Navigate(new CreateRoom(m_mainMenu));
             }
             else
             {
@@ -136,14 +138,24 @@ namespace TriviaClient.Pages
                         await communicator.SendRequestAsync(getPlayersCode, requestData);
                         var (responseCode, responseBody) = await communicator.ReadResponseAsync();
 
-                        var getUsersResponse = JsonResponsePacketDeserializer.DeserializeGetRoomStateResponse(responseBody);
+                        var getRoomStateResponse = JsonResponsePacketDeserializer.DeserializeGetRoomStateResponse(responseBody);
 
-                        if (getUsersResponse.Status == (uint)TriviaClient.StatusCode.OK)
+                        if (getRoomStateResponse.Status == (uint)TriviaClient.StatusCode.OK)
                         {
                             await Dispatcher.InvokeAsync(() =>
                             {
-                                PlayerList.ItemsSource = getUsersResponse.Players;
+                                PlayerList.ItemsSource = getRoomStateResponse.Players;
                             });
+                        }
+                        else if (getRoomStateResponse.Status == 0)
+                        {
+                            await Dispatcher.InvokeAsync(() =>
+                           {
+                               MessageBox.Show("Room is closed or does not exist.");
+                               _refreshCancellation?.Cancel();
+                               _refreshCancellation?.Dispose();
+                               NavigationService.Navigate(new CreateRoom(m_mainMenu));
+                           });
                         }
                         else
                         {
@@ -166,8 +178,15 @@ namespace TriviaClient.Pages
 
         private void RoomBeforeGame_Unloaded(object sender, RoutedEventArgs e)
         {
-            _refreshCancellation?.Cancel();
-            _refreshCancellation?.Dispose();
+            if (!_refreshCancellation.IsCancellationRequested)
+            {
+                _refreshCancellation?.Cancel();
+                _refreshCancellation?.Dispose();
+            }
+
+
+            m_mainMenu.SetControlPanelEnabled(true);
+
         }
     }
 }

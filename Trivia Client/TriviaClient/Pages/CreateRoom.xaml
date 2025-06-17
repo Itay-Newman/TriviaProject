@@ -65,10 +65,13 @@
                         </Style>
                     </StackPanel.Resources>
 
-                    <xctk:WatermarkTextBox x:Name="RoomName" Height="30" FontSize="15" Margin="0,5" Watermark="Room Name"/>
-                    <xctk:WatermarkTextBox x:Name="QuestionTime" Height="30" FontSize="15" Margin="0,5" Watermark="Time per Question (sec)"/>
-                    <xctk:WatermarkTextBox x:Name="PlayerCount" Height="30" FontSize="15" Margin="0,5" Watermark="Max Players"/>
-                    <xctk:WatermarkTextBox x:Name="QuestionCount" Height="30" FontSize="15" Margin="0,5" Watermark="Question Number"/>
+                    <xctk:WatermarkTextBox x:Name="RoomName" Height="30" FontSize="15" Margin="0,10" Watermark="Room Name"/>
+
+                    <xctk:WatermarkTextBox x:Name="TimePerQuestion" Watermark="Time per question" Height="30" FontSize="15" Margin="0,0,0,10" PreviewTextInput="NumericOnly_PreviewTextInput" />
+
+                    <xctk:WatermarkTextBox x:Name="MaxPlayers" Watermark="Max players" Height="30" FontSize="15" Margin="0,0,0,10" PreviewTextInput="NumericOnly_PreviewTextInput" />
+
+                    <xctk:WatermarkTextBox x:Name="QuestionNumbers" Watermark="Question numbers" Height="30" FontSize="15" Margin="0,0,0,10" PreviewTextInput="NumericOnly_PreviewTextInput" />
 
                     <Button Content="Create" Height="45" FontSize="20" Margin="0,5,0,0" Click="CreateRoom_Click" Style="{StaticResource ModernButtonStyle}"/>
                 </StackPanel>

@@ -61,7 +61,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Sidebar with evenly spaced buttons -->
-            <Grid Grid.Column="0" Background="#AA1E1E1E" Margin="10">
+            <Grid Grid.Column="0" Background="#AA1E1E1E" Margin="10" x:Name="ControlPanel">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>

@@ -14,7 +14,7 @@ namespace TriviaClient
         private async void SignUpButton_Click(object sender, RoutedEventArgs e)
         {
             string username = Username.Text;
-            string password = Password.Text;
+            string password = Password.Password;
             string email = Email.Text;
 
             var request = new SignupRequest
@@ -41,12 +41,19 @@ namespace TriviaClient
 
             if (signupResponse.Status == (uint)TriviaClient.StatusCode.OK)
             {
+                if (Application.Current.MainWindow != null)
+                    Application.Current.MainWindow.Title = $"Trivia Client - Connected: {Username.Text}";
                 NavigationService.Navigate(new MainMenuPage());
             }
             else
             {
                 MessageBox.Show("Sign up failed. Please check your details or try a different username.");
             }
+        }
+
+        private void SigninButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new SignInPage());
         }
     }
 }
