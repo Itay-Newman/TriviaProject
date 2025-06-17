@@ -8,6 +8,13 @@
 class IRequestHandler;
 // All structs needed for JsonResponsePacketSerializer and JsonRequestPacketDeserializer
 
+enum class RoomState
+{
+	WAITING_FOR_PLAYERS,
+	GAME_IN_PROGRESS,
+	CLOSED
+};
+
 enum class Status
 {
 	SUCCESS = 1,
@@ -267,5 +274,5 @@ struct RequestResult
 {
 	ResponseCode id; // 0 for fail
 	std::vector<unsigned char> response;
-	IRequestHandler* newHandler;
+	IRequestHandler* newHandler = nullptr;
 };

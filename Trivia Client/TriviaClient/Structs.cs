@@ -6,6 +6,13 @@
         OK = 1,
     }
 
+    public enum RoomState
+    {
+        WAITING_FOR_PLAYERS = 0,
+        GAME_IN_PROGRESS = 1,
+        CLOSED = 2
+    };
+
     // Enums matching server side
     public enum ResponseCode
     {
