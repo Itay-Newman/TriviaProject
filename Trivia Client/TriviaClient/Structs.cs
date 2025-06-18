@@ -50,7 +50,9 @@
         GET_ROOM_STATE_REQUEST = 27,
         LEAVE_ROOM_REQUEST = 28,
         GET_STATISTICS_REQUEST = 30,
-        STARTS_GAME_REQUEST = 31
+        STARTS_GAME_REQUEST = 31,
+        GET_QUESTION_REQUEST = 32,
+        SUBMIT_ANSWER_REQUEST = 34
     }
 
     // Data structures
@@ -214,6 +216,12 @@
         public uint Status { get; set; }
         public List<PlayerResults> Results { get; set; }
     }
+
+    public struct SubmitAnswerRequest
+    {
+        public uint answerId { get; set; }
+        public uint answerTime { get; set; }
+    };
 
     public struct ErrorResponse
     {

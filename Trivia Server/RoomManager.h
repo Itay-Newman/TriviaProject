@@ -28,6 +28,7 @@ public:
 	std::vector<std::string> getUsersInRoom(unsigned int roomId) const;
 	bool isRoomActive(unsigned int roomId) const;
 	std::optional<unsigned int> getRoomIdByUser(const std::string& username) const;
+	void setRoomState(unsigned int roomId, RoomState state);
 
 private:
 	unsigned int m_nextRoomId;
