@@ -107,7 +107,6 @@ RequestResult RoomMemberRequestHandler::handleGetRoomStateRequest(const RequestI
 
 			return result;
 		}
-		// Get room object to access its properties
 		else
 		{
 			unsigned int roomId = roomIdOpt.value();
@@ -129,6 +128,10 @@ RequestResult RoomMemberRequestHandler::handleGetRoomStateRequest(const RequestI
 			result.id = ResponseCode::GET_ROOM_STATE_RESPONSE;
 			result.response = JsonResponsePacketSerializer::serializeResponse(response);
 			result.newHandler = this;
+			if (roomState == RoomState::GAME_IN_PROGRESS)
+			{
+				result.newHandler = m_HandlerFactory.createGameRequestHandler(this->m_username);
+			}
 		}
 		return result;
 	}

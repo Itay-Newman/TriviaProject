@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "Structs.h"
 
 class Room
 {
@@ -16,16 +17,16 @@ public:
 	unsigned int getMaxPlayers() const;
 	unsigned int getNumOfQuestionsInGame() const;
 	unsigned int getTimePerQuestion() const;
-	bool getIsActive() const;
+	RoomState getRoomState() const;
 	std::vector<std::string> getAllUsers() const;
-
-	// Setters
-	void setIsActive(bool isActive);
 
 	// User management functions
 	bool addUser(const std::string& username);
 	bool removeUser(const std::string& username);
 	bool isUserInRoom(const std::string& username) const;
+
+	// Room state management functions
+	void setState(RoomState roomState);
 
 private:
 	unsigned int m_id;
@@ -33,6 +34,6 @@ private:
 	unsigned int m_maxPlayers;
 	unsigned int m_numOfQuestionsInGame;
 	unsigned int m_timePerQuestion;
-	bool m_isActive;
+	RoomState m_RoomState;
 	std::vector<std::string> m_users;
 };

@@ -4,289 +4,201 @@
 #include <algorithm>
 #include <random>
 #include <chrono>
+#include <thread>
 
 GameManager::GameManager(IDatabase& database)
-    : m_database(database), m_randomGenerator(std::chrono::steady_clock::now().time_since_epoch().count())
+	: m_database(database), m_randomGenerator(std::chrono::steady_clock::now().time_since_epoch().count())
 {
-}
-
-GetQuestionResponse GameManager::getNextQuestion(const std::string& username)
-{
-    GetQuestionResponse response;
-    response.status = static_cast<unsigned int>(Status::FAILURE);
-
-    try
-    {
-        // Checking if the user is in an active game
-        auto gameIt = m_activeGames.find(username);
-        if (gameIt == m_activeGames.end())
-        {
-            if (!startGame(username, 10))
-            {
-                return response;
-            }
-            gameIt = m_activeGames.find(username);
-        }
-
-        GameData& gameData = gameIt->second;
-
-        if (gameData.gameFinished || gameData.currentQuestionIndex >= gameData.gameQuestions.size())
-        {
-            gameData.gameFinished = true;
-            return response;
-        }
-
-        const Question& currentQuestion = gameData.gameQuestions[gameData.currentQuestionIndex];
-        gameData.currentQuestion = currentQuestion;
-
-        // Getting the correct answer index after shuffling the answers
-        unsigned int correctAnswerIndex;
-        std::vector<std::string> shuffledAnswers = shuffleAnswers(currentQuestion, correctAnswerIndex);
-
-        // getting the time of when the question was sent
-        gameData.questionStartTime = std::chrono::system_clock::now();
-
-        response.status = static_cast<unsigned int>(Status::SUCCESS);
-        response.question = currentQuestion.questionText;
-        response.answers = shuffledAnswers;
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << "Error in getNextQuestion: " << e.what() << std::endl;
-        response.status = static_cast<unsigned int>(Status::FAILURE);
-    }
-
-    return response;
-}
-
-SubmitAnswerResponse GameManager::submitAnswer(const std::string& username, unsigned int answerId, unsigned int answerTime)
-{
-    SubmitAnswerResponse response;
-    response.status = static_cast<unsigned int>(Status::FAILURE);
-    response.correctAnswerId = 0;
-
-    try
-    {
-        // Checking if the user is in an active game
-        auto gameIt = m_activeGames.find(username);
-        if (gameIt == m_activeGames.end())
-        {
-            return response;
-        }
-
-        GameData& gameData = gameIt->second;
-
-        if (gameData.gameFinished)
-        {
-            return response;
-        }
-
-        const Question& currentQuestion = gameData.currentQuestion;
-        unsigned int correctAnswerIndex;
-        std::vector<std::string> shuffledAnswers = shuffleAnswers(currentQuestion, correctAnswerIndex);
-
-        bool isCorrect = (answerId == correctAnswerIndex + 1); // answerId is 1-based
-
-        updateGameStatistics(username, isCorrect, static_cast<double>(answerTime));
-
-        gameData.currentQuestionIndex++;
-        gameData.questionsAnswered++;
-
-        // Checking if the game is finished
-        if (gameData.currentQuestionIndex >= gameData.gameQuestions.size())
-        {
-            gameData.gameFinished = true;
-            // Saving the final statistics to database
-            double avgTime = calculateAverageAnswerTime(username);
-            m_database.addGameStatistics(username, avgTime, gameData.correctAnswers, gameData.wrongAnswers);
-        }
-
-        response.status = static_cast<unsigned int>(Status::SUCCESS);
-        response.correctAnswerId = correctAnswerIndex + 1; // Converting to 1-based
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << "Error in submitAnswer: " << e.what() << std::endl;
-        response.status = static_cast<unsigned int>(Status::FAILURE);
-    }
-
-    return response;
-}
-
-GetGameResultsResponse GameManager::getGameResults(const std::string& username)
-{
-    GetGameResultsResponse response;
-    response.status = static_cast<unsigned int>(Status::FAILURE);
-
-    try
-    {
-        // Checking if user has/had an active game
-        auto gameIt = m_activeGames.find(username);
-        if (gameIt == m_activeGames.end())
-        {
-            return response;
-        }
-
-        const GameData& gameData = gameIt->second;
-
-        PlayerResults playerResult;
-        playerResult.username = username;
-        playerResult.correctAnswerCount = gameData.correctAnswers;
-        playerResult.wrongAnswerCount = gameData.wrongAnswers;
-        playerResult.averageAnswerTime = static_cast<unsigned int>(calculateAverageAnswerTime(username));
-
-        response.results.push_back(playerResult);
-        response.status = static_cast<unsigned int>(Status::SUCCESS);
-
-        if (gameData.gameFinished)
-        {
-            m_activeGames.erase(gameIt);
-        }
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << "Error in getGameResults: " << e.what() << std::endl;
-        response.status = static_cast<unsigned int>(Status::FAILURE);
-    }
-
-    return response;
 }
 
 bool GameManager::startGame(const std::string& username, unsigned int questionCount)
 {
-    try
-    {
-        std::vector<Question> questions = getRandomQuestions(questionCount);
-        if (questions.empty())
-        {
-            std::cerr << "No questions available in database" << std::endl;
-            return false;
-        }
+	try {
+		if (m_activeGames.find("__shared__") == m_activeGames.end()) {
+			std::vector<Question> questions = getRandomQuestions(questionCount);
+			if (questions.empty()) {
+				std::cerr << "No questions in database\n";
+				return false;
+			}
+			initializeGameData("__shared__", questions);
+		}
+		m_userStats[username] = PlayerResults{ username, 0, 0, 0 };
+		return true;
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error starting game: " << e.what() << std::endl;
+		return false;
+	}
+}
 
-        initializeGameData(username, questions);
-        return true;
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << "Error starting game: " << e.what() << std::endl;
-        return false;
-    }
+GetQuestionResponse GameManager::getNextQuestion(const std::string& username)
+{
+	GetQuestionResponse response;
+	response.status = static_cast<unsigned int>(Status::FAILURE);
+
+	try {
+		auto gameIt = m_activeGames.find("__shared__");
+		if (gameIt == m_activeGames.end()) {
+			if (!startGame(username, 10)) return response;
+			gameIt = m_activeGames.find("__shared__");
+		}
+
+		GameData& gameData = gameIt->second;
+
+		if (gameData.gameFinished || gameData.currentQuestionIndex >= gameData.gameQuestions.size()) {
+			gameData.gameFinished = true;
+			return response;
+		}
+
+		const Question& currentQuestion = gameData.gameQuestions[gameData.currentQuestionIndex];
+		gameData.currentQuestion = currentQuestion;
+		gameData.questionStartTime = std::chrono::system_clock::now();
+
+		// Shuffle answers once per question index
+		if (gameData.shuffledAnswersForQuestionIndex != gameData.currentQuestionIndex) {
+			auto shuffledPair = shuffleAnswers(currentQuestion);
+			gameData.currentShuffledAnswers = shuffledPair.first;
+			gameData.correctAnswerIndex = shuffledPair.second;
+			gameData.shuffledAnswersForQuestionIndex = gameData.currentQuestionIndex;
+		}
+
+		response.answers = gameData.currentShuffledAnswers;
+		response.question = currentQuestion.questionText;
+		response.status = static_cast<unsigned int>(Status::SUCCESS);
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error in getNextQuestion: " << e.what() << std::endl;
+	}
+
+	return response;
+}
+
+SubmitAnswerResponse GameManager::submitAnswer(const std::string& username, unsigned int answerId, unsigned int answerTime)
+{
+	SubmitAnswerResponse response;
+	response.status = static_cast<unsigned int>(Status::FAILURE);
+
+	try {
+		auto gameIt = m_activeGames.find("__shared__");
+		if (gameIt == m_activeGames.end()) return response;
+
+		GameData& gameData = gameIt->second;
+		if (gameData.gameFinished) return response;
+
+		unsigned int correctId = gameData.correctAnswerIndex;
+		bool isCorrect = (answerId == correctId);
+
+		auto& stats = m_userStats[username];
+		if (isCorrect) stats.correctAnswerCount++;
+		else stats.wrongAnswerCount++;
+
+		stats.averageAnswerTime += answerTime;
+
+		gameData.currentQuestionIndex++;
+
+		if (gameData.currentQuestionIndex >= gameData.gameQuestions.size()) {
+			gameData.gameFinished = true;
+		}
+
+		response.status = static_cast<unsigned int>(Status::SUCCESS);
+		response.correctAnswerId = correctId;
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error in submitAnswer: " << e.what() << std::endl;
+	}
+
+	return response;
+}
+
+GetGameResultsResponse GameManager::getGameResults(const std::string& username)
+{
+	GetGameResultsResponse response;
+	response.status = static_cast<unsigned int>(Status::FAILURE);
+
+	try {
+		if (!m_userStats.contains(username)) return response;
+
+		auto& stats = m_userStats[username];
+		unsigned int totalQuestions = stats.correctAnswerCount + stats.wrongAnswerCount;
+		unsigned int avgTime = totalQuestions > 0 ? stats.averageAnswerTime / totalQuestions : 0;
+
+		stats.averageAnswerTime = avgTime;
+		response.results.push_back(stats);
+		response.status = static_cast<unsigned int>(Status::SUCCESS);
+
+		if (m_activeGames["__shared__"].gameFinished) {
+			m_database.addGameStatistics(stats.username, avgTime, stats.correctAnswerCount, stats.wrongAnswerCount);
+		}
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error in getGameResults: " << e.what() << std::endl;
+	}
+
+	return response;
 }
 
 void GameManager::endGame(const std::string& username)
 {
-    auto gameIt = m_activeGames.find(username);
-    if (gameIt != m_activeGames.end())
-    {
-        // Saving the final statistics if game was in progress
-        if (!gameIt->second.gameFinished && gameIt->second.questionsAnswered > 0)
-        {
-            double avgTime = calculateAverageAnswerTime(username);
-            m_database.addGameStatistics(username, avgTime, gameIt->second.correctAnswers, gameIt->second.wrongAnswers);
-        }
-        m_activeGames.erase(gameIt);
-    }
+	m_userStats.erase(username);
 }
 
 bool GameManager::isUserInGame(const std::string& username) const
 {
-    return m_activeGames.find(username) != m_activeGames.end();
+	return m_userStats.contains(username);
 }
 
 std::vector<Question> GameManager::getRandomQuestions(unsigned int count)
 {
-    return m_database.getRandomQuestions(count);
+	return m_database.getRandomQuestions(count);
 }
 
 Question GameManager::getRandomQuestion()
 {
-    std::vector<Question> questions = m_database.getRandomQuestions(1);
-    if (!questions.empty())
-    {
-        return questions[0];
-    }
+	std::vector<Question> questions = m_database.getRandomQuestions(1);
+	if (!questions.empty()) return questions[0];
 
-    // Return empty question if database query failed
-    Question emptyQuestion;
-    emptyQuestion.id = 0;
-    emptyQuestion.questionText = "";
-    emptyQuestion.correctAnswer = "";
-    emptyQuestion.wrongAnswers.clear();
-    return emptyQuestion;
+	Question emptyQuestion;
+	emptyQuestion.id = 0;
+	emptyQuestion.questionText = "";
+	emptyQuestion.correctAnswer = "";
+	emptyQuestion.wrongAnswers.clear();
+	return emptyQuestion;
 }
 
 void GameManager::initializeGameData(const std::string& username, const std::vector<Question>& questions)
 {
-    GameData gameData;
-    gameData.correctAnswers = 0;
-    gameData.wrongAnswers = 0;
-    gameData.totalAnswerTime = 0.0;
-    gameData.questionsAnswered = 0;
-    gameData.gameQuestions = questions;
-    gameData.currentQuestionIndex = 0;
-    gameData.gameFinished = false;
-    gameData.questionStartTime = std::chrono::system_clock::now();
+	GameData gameData;
+	gameData.correctAnswers = 0;
+	gameData.wrongAnswers = 0;
+	gameData.totalAnswerTime = 0.0;
+	gameData.questionsAnswered = 0;
+	gameData.gameQuestions = questions;
+	gameData.currentQuestionIndex = 0;
+	gameData.gameFinished = false;
+	gameData.questionStartTime = std::chrono::system_clock::now();
+	gameData.currentShuffledAnswers.clear();
+	gameData.correctAnswerIndex = 0;
+	gameData.shuffledAnswersForQuestionIndex = -1;
 
-    m_activeGames[username] = gameData;
+	m_activeGames[username] = gameData;
 }
 
-void GameManager::updateGameStatistics(const std::string& username, bool isCorrect, double answerTime)
+std::pair<std::vector<std::string>, unsigned int> GameManager::shuffleAnswers(const Question& question)
 {
-    auto gameIt = m_activeGames.find(username);
-    if (gameIt != m_activeGames.end())
-    {
-        GameData& gameData = gameIt->second;
+	std::vector<std::string> answers;
+	answers.push_back(question.correctAnswer);
+	for (const auto& wrong : question.wrongAnswers) {
+		answers.push_back(wrong);
+	}
+	std::shuffle(answers.begin(), answers.end(), m_randomGenerator);
 
-        if (isCorrect)
-        {
-            gameData.correctAnswers++;
-        }
-        else
-        {
-            gameData.wrongAnswers++;
-        }
+	unsigned int correctIndex = 0;
+	for (size_t i = 0; i < answers.size(); ++i) {
+		if (answers[i] == question.correctAnswer) {
+			correctIndex = static_cast<unsigned int>(i);
+			break;
+		}
+	}
 
-        gameData.totalAnswerTime += answerTime;
-    }
-}
-
-double GameManager::calculateAverageAnswerTime(const std::string& username) const
-{
-    auto gameIt = m_activeGames.find(username);
-    if (gameIt != m_activeGames.end())
-    {
-        const GameData& gameData = gameIt->second;
-        if (gameData.questionsAnswered > 0)
-        {
-            return gameData.totalAnswerTime / gameData.questionsAnswered;
-        }
-    }
-    return 0.0;
-}
-
-std::vector<std::string> GameManager::shuffleAnswers(const Question& question, unsigned int& correctAnswerIndex)
-{
-    std::vector<std::string> answers;
-    answers.push_back(question.correctAnswer);
-
-    for (const auto& wrongAnswer : question.wrongAnswers)
-    {
-        answers.push_back(wrongAnswer);
-    }
-
-    // Shuffling answers
-    std::shuffle(answers.begin(), answers.end(), m_randomGenerator);
-
-    // Then finding the correct answer index (after the shuffling)
-    correctAnswerIndex = 0;
-    for (size_t i = 0; i < answers.size(); ++i)
-    {
-        if (answers[i] == question.correctAnswer)
-        {
-            correctAnswerIndex = static_cast<unsigned int>(i);
-            break;
-        }
-    }
-
-    return answers;
+	return { answers, correctIndex };
 }

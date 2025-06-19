@@ -14,7 +14,7 @@ GameRequestHandler::GameRequestHandler(IDatabase& database, RoomManager* roomMan
 bool GameRequestHandler::isRequestRelevant(const RequestInfo& requestInfo)
 {
 	unsigned int code = requestInfo.id;
-	return code == static_cast<unsigned int>(RequestCodes::LEAVE_GAME_REQUEST) ||
+	return /*code == static_cast<unsigned int>(RequestCodes::LEAVE_GAME_REQUEST) ||*/
 		code == static_cast<unsigned int>(RequestCodes::GET_QUESTION_REQUEST) ||
 		code == static_cast<unsigned int>(RequestCodes::SUBMIT_ANSWER_REQUEST) ||
 		code == static_cast<unsigned int>(RequestCodes::GET_GAME_RESULTS_REQUEST);
@@ -26,8 +26,8 @@ RequestResult GameRequestHandler::handleRequest(const RequestInfo& requestInfo)
 
 	switch (static_cast<RequestCodes>(code))
 	{
-	case RequestCodes::LEAVE_GAME_REQUEST:
-		return handleLeaveGameRequest(requestInfo);
+		/*case RequestCodes::LEAVE_GAME_REQUEST:
+			return handleLeaveGameRequest(requestInfo);*/
 	case RequestCodes::GET_QUESTION_REQUEST:
 		return handleGetQuestionRequest(requestInfo);
 	case RequestCodes::SUBMIT_ANSWER_REQUEST:
