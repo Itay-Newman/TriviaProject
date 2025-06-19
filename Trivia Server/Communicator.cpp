@@ -1,4 +1,4 @@
-#include "Communicator.h"
+#include "communicator.h"
 #include "LoginRequestHandler.h"
 #include "JsonResponsePacketSerializer.h"
 #include "JsonRequestPacketDeserializer.h"

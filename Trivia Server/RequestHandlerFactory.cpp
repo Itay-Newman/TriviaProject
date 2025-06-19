@@ -6,12 +6,13 @@
 #include "GameManager.h"
 
 RequestHandlerFactory::RequestHandlerFactory(IDatabase& database)
-	: m_Database(database), m_communicator(nullptr)
+	: m_Database(database)
 {
 	this->m_LoginManager = new LoginManager(this->m_Database);
 	this->m_RoomManager = new RoomManager();
 	this->m_statisticsManager = new StatisticsManager(this->m_Database);
 	this->m_gameManager = new GameManager(this->m_Database);
+	this->m_communicator = new Communicator(*this);
 }
 
 RequestHandlerFactory::~RequestHandlerFactory()

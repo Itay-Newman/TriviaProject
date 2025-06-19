@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using TriviaClient.Windows;
 
 namespace TriviaClient.Pages
 {
@@ -10,6 +11,8 @@ namespace TriviaClient.Pages
     {
         private CancellationTokenSource _refreshCancellation;
         private MainMenuPage m_mainMenu;
+        private int _NumOfQuestions = 0;
+        private int _timePerQuestion = 0;
 
         public RoomBeforeGame(bool isAdmin, MainMenuPage mainMenu)
         {
@@ -17,7 +20,7 @@ namespace TriviaClient.Pages
 
             this.m_mainMenu = mainMenu;
 
-            StartRoomRefreshLoop();
+            GetRoomStateRefreshLoop();
             this.Unloaded += RoomBeforeGame_Unloaded;
 
             if (isAdmin)
@@ -79,7 +82,10 @@ namespace TriviaClient.Pages
 
             if (startGameResponse.Status == (uint)TriviaClient.StatusCode.OK)
             {
-                MessageBox.Show("Game started successfully!");
+                var gameWindows = new GameWindow(_NumOfQuestions, _timePerQuestion);
+                gameWindows.Show();
+
+                Window.GetWindow(this)?.Close();
             }
             else
             {
@@ -115,7 +121,7 @@ namespace TriviaClient.Pages
             }
         }
 
-        private void StartRoomRefreshLoop()
+        private void GetRoomStateRefreshLoop()
         {
             _refreshCancellation = new CancellationTokenSource();
             var token = _refreshCancellation.Token;
@@ -146,16 +152,40 @@ namespace TriviaClient.Pages
                             {
                                 PlayerList.ItemsSource = getRoomStateResponse.Players;
                             });
+
+                            this._NumOfQuestions = (int)getRoomStateResponse.QuestionCount;
+                            this._timePerQuestion = (int)getRoomStateResponse.AnswerTimeout;
+
+                            if (getRoomStateResponse.HasGameBegun)
+                            {
+                                Application.Current.Dispatcher.Invoke(() =>
+                                {
+                                    var gameWindows = new GameWindow(_NumOfQuestions, _timePerQuestion);
+                                    gameWindows.Show();
+
+                                    Window.GetWindow(this)?.Close();
+                                });
+                            }
                         }
                         else if (getRoomStateResponse.Status == 0)
                         {
                             await Dispatcher.InvokeAsync(() =>
-                           {
-                               MessageBox.Show("Room is closed or does not exist.");
-                               _refreshCancellation?.Cancel();
-                               _refreshCancellation?.Dispose();
-                               NavigationService.Navigate(new CreateRoom(m_mainMenu));
-                           });
+                            {
+                                MessageBox.Show("Room is closed or does not exist.");
+                                _refreshCancellation?.Cancel();
+                                _refreshCancellation?.Dispose();
+                                NavigationService.Navigate(new CreateRoom(m_mainMenu));
+                            });
+                        }
+                        else if (responseCode == (uint)TriviaClient.ResponseCode.START_GAME_RESPONSE)
+                        {
+                            _refreshCancellation?.Cancel();
+                            _refreshCancellation?.Dispose();
+
+                            var gameWindows = new GameWindow(_NumOfQuestions, _timePerQuestion);
+                            gameWindows.Show();
+
+                            Window.GetWindow(this)?.Close();
                         }
                         else
                         {

@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClCompile Include="BaseRoomRequestHandler.cpp" />
     <ClCompile Include="BaseRoomRequestHandler.h" />
+    <ClCompile Include="communicator.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameRequestHandler.cpp" />
     <ClCompile Include="JsonRequestPacketDeserializer.cpp" />

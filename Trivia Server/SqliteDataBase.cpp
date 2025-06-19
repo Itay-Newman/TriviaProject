@@ -167,6 +167,33 @@ SqliteDataBase::SqliteDataBase(const std::string& dbPath)
 			std::remove(dbPath.c_str());
 			return;
 		}
+
+		std::vector<std::tuple<std::string, std::string, std::string, std::string, std::string>> questions = {
+			std::make_tuple("What is the capital of France?", "Paris", "London", "Berlin", "Madrid"),
+			std::make_tuple("Which planet is known as the Red Planet?", "Mars", "Venus", "Jupiter", "Saturn"),
+			std::make_tuple("What gas do plants absorb from the atmosphere?", "Carbon Dioxide", "Oxygen", "Nitrogen", "Hydrogen"),
+			std::make_tuple("Who painted the Mona Lisa?", "Leonardo da Vinci", "Michelangelo", "Raphael", "Donatello"),
+			std::make_tuple("What is the largest ocean on Earth?", "Pacific Ocean", "Atlantic Ocean", "Indian Ocean", "Arctic Ocean"),
+			std::make_tuple("What is the hardest natural substance?", "Diamond", "Gold", "Iron", "Quartz"),
+			std::make_tuple("Which element has the chemical symbol 'O'?", "Oxygen", "Osmium", "Oxide", "Organium"),
+			std::make_tuple("In what year did World War II end?", "1945", "1939", "1940", "1942"),
+			std::make_tuple("Which country invented paper?", "China", "Egypt", "Greece", "India"),
+			std::make_tuple("What is the smallest prime number?", "2", "1", "3", "0"),
+			std::make_tuple("Which is the best Trivia project?", "Itay & Eitan", "no", "no", "no")
+		};
+
+
+		for (const auto& question : questions)
+		{
+			if (!addQuestions(std::get<0>(question), std::get<1>(question), std::get<2>(question), std::get<3>(question), std::get<4>(question)))
+			{
+				std::cerr << "Failed to insert initial questions" << std::endl;
+				sqlite3_close(this->db);
+				this->db = nullptr;
+				std::remove(dbPath.c_str());
+				return;
+			}
+		}
 	}
 }
 
@@ -228,6 +255,35 @@ bool SqliteDataBase::initializeUserStatistics(const std::string& username) const
 
 bool SqliteDataBase::addQuestions(std::string q, std::string a1, std::string a2, std::string a3, std::string a4)
 {
+	// Check if the question already exists (by question text and correct answer)
+	const std::string checkSql = "SELECT COUNT(*) FROM Questions WHERE QUESTION = ? AND C_ANSWER1 = ?;";
+	sqlite3_stmt* stmt = nullptr;
+	int count = 0;
+
+	if (sqlite3_prepare_v2(this->db, checkSql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+	{
+		sqlite3_bind_text(stmt, 1, q.c_str(), -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmt, 2, a1.c_str(), -1, SQLITE_TRANSIENT);
+
+		if (sqlite3_step(stmt) == SQLITE_ROW)
+		{
+			count = sqlite3_column_int(stmt, 0);
+		}
+		sqlite3_finalize(stmt);
+	}
+	else
+	{
+		std::cerr << "Failed to prepare statement for checking question existence: " << sqlite3_errmsg(this->db) << std::endl;
+		return false;
+	}
+
+	if (count > 0)
+	{
+		// Question already exists
+		return false;
+	}
+
+	// Insert the new question
 	const std::string sql = "INSERT INTO Questions (QUESTION, C_ANSWER1, W_ANSWER2, W_ANSWER3, W_ANSWER4) VALUES (?, ?, ?, ?, ?);";
 	return runPreparedStatement(this->db, sql, { q, a1, a2, a3, a4 });
 }

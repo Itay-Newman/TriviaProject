@@ -4,7 +4,7 @@
 Room::Room(unsigned int id, const std::string& name, unsigned int maxPlayers, unsigned int numOfQuestionsInGame,
 	unsigned int timePerQuestion, const std::string& creator)
 	: m_id(id), m_name(name), m_maxPlayers(maxPlayers), m_numOfQuestionsInGame(numOfQuestionsInGame),
-	m_timePerQuestion(timePerQuestion), m_isActive(true)
+	m_timePerQuestion(timePerQuestion), m_RoomState(RoomState::WAITING_FOR_PLAYERS)
 {
 	// Adding the creator as the first user in the room
 	this->m_users.push_back(creator);
@@ -35,19 +35,14 @@ unsigned int Room::getTimePerQuestion() const
 	return this->m_timePerQuestion;
 }
 
-bool Room::getIsActive() const
+RoomState Room::getRoomState() const
 {
-	return this->m_isActive;
+	return this->m_RoomState;
 }
 
 std::vector<std::string> Room::getAllUsers() const
 {
 	return this->m_users;
-}
-
-void Room::setIsActive(bool isActive)
-{
-	this->m_isActive = isActive;
 }
 
 bool Room::addUser(const std::string& username)
@@ -91,4 +86,9 @@ bool Room::removeUser(const std::string& username)
 bool Room::isUserInRoom(const std::string& username) const
 {
 	return std::find(this->m_users.begin(), this->m_users.end(), username) != this->m_users.end();
+}
+
+void Room::setState(RoomState roomState)
+{
+	this->m_RoomState = roomState;
 }

@@ -45,16 +45,19 @@ RoomState RoomManager::getRoomState(unsigned int roomId) const
 	{
 		const Room& room = it->second;
 
-		if (!room.getIsActive())
+		if (room.getRoomState() == RoomState::GAME_IN_PROGRESS)
+		{
+			return RoomState::GAME_IN_PROGRESS;
+		}
+		else if (room.getRoomState() == RoomState::WAITING_FOR_PLAYERS)
+		{
+			return RoomState::WAITING_FOR_PLAYERS;
+		}
+		else if (room.getRoomState() == RoomState::CLOSED)
 		{
 			return RoomState::CLOSED;
 		}
-
-		// need to do: implement better game state checks
-		return RoomState::WAITING_FOR_PLAYERS;
 	}
-
-	return RoomState::CLOSED;
 }
 
 std::vector<RoomData> RoomManager::getRooms() const
@@ -64,7 +67,7 @@ std::vector<RoomData> RoomManager::getRooms() const
 	for (const auto& pair : this->m_rooms)
 	{
 		const Room& room = pair.second;
-		if (room.getIsActive())
+		if (room.getRoomState() == RoomState::GAME_IN_PROGRESS || room.getRoomState() == RoomState::WAITING_FOR_PLAYERS)
 		{
 			RoomData data;
 			data.id = room.getId();
@@ -72,7 +75,7 @@ std::vector<RoomData> RoomManager::getRooms() const
 			data.maxPlayers = room.getMaxPlayers();
 			data.numOfQuestionsInGame = room.getNumOfQuestionsInGame();
 			data.timePerQuestion = room.getTimePerQuestion();
-			data.isActive = room.getIsActive() ? 1 : 0;
+			data.isActive = room.getRoomState() == RoomState::GAME_IN_PROGRESS || room.getRoomState() == RoomState::WAITING_FOR_PLAYERS;
 
 			roomsData.push_back(data);
 		}
@@ -132,7 +135,7 @@ bool RoomManager::isRoomActive(unsigned int roomId) const
 	auto it = this->m_rooms.find(roomId);
 	if (it != this->m_rooms.end())
 	{
-		return it->second.getIsActive();
+		return it->second.getRoomState() == RoomState::WAITING_FOR_PLAYERS || it->second.getRoomState() == RoomState::GAME_IN_PROGRESS;
 	}
 
 	return false;
@@ -155,4 +158,18 @@ std::optional<unsigned int> RoomManager::getRoomIdByUser(const std::string& user
 	}
 
 	return std::nullopt; // User not found in any room
+}
+
+void RoomManager::setRoomState(unsigned int roomId, RoomState state)
+{
+	auto it = this->m_rooms.find(roomId);
+	if (it != this->m_rooms.end())
+	{
+		it->second.setState(state);
+		std::cout << "Room " << roomId << " state set to " << static_cast<int>(state) << std::endl;
+	}
+	else
+	{
+		std::cout << "Room " << roomId << " not found" << std::endl;
+	}
 }

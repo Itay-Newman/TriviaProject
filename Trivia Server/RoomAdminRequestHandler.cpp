@@ -97,26 +97,28 @@ RequestResult RoomAdminRequestHandler::handleStartGameRequest(const RequestInfo&
 
 		std::vector<std::string> usersInRoom = m_roomManager->getUsersInRoom(roomId);
 
+		m_roomManager->setRoomState(roomId, RoomState::GAME_IN_PROGRESS);
+
 		StartGameResponse response;
 		response.status = (unsigned int)Status::SUCCESS;
 
 		RequestResult result;
 		result.id = ResponseCode::START_GAME_RESPONSE;
 		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = this; // Will be replaced with a GameRequestHandler in the future
+		result.newHandler = this->m_HandlerFactory.createGameRequestHandler(this->m_username); // Will be replaced with a GameRequestHandler in the future
 
-		// Send StartGameResponse to all room members
-		if (this->m_HandlerFactory.getCommunicator() != nullptr)
-		{
-			StartGameResponse startGameResponse;
-			startGameResponse.status = (unsigned int)Status::SUCCESS;
-			std::vector<unsigned char> startGameResponseBuffer = JsonResponsePacketSerializer::serializeResponse(startGameResponse);
+		//// Send StartGameResponse to all room members
+		//if (this->m_HandlerFactory.getCommunicator() != nullptr)
+		//{
+		//	StartGameResponse startGameResponse;
+		//	startGameResponse.status = (unsigned int)Status::SUCCESS;
+		//	std::vector<unsigned char> startGameResponseBuffer = JsonResponsePacketSerializer::serializeResponse(startGameResponse);
 
-			// Send StartGameResponse to all users in the room
-			this->m_HandlerFactory.getCommunicator()->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::START_GAME_RESPONSE), startGameResponseBuffer);
+		//	// Send StartGameResponse to all users in the room
+		//	this->m_HandlerFactory.getCommunicator()->sendMessageToUsers(usersInRoom, static_cast<int>(ResponseCode::START_GAME_RESPONSE), startGameResponseBuffer);
 
-			std::cout << "Sent StartGameResponse to all " << usersInRoom.size() << " users in room " << roomId << std::endl;
-		}
+		//	std::cout << "Sent StartGameResponse to all " << usersInRoom.size() << " users in room " << roomId << std::endl;
+		//}
 
 		return result;
 	}
