@@ -7,6 +7,7 @@
 #include <string>
 #include <chrono>
 #include <random>
+#include <unordered_map>
 
 struct Question
 {
@@ -27,6 +28,11 @@ struct GameData
 	unsigned int currentQuestionIndex;
 	bool gameFinished;
 	std::chrono::system_clock::time_point questionStartTime;
+
+	// Sync data per question
+	std::vector<std::string> currentShuffledAnswers;
+	unsigned int correctAnswerIndex = 0;
+	unsigned int shuffledAnswersForQuestionIndex = -1;
 };
 
 class GameManager
@@ -39,26 +45,23 @@ public:
 	SubmitAnswerResponse submitAnswer(const std::string& username, unsigned int answerId, unsigned int answerTime);
 	GetGameResultsResponse getGameResults(const std::string& username);
 
-	// Game management methods
+	// Game management
 	bool startGame(const std::string& username, unsigned int questionCount);
 	void endGame(const std::string& username);
 	bool isUserInGame(const std::string& username) const;
 
 private:
-	// Database methods
 	std::vector<Question> getRandomQuestions(unsigned int count);
 	Question getRandomQuestion();
 
-	// Game data management
 	void initializeGameData(const std::string& username, const std::vector<Question>& questions);
 	void updateGameStatistics(const std::string& username, bool isCorrect, double answerTime);
 	double calculateAverageAnswerTime(const std::string& username) const;
 
-	// Utility method
 	std::pair<std::vector<std::string>, unsigned int> shuffleAnswers(const Question& question);
 
 	IDatabase& m_database;
-	std::map<std::string, GameData> m_activeGames;
+	std::unordered_map<std::string, GameData> m_activeGames;
+	std::unordered_map<std::string, PlayerResults> m_userStats;
 	std::mt19937 m_randomGenerator;
-	int _correctAnswerId = 0; // Used to track the correct answer ID for the current question
 };
