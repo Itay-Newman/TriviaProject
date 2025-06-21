@@ -30,6 +30,8 @@ private:
 	RequestResult handleGetGameResultsRequest(const RequestInfo& requestInfo);
 	RequestResult createErrorResponse(const std::string& message);
 
+	std::string getName() const override { return "GameRequestHandler"; }
+
 	IDatabase& m_database;
 	RoomManager* m_roomManager;
 	StatisticsManager* m_statisticsManager;

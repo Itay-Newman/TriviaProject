@@ -22,7 +22,8 @@ bool GameManager::startGame(const std::string& username, unsigned int questionCo
 			}
 			initializeGameData("__shared__", questions);
 		}
-		m_userStats[username] = PlayerResults{ username, 0, 0, 0 };
+
+		//m_userStats[username] = PlayerResults{ username, 0, 0, 0 };
 		return true;
 	}
 	catch (const std::exception& e) {
@@ -73,7 +74,7 @@ GetQuestionResponse GameManager::getNextQuestion(const std::string& username)
 	return response;
 }
 
-SubmitAnswerResponse GameManager::submitAnswer(const std::string& username, unsigned int answerId, unsigned int answerTime)
+SubmitAnswerResponse GameManager::submitAnswer(const std::string& username, unsigned int answerId, double answerTime)
 {
 	SubmitAnswerResponse response;
 	response.status = static_cast<unsigned int>(Status::FAILURE);
@@ -84,6 +85,11 @@ SubmitAnswerResponse GameManager::submitAnswer(const std::string& username, unsi
 
 		GameData& gameData = gameIt->second;
 		if (gameData.gameFinished) return response;
+
+		if (m_userStats.find(username) == m_userStats.end())
+		{
+			m_userStats[username] = PlayerResults{ username, 0, 0, 0 };
+		}
 
 		unsigned int correctId = gameData.correctAnswerIndex;
 		bool isCorrect = (answerId == correctId);
@@ -116,19 +122,26 @@ GetGameResultsResponse GameManager::getGameResults(const std::string& username)
 	response.status = static_cast<unsigned int>(Status::FAILURE);
 
 	try {
-		if (!m_userStats.contains(username)) return response;
+		if (m_userStats.empty()) return response;
 
-		auto& stats = m_userStats[username];
-		unsigned int totalQuestions = stats.correctAnswerCount + stats.wrongAnswerCount;
-		unsigned int avgTime = totalQuestions > 0 ? stats.averageAnswerTime / totalQuestions : 0;
+		bool gameFinished = m_activeGames.contains("__shared__") && m_activeGames["__shared__"].gameFinished;
 
-		stats.averageAnswerTime = avgTime;
-		response.results.push_back(stats);
-		response.status = static_cast<unsigned int>(Status::SUCCESS);
+		for (auto& [user, stats] : m_userStats)
+		{
+			unsigned int totalQuestions = stats.correctAnswerCount + stats.wrongAnswerCount;
+			double avgTime = stats.averageAnswerTime / totalQuestions;
 
-		if (m_activeGames["__shared__"].gameFinished) {
-			m_database.addGameStatistics(stats.username, avgTime, stats.correctAnswerCount, stats.wrongAnswerCount);
+			PlayerResults result = stats;
+			result.averageAnswerTime = avgTime;
+			response.results.push_back(result);
+
+			if (gameFinished)
+			{
+				m_database.addGameStatistics(result.username, avgTime, result.correctAnswerCount, result.wrongAnswerCount);
+			}
 		}
+
+		response.status = static_cast<unsigned int>(Status::SUCCESS);
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error in getGameResults: " << e.what() << std::endl;
@@ -136,6 +149,7 @@ GetGameResultsResponse GameManager::getGameResults(const std::string& username)
 
 	return response;
 }
+
 
 void GameManager::endGame(const std::string& username)
 {

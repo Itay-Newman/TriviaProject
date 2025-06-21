@@ -18,6 +18,7 @@ namespace TriviaClient.Windows
         private DispatcherTimer _questionTimer;
         private int _correctAnswersCount = 0;
         private int _currentQuestionIndex = 0;
+        private Double[] _times = new double[99999999]; //assuming we won't have more than 99999999 questions
 
         public GameWindow(int numberOfQuestions, int timePerQuestion)
         {
@@ -108,7 +109,9 @@ namespace TriviaClient.Windows
             double secondsElapsed = _questionStopwatch.Elapsed.TotalSeconds;
             int msToWait = (int)((this._timePerQuestion - secondsElapsed) * 1000);
 
-            var request = new SubmitAnswerRequest { answerId = (uint)this._Answer, answerTime = (uint)secondsElapsed };
+            this._times[this._currentQuestionIndex] = secondsElapsed; // Store the time taken for this question
+
+            var request = new SubmitAnswerRequest { answerId = (uint)this._Answer, answerTime = secondsElapsed };
             byte[] requestData = JsonRequestPacketSerializer.Serialize(request);
             byte requestCode = (byte)TriviaClient.RequestCodes.SUBMIT_ANSWER_REQUEST;
 
@@ -150,8 +153,21 @@ namespace TriviaClient.Windows
 
             if (this._currentQuestionIndex >= this._numberOfQuestions)
             {
-                MessageBox.Show("Game over!");
-                this.Close(); // Close the game window
+                await Task.Delay(1000);
+
+                double sum = 0;
+
+                for (int i = 0; i < this._numberOfQuestions; i++)
+                {
+                    sum += this._times[i];
+                }
+
+                double averageTime = sum / this._numberOfQuestions;
+
+                var resultsWindow = new Results(averageTime);
+                resultsWindow.Show();
+
+                this.Close();
                 return;
             }
 

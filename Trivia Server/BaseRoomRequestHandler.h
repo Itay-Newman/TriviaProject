@@ -47,6 +47,8 @@ public:
 	virtual bool isRequestRelevant(const RequestInfo& requestInfo);
 	virtual RequestResult handleRequest(const RequestInfo& requestInfo);
 
+	std::string getName() const override { return "RoomAdminRequestHandler"; }
+
 private:
 	RequestResult handleCloseRoomRequest(const RequestInfo& requestInfo);
 	RequestResult handleStartGameRequest(const RequestInfo& requestInfo);
@@ -63,6 +65,8 @@ public:
 
 	virtual bool isRequestRelevant(const RequestInfo& requestInfo);
 	virtual RequestResult handleRequest(const RequestInfo& requestInfo);
+
+	std::string getName() const override { return "RoomMemberRequestHandler"; }
 
 private:
 	RequestResult handleLeaveRoomRequest(const RequestInfo& requestInfo);

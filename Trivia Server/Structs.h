@@ -145,7 +145,7 @@ struct GetQuestionRequest
 struct SubmitAnswerRequest
 {
 	unsigned int answerId;
-	unsigned int answerTime;
+	double answerTime;
 };
 
 struct GetGameResultsRequest
@@ -255,7 +255,7 @@ struct PlayerResults
 	std::string username;
 	unsigned int correctAnswerCount;
 	unsigned int wrongAnswerCount;
-	unsigned int averageAnswerTime;
+	double averageAnswerTime;
 };
 
 struct GetGameResultsResponse

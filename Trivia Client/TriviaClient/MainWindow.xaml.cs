@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using TriviaClient.Pages;
 
 namespace TriviaClient
 {
@@ -44,6 +45,11 @@ namespace TriviaClient
         public double GetVolume()
         {
             return BackgroundMusic.Volume;
+        }
+
+        public void NavigateToMainMenuPage()
+        {
+            MainFrame.Navigate(new MainMenuPage());
         }
     }
 }
