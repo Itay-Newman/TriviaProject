@@ -49,6 +49,8 @@ RequestResult RoomAdminRequestHandler::handleCloseRoomRequest(const RequestInfo&
 		// Get all users in the room BEFORE deleting the room
 		std::vector<std::string> usersInRoom = m_roomManager->getUsersInRoom(roomId);
 
+		this->m_roomManager->setRoomState(roomId, RoomState::CLOSED);
+
 		bool success = m_roomManager->deleteRoom(roomId);
 
 		CloseRoomResponse response;
@@ -120,6 +122,7 @@ RequestResult RoomAdminRequestHandler::handleStartGameRequest(const RequestInfo&
 		//	std::cout << "Sent StartGameResponse to all " << usersInRoom.size() << " users in room " << roomId << std::endl;
 		//}
 
+		//this->m_roomManager->deleteRoom(roomId);
 		return result;
 	}
 	catch (const std::exception& e)

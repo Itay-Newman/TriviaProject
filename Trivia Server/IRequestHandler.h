@@ -12,4 +12,5 @@ public:
 	virtual bool addUser(const std::string& username, const std::string& password, const std::string& email) const = 0;
 	virtual bool isRequestRelevant(const RequestInfo& requestInfo) = 0;
 	virtual RequestResult handleRequest(const RequestInfo& requestInfo) = 0;
+	virtual std::string getName() const = 0;
 };

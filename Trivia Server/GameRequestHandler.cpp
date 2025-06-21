@@ -3,6 +3,7 @@
 #include "JsonResponsePacketSerializer.h"
 #include "RequestHandlerFactory.h"
 #include "GameManager.h"
+#include <optional>
 
 GameRequestHandler::GameRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager,
 	GameManager* gameManager, const std::string& username, RequestHandlerFactory& handlerFactory)
@@ -135,7 +136,14 @@ RequestResult GameRequestHandler::handleGetGameResultsRequest(const RequestInfo&
 		RequestResult result;
 		result.id = ResponseCode::GET_GAME_RESULTS_RESPONSE;
 		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = this;
+		result.newHandler = this->m_handlerFactory.createMenuRequestHandler(this->m_user.getUsername());
+
+		std::optional<unsigned int> optRoomId = this->m_roomManager->getRoomIdByUser(this->m_user.getUsername());
+
+		if (optRoomId.has_value())
+		{
+			this->m_roomManager->setRoomState(optRoomId.value(), RoomState::CLOSED);
+		}
 
 		return result;
 	}
@@ -158,3 +166,4 @@ RequestResult GameRequestHandler::createErrorResponse(const std::string& message
 
 	return result;
 }
+
