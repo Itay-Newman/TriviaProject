@@ -63,6 +63,7 @@ SubmitAnswerRequest JsonRequestPacketDeserializer::deserializeSubmitAnswerReques
 
 	return SubmitAnswerRequest{
 		j.at("answerId").get<unsigned int>(),
+		j.at("answerTime").get<double>()
 	};
 }
 

@@ -23,6 +23,8 @@ public:
 	virtual bool doesPasswordMatch(const std::string& username, const std::string& password) const override;
 	virtual bool addUser(const std::string& username, const std::string& password, const std::string& email) const override;
 
+	std::string getName() const override { return "MenuRequestHandler"; }
+
 private:
 	// Helper methods for handling specific request types
 	RequestResult handleCreateRoomRequest(const RequestInfo& requestInfo);

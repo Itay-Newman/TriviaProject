@@ -52,7 +52,8 @@
         GET_STATISTICS_REQUEST = 30,
         STARTS_GAME_REQUEST = 31,
         GET_QUESTION_REQUEST = 32,
-        SUBMIT_ANSWER_REQUEST = 34
+        SUBMIT_ANSWER_REQUEST = 34,
+        GET_GAME_RESULTS_REQUEST = 35
     }
 
     // Data structures
@@ -71,7 +72,7 @@
         public string Username { get; set; }
         public uint CorrectAnswerCount { get; set; }
         public uint WrongAnswerCount { get; set; }
-        public uint AverageAnswerTime { get; set; }
+        public double AverageAnswerTime { get; set; }
     }
 
     // Request structs (client sends these)
@@ -220,7 +221,7 @@
     public struct SubmitAnswerRequest
     {
         public uint answerId { get; set; }
-        public uint answerTime { get; set; }
+        public double answerTime { get; set; }
     };
 
     public struct ErrorResponse

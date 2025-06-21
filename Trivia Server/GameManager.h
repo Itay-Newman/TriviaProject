@@ -33,6 +33,7 @@ struct GameData
 	std::vector<std::string> currentShuffledAnswers;
 	unsigned int correctAnswerIndex = 0;
 	unsigned int shuffledAnswersForQuestionIndex = -1;
+	std::vector<std::string> usersInGame;
 };
 
 class GameManager
@@ -42,7 +43,7 @@ public:
 	~GameManager() = default;
 
 	GetQuestionResponse getNextQuestion(const std::string& username);
-	SubmitAnswerResponse submitAnswer(const std::string& username, unsigned int answerId, unsigned int answerTime);
+	SubmitAnswerResponse submitAnswer(const std::string& username, unsigned int answerId, double answerTime);
 	GetGameResultsResponse getGameResults(const std::string& username);
 
 	// Game management
