@@ -1,4 +1,4 @@
-#include "Communicator.h"
+#include "communicator.h"
 #include "LoginRequestHandler.h"
 #include "JsonResponsePacketSerializer.h"
 #include "JsonRequestPacketDeserializer.h"
@@ -300,7 +300,7 @@ std::vector<unsigned char> Communicator::getBufferFromSocket(SOCKET sc, int byte
 void Communicator::sendBuffer(SOCKET sc, const std::vector<unsigned char>& buffer)
 {
 	int bytesSent = 0;
-	int bytesToSend = buffer.size();
+	int bytesToSend = static_cast<int>(buffer.size());
 	int result = 0;
 
 	// Keep sending until all data is sent
@@ -325,7 +325,7 @@ void Communicator::sendResponse(SOCKET sc, int messageCode, const std::vector<un
 	fullResponse.push_back(static_cast<unsigned char>(messageCode));
 
 	// Add message size (4 bytes)
-	uint32_t messageSize = buffer.size();
+	uint32_t messageSize = static_cast<uint32_t>(buffer.size());
 	for (int i = 3; i >= 0; i--)
 	{
 		fullResponse.push_back((messageSize >> (i * 8)) & 0xFF);

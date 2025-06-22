@@ -13,14 +13,19 @@ namespace TriviaClient.Pages
             InitializeComponent();
         }
 
+        public void SetControlPanelEnabled(bool enabled)
+        {
+            ControlPanel.IsEnabled = enabled;
+        }
+
         private void CreateRoom_Click(object sender, RoutedEventArgs e)
         {
-            MainContent.Navigate(new CreateRoom());
+            MainContent.Navigate(new CreateRoom(this));
         }
 
         private void JoinRoom_Click(object sender, RoutedEventArgs e)
         {
-            MainContent.Navigate(new JoinRoom());
+            MainContent.Navigate(new JoinRoom(this));
         }
 
         private void PersonalStats_Click(object sender, RoutedEventArgs e)

@@ -6,6 +6,13 @@
         OK = 1,
     }
 
+    public enum RoomState
+    {
+        WAITING_FOR_PLAYERS = 0,
+        GAME_IN_PROGRESS = 1,
+        CLOSED = 2
+    };
+
     // Enums matching server side
     public enum ResponseCode
     {
@@ -42,8 +49,12 @@
         CLOSE_ROOM_REQUEST = 26,
         GET_ROOM_STATE_REQUEST = 27,
         LEAVE_ROOM_REQUEST = 28,
-        GET_STATISTICS_REQUEST = 30,
-        STARTS_GAME_REQUEST = 31
+        GET_HIGH_SCORES_REQUEST = 30,
+        START_GAME_REQUEST = 31,
+        GET_QUESTION_REQUEST = 32,
+        SUBMIT_ANSWER_REQUEST = 34,
+        GET_GAME_RESULTS_REQUEST = 35,
+        GET_PERSONAL_STATS_REQUEST = 36
     }
 
     // Data structures
@@ -62,7 +73,7 @@
         public string Username { get; set; }
         public uint CorrectAnswerCount { get; set; }
         public uint WrongAnswerCount { get; set; }
-        public uint AverageAnswerTime { get; set; }
+        public double AverageAnswerTime { get; set; }
     }
 
     // Request structs (client sends these)
@@ -108,6 +119,11 @@
 
     public struct LeaveRoomRequest
     {
+    }
+
+    public struct GetHighScoresRequest
+    {
+
     }
 
     // Response structs (client receives these)
@@ -207,6 +223,14 @@
         public uint Status { get; set; }
         public List<PlayerResults> Results { get; set; }
     }
+
+    public struct SubmitAnswerRequest
+    {
+        public uint AnswerId { get; set; }
+        public double AnswerTime { get; set; }
+        public bool IsLastQuestion { get; set; }
+
+    };
 
     public struct ErrorResponse
     {

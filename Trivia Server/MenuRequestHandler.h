@@ -29,7 +29,8 @@ private:
 	RequestResult handleGetRoomsRequest(const RequestInfo& requestInfo);
 	RequestResult handleGetPlayersInRoomRequest(const RequestInfo& requestInfo);
 	RequestResult handleJoinRoomRequest(const RequestInfo& requestInfo);
-	RequestResult handleGetStatisticsRequest(const RequestInfo& requestInfo);
+	RequestResult handleGetPersonalStatisticsRequest(const RequestInfo& requestInfo);
+	RequestResult handleGetHighScoresRequest(const RequestInfo& requestInfo);
 	RequestResult handleLogoutRequest(const RequestInfo& requestInfo);
 
 	IDatabase& m_database;

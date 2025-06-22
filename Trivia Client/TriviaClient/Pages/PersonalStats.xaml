@@ -17,6 +17,7 @@
                 <TextBlock x:Name="CorrectAnswers" Text="Correct Answers: " FontSize="18" Foreground="White" Margin="0,5"/>
                 <TextBlock x:Name="WrongAnswers" Text="Wrong Answers: " FontSize="18" Foreground="White" Margin="0,5"/>
                 <TextBlock x:Name="GamesPlayed" Text="Games Played: " FontSize="18" Foreground="White" Margin="0,5"/>
+                <TextBlock x:Name="Score" Text="Score: " FontSize="18" Foreground="White" Margin="0,5"/>
             </StackPanel>
         </Border>
     </Grid>

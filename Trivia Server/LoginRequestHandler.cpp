@@ -35,7 +35,7 @@ RequestResult LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 	case static_cast<unsigned int>(RequestCodes::LOGIN_REQUEST):
 	{
 		const LoginRequest loginRequest = JsonRequestPacketDeserializer::deserializeLoginRequest(requestInfo.buffer);
-		const LoginResponse loginResponse{ m_loginManager.signIn(loginRequest.username, loginRequest.password) };
+		const LoginResponse loginResponse{ static_cast<unsigned int>(m_loginManager.signIn(loginRequest.username, loginRequest.password)) };
 
 		response.response = JsonResponsePacketSerializer::serializeResponse(loginResponse);
 		response.id = ResponseCode::LOGIN_RESPONSE;
@@ -54,7 +54,7 @@ RequestResult LoginRequestHandler::handleRequest(const RequestInfo& requestInfo)
 	case static_cast<unsigned int>(RequestCodes::SIGNUP_REQUEST):
 	{
 		const SignupRequest signupRequest = JsonRequestPacketDeserializer::deserializeSignupRequest(requestInfo.buffer);
-		const SignupResponse signupResponse{ m_loginManager.signUp(signupRequest.username, signupRequest.password, signupRequest.email) };
+		const SignupResponse signupResponse{ static_cast<unsigned int>(m_loginManager.signUp(signupRequest.username, signupRequest.password, signupRequest.email)) };
 
 		response.response = JsonResponsePacketSerializer::serializeResponse(signupResponse);
 		response.id = ResponseCode::SIGNUP_RESPONSE;

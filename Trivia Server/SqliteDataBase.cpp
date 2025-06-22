@@ -1,4 +1,5 @@
 #include "SqliteDataBase.h"
+#include "GameManager.h"
 #include <iostream>
 #include "sqlite3.h"
 #include <io.h>
@@ -51,6 +52,26 @@ int stringVectorCallback(void* data, int argc, char** argv, char** azColName)
 	{
 		auto* vec = static_cast<std::vector<std::string>*>(data);
 		vec->push_back(argv[0]);
+	}
+	return 0;
+}
+
+int questionCallback(void* data, int argc, char** argv, char** azColName)
+{
+	if (argc == 5 && argv[0] && argv[1] && argv[2] && argv[3] && argv[4])
+	{
+		auto* questions = static_cast<std::vector<Question>*>(data);
+		Question question;
+
+		question.id = std::stoi(argv[0]);
+		question.questionText = argv[1];
+		question.correctAnswer = argv[2];
+
+		question.wrongAnswers.clear();
+		question.wrongAnswers.push_back(argv[3]);
+		question.wrongAnswers.push_back(argv[4]);
+
+		questions->push_back(question);
 	}
 	return 0;
 }
@@ -146,6 +167,33 @@ SqliteDataBase::SqliteDataBase(const std::string& dbPath)
 			std::remove(dbPath.c_str());
 			return;
 		}
+
+		std::vector<std::tuple<std::string, std::string, std::string, std::string, std::string>> questions = {
+			std::make_tuple("What is the capital of France?", "Paris", "London", "Berlin", "Madrid"),
+			std::make_tuple("Which planet is known as the Red Planet?", "Mars", "Venus", "Jupiter", "Saturn"),
+			std::make_tuple("What gas do plants absorb from the atmosphere?", "Carbon Dioxide", "Oxygen", "Nitrogen", "Hydrogen"),
+			std::make_tuple("Who painted the Mona Lisa?", "Leonardo da Vinci", "Michelangelo", "Raphael", "Donatello"),
+			std::make_tuple("What is the largest ocean on Earth?", "Pacific Ocean", "Atlantic Ocean", "Indian Ocean", "Arctic Ocean"),
+			std::make_tuple("What is the hardest natural substance?", "Diamond", "Gold", "Iron", "Quartz"),
+			std::make_tuple("Which element has the chemical symbol 'O'?", "Oxygen", "Osmium", "Oxide", "Organium"),
+			std::make_tuple("In what year did World War II end?", "1945", "1939", "1940", "1942"),
+			std::make_tuple("Which country invented paper?", "China", "Egypt", "Greece", "India"),
+			std::make_tuple("What is the smallest prime number?", "2", "1", "3", "0"),
+			std::make_tuple("Which is the best Trivia project?", "Itay & Eitan", "no", "no", "no")
+		};
+
+
+		for (const auto& question : questions)
+		{
+			if (!addQuestions(std::get<0>(question), std::get<1>(question), std::get<2>(question), std::get<3>(question), std::get<4>(question)))
+			{
+				std::cerr << "Failed to insert initial questions" << std::endl;
+				sqlite3_close(this->db);
+				this->db = nullptr;
+				std::remove(dbPath.c_str());
+				return;
+			}
+		}
 	}
 }
 
@@ -196,17 +244,62 @@ bool SqliteDataBase::doesPasswordMatch(const std::string& username, const std::s
 bool SqliteDataBase::addUser(const std::string& username, const std::string& password, const std::string& email) const
 {
 	const std::string sql = "INSERT INTO Users (UserName, Password, Email) VALUES (?, ?, ?);";
-	return runPreparedStatement(this->db, sql, { username, password, email });
+	bool didWork = runPreparedStatement(this->db, sql, { username, password, email });
+	bool didWork2;
+
+	if (didWork)
+	{
+		didWork2 = initializeUserStatistics(username);
+	}
+
+	return didWork && didWork2;
 }
 
 bool SqliteDataBase::initializeUserStatistics(const std::string& username) const
 {
-	const std::string sql = "INSERT INTO Statistics (UserName) VALUES (?);";
-	return runPreparedStatement(this->db, sql, { username });
+	const std::string sql = "INSERT INTO Statistics (USERNAME, GAMES, W_ANSWER, C_ANSWERS, AVG_TIME) VALUES (?, ?, ?, ?, ?);";
+	std::vector<std::string> params = {
+		username,
+		std::to_string(0), // GAMES
+		std::to_string(0), // W_ANSWER
+		std::to_string(0), // C_ANSWERS
+		std::to_string(0)  // AVG_TIME
+	};
+	return runPreparedStatement(this->db, sql, params);
 }
+
 
 bool SqliteDataBase::addQuestions(std::string q, std::string a1, std::string a2, std::string a3, std::string a4)
 {
+	// Check if the question already exists (by question text and correct answer)
+	const std::string checkSql = "SELECT COUNT(*) FROM Questions WHERE QUESTION = ? AND C_ANSWER1 = ?;";
+	sqlite3_stmt* stmt = nullptr;
+	int count = 0;
+
+	if (sqlite3_prepare_v2(this->db, checkSql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+	{
+		sqlite3_bind_text(stmt, 1, q.c_str(), -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmt, 2, a1.c_str(), -1, SQLITE_TRANSIENT);
+
+		if (sqlite3_step(stmt) == SQLITE_ROW)
+		{
+			count = sqlite3_column_int(stmt, 0);
+		}
+		sqlite3_finalize(stmt);
+	}
+	else
+	{
+		std::cerr << "Failed to prepare statement for checking question existence: " << sqlite3_errmsg(this->db) << std::endl;
+		return false;
+	}
+
+	if (count > 0)
+	{
+		// Question already exists
+		return false;
+	}
+
+	// Insert the new question
 	const std::string sql = "INSERT INTO Questions (QUESTION, C_ANSWER1, W_ANSWER2, W_ANSWER3, W_ANSWER4) VALUES (?, ?, ?, ?, ?);";
 	return runPreparedStatement(this->db, sql, { q, a1, a2, a3, a4 });
 }
@@ -317,7 +410,6 @@ bool SqliteDataBase::addGameStatistics(const std::string& username, double avgTi
 	return rc == SQLITE_DONE;
 }
 
-
 std::vector<std::string> SqliteDataBase::getAllUsernames() const
 {
 	std::vector<std::string> users;
@@ -332,4 +424,71 @@ std::vector<std::string> SqliteDataBase::getPlayersWithStatistics() const
 	const std::string query = "SELECT UserName FROM Statistics;";
 	runQuery(db, query, stringVectorCallback, &players);
 	return players;
+}
+
+std::vector<Question> SqliteDataBase::getRandomQuestions(unsigned int count) const
+{
+	std::vector<Question> questions;
+
+	if (!this->db)
+	{
+		std::cerr << "Database is not initialized" << std::endl;
+		return questions;
+	}
+
+	const std::string query = "SELECT ID, QUESTION, C_ANSWER1, W_ANSWER2, W_ANSWER3, W_ANSWER4 FROM Questions ORDER BY RANDOM() LIMIT ?;";
+	sqlite3_stmt* stmt = nullptr;
+
+	if (sqlite3_prepare_v2(this->db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		std::cerr << "Failed to prepare statement for getRandomQuestions: " << sqlite3_errmsg(this->db) << std::endl;
+		return questions;
+	}
+
+	if (sqlite3_bind_int(stmt, 1, static_cast<int>(count)) != SQLITE_OK)
+	{
+		std::cerr << "Failed to bind count parameter: " << sqlite3_errmsg(this->db) << std::endl;
+		sqlite3_finalize(stmt);
+		return questions;
+	}
+
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		Question question;
+
+		question.id = sqlite3_column_int(stmt, 0);
+
+		const unsigned char* questionText = sqlite3_column_text(stmt, 1);
+		if (questionText)
+			question.questionText = reinterpret_cast<const char*>(questionText);
+
+		const unsigned char* correctAnswer = sqlite3_column_text(stmt, 2);
+		if (correctAnswer)
+			question.correctAnswer = reinterpret_cast<const char*>(correctAnswer);
+
+		question.wrongAnswers.clear();
+
+		const unsigned char* wrongAnswer2 = sqlite3_column_text(stmt, 3);
+		if (wrongAnswer2)
+			question.wrongAnswers.push_back(reinterpret_cast<const char*>(wrongAnswer2));
+
+		const unsigned char* wrongAnswer3 = sqlite3_column_text(stmt, 4);
+		if (wrongAnswer3)
+			question.wrongAnswers.push_back(reinterpret_cast<const char*>(wrongAnswer3));
+
+		const unsigned char* wrongAnswer4 = sqlite3_column_text(stmt, 5);
+		if (wrongAnswer4)
+			question.wrongAnswers.push_back(reinterpret_cast<const char*>(wrongAnswer4));
+
+		questions.push_back(question);
+	}
+
+	sqlite3_finalize(stmt);
+
+	if (questions.empty())
+	{
+		std::cerr << "No questions found in database" << std::endl;
+	}
+
+	return questions;
 }

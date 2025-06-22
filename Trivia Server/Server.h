@@ -5,7 +5,7 @@
 #include <string>
 #include "SqliteDataBase.h"
 #include "RequestHandlerFactory.h"
-#include "Communicator.h"
+#include "communicator.h"
 #include <mutex>
 
 class Server

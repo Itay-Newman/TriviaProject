@@ -17,7 +17,7 @@ namespace TriviaClient
         private async void SignInButton_Click(object sender, RoutedEventArgs e)
         {
             string username = Username.Text;
-            string password = Password.Text;
+            string password = Password.Password;
 
             var request = new LoginRequest { Username = username, Password = password };
             byte[] requestData = JsonRequestPacketSerializer.SerializeLoginRequest(request);
@@ -38,6 +38,10 @@ namespace TriviaClient
 
             if (loginResponse.Status == (uint)TriviaClient.StatusCode.OK)
             {
+                // Set window title to show socket info
+                if (Application.Current.MainWindow != null)
+                    Application.Current.MainWindow.Title = $"Trivia Client - Connected: {Username.Text}";
+
                 // Success: Navigate to main menu
                 NavigationService.Navigate(new Pages.MainMenuPage());
             }

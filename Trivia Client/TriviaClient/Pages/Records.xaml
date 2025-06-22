@@ -9,15 +9,33 @@
       Title="Records">
 
     <Grid Background="Transparent">
-        <Border Background="#AA000000" CornerRadius="10" Padding="20" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center" Height="227.683">
+        <Border Background="#AA000000" CornerRadius="10" Padding="20" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center" Height="300">
             <StackPanel>
                 <TextBlock Text="Leaderboard" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,20" HorizontalAlignment="Center"/>
-                <ListBox x:Name="LeaderBoard" FontSize="18" Background="#AA000000" Foreground="White" BorderThickness="0" Margin="0,0,0,0"/>
-                <ListBoxItem Content="1. SkullCrusher - 200 pts" Foreground="White"/>
-                <ListBoxItem Content="2. TriviaNinja - 180 pts" Foreground="White"/>
-                <ListBoxItem Content="3. QuizMaster - 165 pts" Foreground="White"/>
-                <ListBoxItem Content="4. Brainiac - 150 pts" Foreground="White"/>
-                <ListBoxItem Content="5. FactWizard - 140 pts" Foreground="White"/>
+
+                <DataGrid x:Name="LeaderBoardGrid"
+                          AutoGenerateColumns="False"
+                          HeadersVisibility="Column"
+                          CanUserResizeRows="False"
+                          CanUserResizeColumns="False"
+                          CanUserSortColumns="False"
+                          GridLinesVisibility="None"
+                          RowBackground="#222222"
+                          AlternatingRowBackground="#333333"
+                          Background="#AA000000"
+                          Foreground="BLACK"
+                          BorderThickness="0"
+                          RowHeight="30"
+                          FontSize="14"
+                          IsReadOnly="True"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="40"/>
+                        <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="*"/>
+                        <DataGridTextColumn Header="Score" Binding="{Binding Score}" Width="80"/>
+                    </DataGrid.Columns>
+                </DataGrid>
             </StackPanel>
         </Border>
     </Grid>

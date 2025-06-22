@@ -8,10 +8,17 @@
 class IRequestHandler;
 // All structs needed for JsonResponsePacketSerializer and JsonRequestPacketDeserializer
 
+enum class RoomState
+{
+	WAITING_FOR_PLAYERS,
+	GAME_IN_PROGRESS,
+	CLOSED
+};
+
 enum class Status
 {
-	SUCCESS = 1, // Operation was successful
-	FAILURE = 0, // Operation failed
+	SUCCESS = 1,
+	FAILURE = 0,
 };
 
 enum class ResponseCode
@@ -43,17 +50,20 @@ enum class RequestCodes
 	LOGIN_REQUEST = 20,
 	SIGNUP_REQUEST = 21,
 	LOGOUT_REQUEST = 29,
-	// Room-related request codes
 	GET_ROOMS_REQUEST = 22,
 	GET_PLAYERS_IN_ROOM_REQUEST = 23,
 	JOIN_ROOM_REQUEST = 24,
 	CREATE_ROOM_REQUEST = 25,
 	CLOSE_ROOM_REQUEST = 26,
 	GET_ROOM_STATE_REQUEST = 27,
-	START_GAME_REQUEST = 31,
 	LEAVE_ROOM_REQUEST = 28,
-	// More request codes can be added as needed in the future
-	GET_STATISTICS_REQUEST = 30
+	GET_HIGH_SCORES_REQUEST = 30,
+	START_GAME_REQUEST = 31,
+	GET_QUESTION_REQUEST = 32,
+	SUBMIT_ANSWER_REQUEST = 34,
+	GET_GAME_RESULTS_REQUEST = 35,
+	GET_PERSONAL_STATS_REQUEST = 36,
+	LEAVE_GAME_REQUEST = 37
 };
 
 struct RoomData
@@ -87,7 +97,6 @@ struct SignupRequest
 	std::string email;
 };
 
-// Room-related request structs
 struct GetRoomsRequest
 {
 	// No additional data needed
@@ -124,9 +133,31 @@ struct LeaveRoomRequest
 {
 };
 
+struct LeaveGameRequest
+{
+	// There is no additional data needed - because user can only be in one game
+};
+
+struct GetQuestionRequest
+{
+	// There is no additional data needed here too - because user can only be in one game
+};
+
+struct SubmitAnswerRequest
+{
+	unsigned int answerId;
+	double answerTime;
+	bool isLastQuestion;
+};
+
+struct GetGameResultsRequest
+{
+	// There is no additional data needed here too - because user can only be in one game
+};
+
 struct LogoutRequest
 {
-	// No additional data needed, username is handled by the handler
+	// There is no additional data needed here, username is handled by the handler
 };
 
 // Response structs
@@ -226,7 +257,7 @@ struct PlayerResults
 	std::string username;
 	unsigned int correctAnswerCount;
 	unsigned int wrongAnswerCount;
-	unsigned int averageAnswerTime;
+	double averageAnswerTime;
 };
 
 struct GetGameResultsResponse
@@ -245,5 +276,5 @@ struct RequestResult
 {
 	ResponseCode id; // 0 for fail
 	std::vector<unsigned char> response;
-	IRequestHandler* newHandler;
+	IRequestHandler* newHandler = nullptr;
 };
