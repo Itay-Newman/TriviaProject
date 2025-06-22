@@ -13,7 +13,7 @@ namespace TriviaClient.Windows
     {
         private int _numberOfQuestions = 0;
         private int _timePerQuestion = 0;
-        private int _Answer = 0;
+        private int _answer = 0;
         private Stopwatch _questionStopwatch = new Stopwatch();
         private DispatcherTimer _questionTimer;
         private int _correctAnswersCount = 0;
@@ -45,25 +45,25 @@ namespace TriviaClient.Windows
 
         private void AnswerButton0_Click(object sender, RoutedEventArgs e)
         {
-            this._Answer = 0;
+            this._answer = 0;
             HighlightSelectedAnswer(AnswerButton1);
         }
 
         private void AnswerButton1_Click(object sender, RoutedEventArgs e)
         {
-            this._Answer = 1;
+            this._answer = 1;
             HighlightSelectedAnswer(AnswerButton2);
         }
 
         private void AnswerButton2_Click(object sender, RoutedEventArgs e)
         {
-            this._Answer = 2;
+            this._answer = 2;
             HighlightSelectedAnswer(AnswerButton3);
         }
 
         private void AnswerButton3_Click(object sender, RoutedEventArgs e)
         {
-            this._Answer = 3;
+            this._answer = 3;
             HighlightSelectedAnswer(AnswerButton4);
         }
 
@@ -113,7 +113,7 @@ namespace TriviaClient.Windows
 
             bool isLastQuestion = (this._currentQuestionIndex == this._numberOfQuestions - 1);
 
-            var request = new SubmitAnswerRequest { answerId = (uint)this._Answer, answerTime = secondsElapsed, isLastQuestion = isLastQuestion };
+            var request = new SubmitAnswerRequest { answerId = (uint)this._answer, answerTime = secondsElapsed, isLastQuestion = isLastQuestion };
             byte[] requestData = JsonRequestPacketSerializer.Serialize(request);
             byte requestCode = (byte)TriviaClient.RequestCodes.SUBMIT_ANSWER_REQUEST;
 
@@ -132,16 +132,16 @@ namespace TriviaClient.Windows
             // Color feedback logic
             Button[] buttons = { AnswerButton1, AnswerButton2, AnswerButton3, AnswerButton4 };
 
-            if (response.CorrectAnswerId == this._Answer)
+            if (response.CorrectAnswerId == this._answer)
             {
                 // Correct: color the selected button green
-                buttons[this._Answer].Background = Brushes.Green;
+                buttons[this._answer].Background = Brushes.Green;
                 this._correctAnswersCount++;
             }
             else
             {
                 // Incorrect: color the selected button red, correct answer green
-                buttons[this._Answer].Background = Brushes.Red;
+                buttons[this._answer].Background = Brushes.Red;
                 if (response.CorrectAnswerId >= 0 && response.CorrectAnswerId < buttons.Length)
                     buttons[response.CorrectAnswerId].Background = Brushes.Green;
             }
