@@ -18,7 +18,7 @@ namespace TriviaClient.Windows
         private DispatcherTimer _questionTimer;
         private int _correctAnswersCount = 0;
         private int _currentQuestionIndex = 0;
-        private Double[] _times = new double[99999999]; //assuming we won't have more than 99999999 questions
+        private List<double> _times = new List<double>();
 
         public GameWindow(int numberOfQuestions, int timePerQuestion)
         {
@@ -69,21 +69,18 @@ namespace TriviaClient.Windows
 
         private void HighlightSelectedAnswer(Button selectedButton)
         {
-            // Set all buttons to the same (default) color
             var defaultBrush = (Brush)new BrushConverter().ConvertFromString("#8F00FF");
             AnswerButton1.Background = defaultBrush;
             AnswerButton2.Background = defaultBrush;
             AnswerButton3.Background = defaultBrush;
             AnswerButton4.Background = defaultBrush;
 
-            // Set the selected button to a different color
             if (selectedButton != null)
                 selectedButton.Background = Brushes.DarkBlue;
         }
 
         private void ResetHighlight()
         {
-            // Reset all buttons to the default color
             var defaultBrush = (Brush)new BrushConverter().ConvertFromString("#8F00FF");
             AnswerButton1.Background = defaultBrush;
             AnswerButton2.Background = defaultBrush;
@@ -109,11 +106,11 @@ namespace TriviaClient.Windows
             double secondsElapsed = _questionStopwatch.Elapsed.TotalSeconds;
             int msToWait = (int)((this._timePerQuestion - secondsElapsed) * 1000);
 
-            this._times[this._currentQuestionIndex] = secondsElapsed; // Store the time taken for this question
+            _times.Add(secondsElapsed);
 
             bool isLastQuestion = (this._currentQuestionIndex == this._numberOfQuestions - 1);
 
-            var request = new SubmitAnswerRequest { answerId = (uint)this._answer, answerTime = secondsElapsed, isLastQuestion = isLastQuestion };
+            var request = new SubmitAnswerRequest { AnswerId = (uint)this._answer, AnswerTime = secondsElapsed, IsLastQuestion = isLastQuestion };
             byte[] requestData = JsonRequestPacketSerializer.Serialize(request);
             byte requestCode = (byte)TriviaClient.RequestCodes.SUBMIT_ANSWER_REQUEST;
 
@@ -122,25 +119,20 @@ namespace TriviaClient.Windows
 
             var response = JsonResponsePacketDeserializer.DeserializeSubmitAnswerResponse(responseBody);
 
-            // Wait for the remaining time, but only if it's positive
             if (msToWait > 0)
                 await Task.Delay(msToWait);
 
-            // Disable answer buttons to prevent further input
             SetAnswerButtonsEnabled(false);
 
-            // Color feedback logic
             Button[] buttons = { AnswerButton1, AnswerButton2, AnswerButton3, AnswerButton4 };
 
             if (response.CorrectAnswerId == this._answer)
             {
-                // Correct: color the selected button green
                 buttons[this._answer].Background = Brushes.Green;
                 this._correctAnswersCount++;
             }
             else
             {
-                // Incorrect: color the selected button red, correct answer green
                 buttons[this._answer].Background = Brushes.Red;
                 if (response.CorrectAnswerId >= 0 && response.CorrectAnswerId < buttons.Length)
                     buttons[response.CorrectAnswerId].Background = Brushes.Green;
@@ -150,7 +142,6 @@ namespace TriviaClient.Windows
             QuestionCountText.Text = $"Question {this._currentQuestionIndex}/{this._numberOfQuestions}";
             CorrectCountText.Text = $"Correct: {_correctAnswersCount}";
 
-            // Wait a moment to show feedback before moving to next question or ending game
             await Task.Delay(1200);
 
             if (this._currentQuestionIndex == this._numberOfQuestions)
@@ -158,11 +149,8 @@ namespace TriviaClient.Windows
                 await Task.Delay(1000);
 
                 double sum = 0;
-
-                for (int i = 0; i < this._numberOfQuestions; i++)
-                {
-                    sum += this._times[i];
-                }
+                foreach (var t in _times)
+                    sum += t;
 
                 double averageTime = sum / this._numberOfQuestions;
 
@@ -215,14 +203,13 @@ namespace TriviaClient.Windows
                 ResetHighlight();
                 SetAnswerButtonsEnabled(true);
 
-                // Start timing for this question
                 _questionStopwatch.Restart();
                 _questionTimer.Start();
             }
             else
             {
                 MessageBox.Show("Failed to retrieve question.");
-                this.Close(); // Close the window if we can't get a question
+                this.Close();
             }
         }
 
@@ -230,12 +217,10 @@ namespace TriviaClient.Windows
         {
             if (_questionStopwatch.Elapsed.TotalSeconds >= _timePerQuestion)
             {
-                // Time is up, auto-submit and move to next question
                 await SubmitAnswerAndProceed();
             }
             else
             {
-                // Update the UI with the remaining time
                 double timeLeft = _timePerQuestion - _questionStopwatch.Elapsed.TotalSeconds;
                 TimerText.Text = $"Time left: {timeLeft:F2} seconds";
             }

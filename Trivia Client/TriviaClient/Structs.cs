@@ -226,9 +226,9 @@
 
     public struct SubmitAnswerRequest
     {
-        public uint answerId { get; set; }
-        public double answerTime { get; set; }
-        public bool isLastQuestion { get; set; }
+        public uint AnswerId { get; set; }
+        public double AnswerTime { get; set; }
+        public bool IsLastQuestion { get; set; }
 
     };
 
