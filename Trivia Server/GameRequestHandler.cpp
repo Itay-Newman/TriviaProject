@@ -112,7 +112,7 @@ RequestResult GameRequestHandler::handleSubmitAnswerRequest(const RequestInfo& r
 		JsonRequestPacketDeserializer deserializer;
 		SubmitAnswerRequest request = deserializer.deserializeSubmitAnswerRequest(requestInfo.buffer);
 
-		SubmitAnswerResponse response = m_gameManager->submitAnswer(m_user.getUsername(), request.answerId, request.answerTime);
+		SubmitAnswerResponse response = m_gameManager->submitAnswer(m_user.getUsername(), request.answerId, request.answerTime, request.isLastQuestion);
 
 		RequestResult result;
 		result.id = ResponseCode::SUBMIT_ANSWER_RESPONSE;

@@ -43,7 +43,7 @@ public:
 	~GameManager() = default;
 
 	GetQuestionResponse getNextQuestion(const std::string& username);
-	SubmitAnswerResponse submitAnswer(const std::string& username, unsigned int answerId, double answerTime);
+	SubmitAnswerResponse submitAnswer(const std::string& username, unsigned int answerId, double answerTime, bool isLast);
 	GetGameResultsResponse getGameResults(const std::string& username);
 
 	// Game management
@@ -65,4 +65,5 @@ private:
 	std::unordered_map<std::string, GameData> m_activeGames;
 	std::unordered_map<std::string, PlayerResults> m_userStats;
 	std::mt19937 m_randomGenerator;
+	bool statsSaved;
 };

@@ -39,8 +39,10 @@ GetQuestionResponse GameManager::getNextQuestion(const std::string& username)
 
 	try {
 		auto gameIt = m_activeGames.find("__shared__");
+
 		if (gameIt == m_activeGames.end()) {
-			if (!startGame(username, 10)) return response;
+			if (!startGame(username, 10))
+				return response;
 			gameIt = m_activeGames.find("__shared__");
 		}
 
@@ -74,7 +76,7 @@ GetQuestionResponse GameManager::getNextQuestion(const std::string& username)
 	return response;
 }
 
-SubmitAnswerResponse GameManager::submitAnswer(const std::string& username, unsigned int answerId, double answerTime)
+SubmitAnswerResponse GameManager::submitAnswer(const std::string& username, unsigned int answerId, double answerTime, bool isLast)
 {
 	SubmitAnswerResponse response;
 	response.status = static_cast<unsigned int>(Status::FAILURE);
@@ -102,7 +104,7 @@ SubmitAnswerResponse GameManager::submitAnswer(const std::string& username, unsi
 
 		gameData.currentQuestionIndex++;
 
-		if (gameData.currentQuestionIndex >= gameData.gameQuestions.size()) {
+		if (gameData.currentQuestionIndex >= gameData.gameQuestions.size() || isLast) {
 			gameData.gameFinished = true;
 		}
 
@@ -118,6 +120,8 @@ SubmitAnswerResponse GameManager::submitAnswer(const std::string& username, unsi
 
 GetGameResultsResponse GameManager::getGameResults(const std::string& username)
 {
+	this->statsSaved = false;
+
 	GetGameResultsResponse response;
 	response.status = static_cast<unsigned int>(Status::FAILURE);
 
@@ -134,11 +138,18 @@ GetGameResultsResponse GameManager::getGameResults(const std::string& username)
 			PlayerResults result = stats;
 			result.averageAnswerTime = avgTime;
 			response.results.push_back(result);
+		}
 
-			if (gameFinished)
+		if (gameFinished && statsSaved)
+		{
+			for (auto& [user, stats] : m_userStats)
 			{
-				m_database.addGameStatistics(result.username, avgTime, result.correctAnswerCount, result.wrongAnswerCount);
+				unsigned int totalQuestions = stats.correctAnswerCount + stats.wrongAnswerCount;
+				double avgTime = stats.averageAnswerTime / totalQuestions;
+
+				m_database.addGameStatistics(user, avgTime, stats.correctAnswerCount, stats.wrongAnswerCount);
 			}
+			statsSaved = true;
 		}
 
 		response.status = static_cast<unsigned int>(Status::SUCCESS);
@@ -149,6 +160,7 @@ GetGameResultsResponse GameManager::getGameResults(const std::string& username)
 
 	return response;
 }
+
 
 
 void GameManager::endGame(const std::string& username)

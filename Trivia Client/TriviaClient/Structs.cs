@@ -49,11 +49,12 @@
         CLOSE_ROOM_REQUEST = 26,
         GET_ROOM_STATE_REQUEST = 27,
         LEAVE_ROOM_REQUEST = 28,
-        GET_STATISTICS_REQUEST = 30,
-        STARTS_GAME_REQUEST = 31,
+        GET_HIGH_SCORES_REQUEST = 30,
+        START_GAME_REQUEST = 31,
         GET_QUESTION_REQUEST = 32,
         SUBMIT_ANSWER_REQUEST = 34,
-        GET_GAME_RESULTS_REQUEST = 35
+        GET_GAME_RESULTS_REQUEST = 35,
+        GET_PERSONAL_STATS_REQUEST = 36
     }
 
     // Data structures
@@ -118,6 +119,11 @@
 
     public struct LeaveRoomRequest
     {
+    }
+
+    public struct GetHighScoresRequest
+    {
+
     }
 
     // Response structs (client receives these)
@@ -222,6 +228,8 @@
     {
         public uint answerId { get; set; }
         public double answerTime { get; set; }
+        public bool isLastQuestion { get; set; }
+
     };
 
     public struct ErrorResponse

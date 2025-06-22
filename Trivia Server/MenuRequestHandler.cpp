@@ -14,8 +14,9 @@ bool MenuRequestHandler::isRequestRelevant(const RequestInfo& requestInfo)
 		code == static_cast<unsigned char>(RequestCodes::GET_ROOMS_REQUEST) ||
 		code == static_cast<unsigned char>(RequestCodes::GET_PLAYERS_IN_ROOM_REQUEST) ||
 		code == static_cast<unsigned char>(RequestCodes::JOIN_ROOM_REQUEST) ||
-		code == static_cast<unsigned char>(RequestCodes::GET_STATISTICS_REQUEST) ||
-		code == static_cast<unsigned char>(RequestCodes::LOGOUT_REQUEST);
+		code == static_cast<unsigned char>(RequestCodes::GET_PERSONAL_STATS_REQUEST) ||
+		code == static_cast<unsigned char>(RequestCodes::LOGOUT_REQUEST) ||
+		code == static_cast<unsigned char>(RequestCodes::GET_HIGH_SCORES_REQUEST);
 	return false;
 }
 
@@ -33,8 +34,10 @@ RequestResult MenuRequestHandler::handleRequest(const RequestInfo& requestInfo)
 		return handleGetPlayersInRoomRequest(requestInfo);
 	case RequestCodes::JOIN_ROOM_REQUEST:
 		return handleJoinRoomRequest(requestInfo);
-	case RequestCodes::GET_STATISTICS_REQUEST:
-		return handleGetStatisticsRequest(requestInfo);
+	case RequestCodes::GET_PERSONAL_STATS_REQUEST:
+		return handleGetPersonalStatisticsRequest(requestInfo);
+	case RequestCodes::GET_HIGH_SCORES_REQUEST:
+		return handleGetHighScoresRequest(requestInfo);
 	case RequestCodes::LOGOUT_REQUEST:
 		return handleLogoutRequest(requestInfo);
 	default:
@@ -232,20 +235,14 @@ RequestResult MenuRequestHandler::handleJoinRoomRequest(const RequestInfo& reque
 	}
 }
 
-RequestResult MenuRequestHandler::handleGetStatisticsRequest(const RequestInfo& requestInfo)
+RequestResult MenuRequestHandler::handleGetPersonalStatisticsRequest(const RequestInfo& requestInfo)
 {
 	try
 	{
-		// Get the player's personal statistics
 		PlayerStatistics playerStats = m_statisticsManager->getPlayerStatistics(m_user.getUsername());
 
-		// Get high scores
-		std::vector<PlayerStatistics> highScores = m_statisticsManager->getHighScores();
-
-		// Format the statistics as strings
 		std::vector<std::string> statistics;
 
-		// Add personal statistics
 		statistics.push_back("Username: " + playerStats.username);
 		statistics.push_back("Average Answer Time: " + std::to_string(playerStats.averageAnswerTime));
 		statistics.push_back("Correct Answers: " + std::to_string(playerStats.correctAnswers));
@@ -253,20 +250,51 @@ RequestResult MenuRequestHandler::handleGetStatisticsRequest(const RequestInfo& 
 		statistics.push_back("Total Games: " + std::to_string(playerStats.totalGames));
 		statistics.push_back("Score: " + std::to_string(playerStats.score));
 
-		// Prepare the response
-		GetHighScoreResponse response;
+		GetPersonalStatsResponse response;
 		response.status = (unsigned int)Status::SUCCESS;
-
-		// Add high scores
-		statistics.push_back("\nHigh Scores:");
-		for (size_t i = 0; i < highScores.size(); ++i)
-		{
-			statistics.push_back(std::to_string(i + 1) + ". " + highScores[i].username + " - " + std::to_string(highScores[i].score));
-		}
-
 		response.statistics = statistics;
 
-		// Serialize the response
+		RequestResult result;
+		result.id = ResponseCode::GET_PERSONAL_STATS_RESPONSE;
+		result.response = JsonResponsePacketSerializer::serializeResponse(response);
+		result.newHandler = this;
+
+		return result;
+	}
+	catch (const std::exception& e)
+	{
+		ErrorResponse errorResponse;
+		errorResponse.status = ResponseCode::ERROR_RESPONSE;
+		errorResponse.message = e.what();
+
+		RequestResult result;
+		result.id = ResponseCode::ERROR_RESPONSE;
+		result.response = JsonResponsePacketSerializer::serializeResponse(errorResponse);
+		result.newHandler = this;
+		return result;
+	}
+}
+
+RequestResult MenuRequestHandler::handleGetHighScoresRequest(const RequestInfo& requestInfo)
+{
+	try
+	{
+		std::vector<PlayerStatistics> highScores = m_statisticsManager->getHighScores();
+
+		std::vector<std::string> statistics;
+		statistics.push_back("High Scores:");
+
+		for (size_t i = 0; i < highScores.size(); ++i)
+		{
+			statistics.push_back(std::to_string(i + 1) + ". " +
+				highScores[i].username + " - " +
+				std::to_string(highScores[i].score));
+		}
+
+		GetHighScoreResponse response;
+		response.status = (unsigned int)Status::SUCCESS;
+		response.statistics = statistics;
+
 		RequestResult result;
 		result.id = ResponseCode::GET_HIGH_SCORE_RESPONSE;
 		result.response = JsonResponsePacketSerializer::serializeResponse(response);
