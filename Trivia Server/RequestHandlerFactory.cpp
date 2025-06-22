@@ -2,13 +2,17 @@
 #include "LoginRequestHandler.h"
 #include "BaseRoomRequestHandler.h"
 #include "MenuRequestHandler.h"
+#include "GameRequestHandler.h"
+#include "GameManager.h"
 
 RequestHandlerFactory::RequestHandlerFactory(IDatabase& database)
-	: m_Database(database), m_communicator(nullptr)
+	: m_Database(database)
 {
 	this->m_LoginManager = new LoginManager(this->m_Database);
 	this->m_RoomManager = new RoomManager();
 	this->m_statisticsManager = new StatisticsManager(this->m_Database);
+	this->m_gameManager = new GameManager(this->m_Database);
+	this->m_communicator = new Communicator(*this);
 }
 
 RequestHandlerFactory::~RequestHandlerFactory()
@@ -16,6 +20,7 @@ RequestHandlerFactory::~RequestHandlerFactory()
 	delete this->m_LoginManager;
 	delete this->m_RoomManager;
 	delete this->m_statisticsManager;
+	delete this->m_gameManager;
 }
 
 void RequestHandlerFactory::setCommunicator(Communicator* communicator)
@@ -28,7 +33,7 @@ LoginRequestHandler* RequestHandlerFactory::createLoginRequestHandler()
 	return new LoginRequestHandler(*this, this->m_Database);
 }
 
-MenuRequestHandler* RequestHandlerFactory::createMenuRequestHandler(const std::string& username)
+IRequestHandler* RequestHandlerFactory::createMenuRequestHandler(const std::string& username)
 {
 	return new MenuRequestHandler(
 		this->m_Database,
@@ -39,7 +44,7 @@ MenuRequestHandler* RequestHandlerFactory::createMenuRequestHandler(const std::s
 	);
 }
 
-RoomAdminRequestHandler* RequestHandlerFactory::createRoomAdminRequestHandler(const std::string& username)
+IRequestHandler* RequestHandlerFactory::createRoomAdminRequestHandler(const std::string& username)
 {
 	return new RoomAdminRequestHandler(
 		this->m_Database,
@@ -50,7 +55,7 @@ RoomAdminRequestHandler* RequestHandlerFactory::createRoomAdminRequestHandler(co
 	);
 }
 
-RoomMemberRequestHandler* RequestHandlerFactory::createRoomMemberRequestHandler(const std::string& username)
+IRequestHandler* RequestHandlerFactory::createRoomMemberRequestHandler(const std::string& username)
 {
 	return new RoomMemberRequestHandler(
 		this->m_Database,
@@ -58,6 +63,18 @@ RoomMemberRequestHandler* RequestHandlerFactory::createRoomMemberRequestHandler(
 		this->m_statisticsManager,
 		username,
 		this
+	);
+}
+
+IRequestHandler* RequestHandlerFactory::createGameRequestHandler(const std::string& username)
+{
+	return new GameRequestHandler(
+		this->m_Database,
+		this->m_RoomManager,
+		this->m_statisticsManager,
+		this->m_gameManager,
+		username,
+		*this
 	);
 }
 
@@ -79,6 +96,11 @@ RoomManager& RequestHandlerFactory::getRoomManager()
 StatisticsManager& RequestHandlerFactory::getStatisticsManager()
 {
 	return *this->m_statisticsManager;
+}
+
+GameManager& RequestHandlerFactory::getGameManager()
+{
+	return *this->m_gameManager;
 }
 
 Communicator* RequestHandlerFactory::getCommunicator()

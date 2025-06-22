@@ -1,0 +1,186 @@
+#include "GameRequestHandler.h"
+#include "JsonRequestPacketDeserializer.h"
+#include "JsonResponsePacketSerializer.h"
+#include "RequestHandlerFactory.h"
+#include "GameManager.h"
+#include <optional>
+
+GameRequestHandler::GameRequestHandler(IDatabase& database, RoomManager* roomManager, StatisticsManager* statisticsManager,
+	GameManager* gameManager, const std::string& username, RequestHandlerFactory& handlerFactory)
+	: m_database(database), m_roomManager(roomManager), m_statisticsManager(statisticsManager),
+	m_gameManager(gameManager), m_handlerFactory(handlerFactory), m_user(username)
+{
+}
+
+bool GameRequestHandler::isRequestRelevant(const RequestInfo& requestInfo)
+{
+	unsigned int code = requestInfo.id;
+	return code == static_cast<unsigned int>(RequestCodes::LEAVE_GAME_REQUEST) ||
+		code == static_cast<unsigned int>(RequestCodes::GET_QUESTION_REQUEST) ||
+		code == static_cast<unsigned int>(RequestCodes::SUBMIT_ANSWER_REQUEST) ||
+		code == static_cast<unsigned int>(RequestCodes::GET_GAME_RESULTS_REQUEST);
+}
+
+RequestResult GameRequestHandler::handleRequest(const RequestInfo& requestInfo)
+{
+	unsigned int code = requestInfo.id;
+
+	switch (static_cast<RequestCodes>(code))
+	{
+	case RequestCodes::LEAVE_GAME_REQUEST:
+		return handleLeaveGameRequest(requestInfo);
+	case RequestCodes::GET_QUESTION_REQUEST:
+		return handleGetQuestionRequest(requestInfo);
+	case RequestCodes::SUBMIT_ANSWER_REQUEST:
+		return handleSubmitAnswerRequest(requestInfo);
+	case RequestCodes::GET_GAME_RESULTS_REQUEST:
+		return handleGetGameResultsRequest(requestInfo);
+	default:
+		return createErrorResponse("Request type not supported");
+	}
+}
+
+bool GameRequestHandler::doesUserExist(const std::string& username) const
+{
+	return m_database.doesUserExist(username);
+}
+
+bool GameRequestHandler::doesPasswordMatch(const std::string& username, const std::string& password) const
+{
+	return m_database.doesPasswordMatch(username, password);
+}
+
+bool GameRequestHandler::addUser(const std::string& username, const std::string& password, const std::string& email) const
+{
+	return m_database.addUser(username, password, email);
+}
+
+RequestResult GameRequestHandler::handleLeaveGameRequest(const RequestInfo& requestInfo)
+{
+	try
+	{
+		std::optional<unsigned int> roomIdOpt = m_roomManager->getRoomIdByUser(m_user.getUsername());
+
+		if (!roomIdOpt.has_value())
+		{
+			return createErrorResponse("User is not in any room");
+		}
+
+		unsigned int roomId = roomIdOpt.value();
+		bool success = m_roomManager->removeUserFromRoom(roomId, m_user.getUsername());
+
+		// Preparing the response
+		LeaveGameResponse response
+		{
+			.status = success ? (unsigned int)Status::SUCCESS : (unsigned int)Status::FAILURE
+		};
+
+		RequestResult result
+		{
+			.id = ResponseCode::LEAVE_GAME_RESPONSE,
+			.response = JsonResponsePacketSerializer::serializeResponse(response),
+			.newHandler = m_handlerFactory.createMenuRequestHandler(m_user.getUsername())
+		};
+
+
+		return result;
+	}
+	catch (const std::exception& e)
+	{
+		return createErrorResponse(e.what());
+	}
+}
+
+RequestResult GameRequestHandler::handleGetQuestionRequest(const RequestInfo& requestInfo)
+{
+	try
+	{
+		GetQuestionResponse response = m_gameManager->getNextQuestion(m_user.getUsername());
+
+		RequestResult result
+		{
+			.id = ResponseCode::GET_QUESTION_RESPONSE,
+			.response = JsonResponsePacketSerializer::serializeResponse(response),
+			.newHandler = this
+		};
+
+
+
+		return result;
+	}
+	catch (const std::exception& e)
+	{
+		return createErrorResponse(e.what());
+	}
+}
+
+RequestResult GameRequestHandler::handleSubmitAnswerRequest(const RequestInfo& requestInfo)
+{
+	try
+	{
+		JsonRequestPacketDeserializer deserializer;
+		SubmitAnswerRequest request = deserializer.deserializeSubmitAnswerRequest(requestInfo.buffer);
+
+		SubmitAnswerResponse response = m_gameManager->submitAnswer(m_user.getUsername(), request.answerId, request.answerTime, request.isLastQuestion);
+
+		RequestResult result
+		{
+			.id = ResponseCode::SUBMIT_ANSWER_RESPONSE,
+			.response = JsonResponsePacketSerializer::serializeResponse(response),
+			.newHandler = this
+		};
+
+		return result;
+	}
+	catch (const std::exception& e)
+	{
+		return createErrorResponse(e.what());
+	}
+}
+
+RequestResult GameRequestHandler::handleGetGameResultsRequest(const RequestInfo& requestInfo)
+{
+	try
+	{
+		GetGameResultsResponse response = m_gameManager->getGameResults(m_user.getUsername());
+
+		RequestResult result
+		{
+			.id = ResponseCode::GET_GAME_RESULTS_RESPONSE,
+			.response = JsonResponsePacketSerializer::serializeResponse(response),
+			.newHandler = this
+		};
+
+		std::optional<unsigned int> optRoomId = this->m_roomManager->getRoomIdByUser(this->m_user.getUsername());
+
+		if (optRoomId.has_value())
+		{
+			this->m_roomManager->setRoomState(optRoomId.value(), RoomState::CLOSED);
+		}
+
+		return result;
+	}
+	catch (const std::exception& e)
+	{
+		return createErrorResponse(e.what());
+	}
+}
+
+RequestResult GameRequestHandler::createErrorResponse(const std::string& message)
+{
+	ErrorResponse errorResponse
+	{
+		.status = ResponseCode::ERROR_RESPONSE,
+		.message = message
+	};
+
+	RequestResult result
+	{
+		.id = ResponseCode::ERROR_RESPONSE,
+		.response = JsonResponsePacketSerializer::serializeResponse(errorResponse),
+		.newHandler = this
+	};
+
+	return result;
+}
+

@@ -1,0 +1,108 @@
+﻿<Window x:Class="TriviaClient.Windows.GameWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Trivia Game" Height="450" Width="800" Background="#2D2D2D">
+    <Grid>
+        <Image Source="/Photos/download.jpeg" Stretch="Fill" Panel.ZIndex="0" Opacity="0.1"/>
+
+        <Grid Panel.ZIndex="1" Margin="20">
+            <Grid.Resources>
+                <Style x:Key="ModernButtonStyle" TargetType="Button">
+                    <Setter Property="Background" Value="#FF3A86FF"/>
+                    <Setter Property="Foreground" Value="#F8F8F8"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="FontSize" Value="18"/>
+                    <Setter Property="Padding" Value="10,10"/>
+                    <Setter Property="Margin" Value="10"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Height" Value="80"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#66000000" BlurRadius="10" ShadowDepth="2"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="10">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#FF69B4"/>
+                            <Setter Property="Effect">
+                                <Setter.Value>
+                                    <DropShadowEffect Color="#00FFC6" BlurRadius="15" ShadowDepth="0"/>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Cursor" Value="Hand"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="#00FFC6"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" Value="#6C7A89"/>
+                            <Setter Property="Foreground" Value="#ECECFF"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Resources>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Top status -->
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <!-- Answer buttons -->
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top Status Bar -->
+            <DockPanel Grid.Row="0" LastChildFill="False" Margin="0,0,0,20">
+                <TextBlock x:Name="QuestionCountText" Text="Question 0 of 0"
+                           Foreground="#FFFF00" FontWeight="Bold" FontSize="16"
+                           Margin="10,0" DockPanel.Dock="Left"/>
+                <TextBlock x:Name="CorrectCountText" Text="Correct: 0"
+                           Foreground="#00FFC6" FontWeight="Bold" FontSize="16"
+                           Margin="10,0" DockPanel.Dock="Left"/>
+                <TextBlock x:Name="TimerText" Text="Time left: 15s"
+                           Foreground="#FF69B4" FontWeight="Bold" FontSize="16"
+                           Margin="10,0" DockPanel.Dock="Right"/>
+            </DockPanel>
+
+            <!-- Optional space for question content -->
+            <TextBlock x:Name="QuestionText"
+                       Text="(The question text will go here)"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Foreground="#F8F8F8"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Top"
+                       Margin="0,38,0,0"
+                       TextAlignment="Center" Grid.RowSpan="2"/>
+
+            <!-- Answer Buttons -->
+            <Grid Grid.Row="2" Margin="0,20,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button x:Name="AnswerButton1" Content="Answer A" Grid.Row="0" Grid.Column="0" Style="{StaticResource ModernButtonStyle}" Click="AnswerButton0_Click"/>
+                <Button x:Name="AnswerButton2" Content="Answer B" Grid.Row="0" Grid.Column="1" Style="{StaticResource ModernButtonStyle}" Click="AnswerButton1_Click"/>
+                <Button x:Name="AnswerButton3" Content="Answer C" Grid.Row="1" Grid.Column="0" Style="{StaticResource ModernButtonStyle}" Click="AnswerButton2_Click"/>
+                <Button x:Name="AnswerButton4" Content="Answer D" Grid.Row="1" Grid.Column="1" Style="{StaticResource ModernButtonStyle}" Click="AnswerButton3_Click"/>
+
+            </Grid>
+            <Button x:Name="SubmitButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Content="Submit" Style="{StaticResource ModernButtonStyle}" Height="50" Margin="10,20,10,10" HorizontalAlignment="Center" Width="200" Click="SubmitButton_Click" IsEnabled="True"/>
+        </Grid>
+    </Grid>
+</Window>

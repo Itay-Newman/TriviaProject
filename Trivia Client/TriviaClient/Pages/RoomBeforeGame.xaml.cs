@@ -1,7 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Threading;
-using System.Threading.Tasks;
+using TriviaClient.Windows;
 
 namespace TriviaClient.Pages
 {
@@ -11,12 +10,17 @@ namespace TriviaClient.Pages
     public partial class RoomBeforeGame : Page
     {
         private CancellationTokenSource _refreshCancellation;
+        private MainMenuPage m_mainMenu;
+        private int _NumOfQuestions = 0;
+        private int _timePerQuestion = 0;
 
-        public RoomBeforeGame(bool isAdmin)
+        public RoomBeforeGame(bool isAdmin, MainMenuPage mainMenu)
         {
             InitializeComponent();
-            StartRoomRefreshLoop();
 
+            this.m_mainMenu = mainMenu;
+
+            GetRoomStateRefreshLoop();
             this.Unloaded += RoomBeforeGame_Unloaded;
 
             if (isAdmin)
@@ -30,6 +34,7 @@ namespace TriviaClient.Pages
                 LeaveRoom.Visibility = Visibility.Visible;
             }
         }
+
 
         private async void LeaveRoom_Click(object sender, RoutedEventArgs e)
         {
@@ -51,7 +56,7 @@ namespace TriviaClient.Pages
             {
                 _refreshCancellation?.Cancel();
                 _refreshCancellation?.Dispose();
-                NavigationService.Navigate(new JoinRoom());
+                NavigationService.Navigate(new JoinRoom(m_mainMenu));
             }
             else
             {
@@ -68,7 +73,7 @@ namespace TriviaClient.Pages
 
             var request = new StartGameResponse { };
             byte[] requestData = JsonRequestPacketSerializer.SerializeEmptyRequest();
-            byte startGameCode = (byte)TriviaClient.RequestCodes.STARTS_GAME_REQUEST;
+            byte startGameCode = (byte)TriviaClient.RequestCodes.START_GAME_REQUEST;
 
             await communicator.SendRequestAsync(startGameCode, requestData);
             var (responseCode, responseBody) = await communicator.ReadResponseAsync();
@@ -77,7 +82,10 @@ namespace TriviaClient.Pages
 
             if (startGameResponse.Status == (uint)TriviaClient.StatusCode.OK)
             {
-                MessageBox.Show("Game started successfully!");
+                var gameWindows = new GameWindow(_NumOfQuestions, _timePerQuestion);
+                gameWindows.Show();
+
+                Window.GetWindow(this)?.Close();
             }
             else
             {
@@ -105,7 +113,7 @@ namespace TriviaClient.Pages
             {
                 _refreshCancellation?.Cancel();
                 _refreshCancellation?.Dispose();
-                NavigationService.Navigate(new JoinRoom());
+                NavigationService.Navigate(new CreateRoom(m_mainMenu));
             }
             else
             {
@@ -113,7 +121,7 @@ namespace TriviaClient.Pages
             }
         }
 
-        private void StartRoomRefreshLoop()
+        private void GetRoomStateRefreshLoop()
         {
             _refreshCancellation = new CancellationTokenSource();
             var token = _refreshCancellation.Token;
@@ -136,14 +144,48 @@ namespace TriviaClient.Pages
                         await communicator.SendRequestAsync(getPlayersCode, requestData);
                         var (responseCode, responseBody) = await communicator.ReadResponseAsync();
 
-                        var getUsersResponse = JsonResponsePacketDeserializer.DeserializeGetRoomStateResponse(responseBody);
+                        var getRoomStateResponse = JsonResponsePacketDeserializer.DeserializeGetRoomStateResponse(responseBody);
 
-                        if (getUsersResponse.Status == (uint)TriviaClient.StatusCode.OK)
+                        if (getRoomStateResponse.Status == (uint)TriviaClient.StatusCode.OK)
                         {
                             await Dispatcher.InvokeAsync(() =>
                             {
-                                PlayerList.ItemsSource = getUsersResponse.Players;
+                                PlayerList.ItemsSource = getRoomStateResponse.Players;
                             });
+
+                            this._NumOfQuestions = (int)getRoomStateResponse.QuestionCount;
+                            this._timePerQuestion = (int)getRoomStateResponse.AnswerTimeout;
+
+                            if (getRoomStateResponse.HasGameBegun)
+                            {
+                                Application.Current.Dispatcher.Invoke(() =>
+                                {
+                                    var gameWindows = new GameWindow(_NumOfQuestions, _timePerQuestion);
+                                    gameWindows.Show();
+
+                                    Window.GetWindow(this)?.Close();
+                                });
+                            }
+                        }
+                        else if (getRoomStateResponse.Status == 0)
+                        {
+                            await Dispatcher.InvokeAsync(() =>
+                            {
+                                MessageBox.Show("Room is closed or does not exist.");
+                                _refreshCancellation?.Cancel();
+                                _refreshCancellation?.Dispose();
+                                NavigationService.Navigate(new CreateRoom(m_mainMenu));
+                            });
+                        }
+                        else if (responseCode == (uint)TriviaClient.ResponseCode.START_GAME_RESPONSE)
+                        {
+                            _refreshCancellation?.Cancel();
+                            _refreshCancellation?.Dispose();
+
+                            var gameWindows = new GameWindow(_NumOfQuestions, _timePerQuestion);
+                            gameWindows.Show();
+
+                            Window.GetWindow(this)?.Close();
                         }
                         else
                         {
@@ -166,8 +208,15 @@ namespace TriviaClient.Pages
 
         private void RoomBeforeGame_Unloaded(object sender, RoutedEventArgs e)
         {
-            _refreshCancellation?.Cancel();
-            _refreshCancellation?.Dispose();
+            if (!_refreshCancellation.IsCancellationRequested)
+            {
+                _refreshCancellation?.Cancel();
+                _refreshCancellation?.Dispose();
+            }
+
+
+            m_mainMenu.SetControlPanelEnabled(true);
+
         }
     }
 }

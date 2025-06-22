@@ -4,6 +4,9 @@
 #include <iostream>
 #include "sqlite3.h"
 #include "IDatabase.h"
+#include "GameManager.h"
+
+struct Question;
 
 class SqliteDataBase : public IDatabase
 {
@@ -28,6 +31,8 @@ public:
 	bool initializeUserStatistics(const std::string& username) const override;
 
 	std::vector<std::string> getPlayersWithStatistics() const override;
+
+	std::vector<Question> getRandomQuestions(unsigned int count) const override;
 
 private:
 	sqlite3* db;

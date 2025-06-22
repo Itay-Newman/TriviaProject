@@ -58,11 +58,15 @@
             <StackPanel HorizontalAlignment="Center" Margin="0,80,0,0" Width="300">
                 <xctk:WatermarkTextBox x:Name="Username" Watermark="Username" Height="45" FontSize="24" Margin="0,0,0,10"/>
 
-                <xctk:WatermarkTextBox x:Name="Password" Watermark="Password" Height="45" FontSize="24" Margin="0,0,0,10"/>
+                <xctk:WatermarkPasswordBox x:Name="Password" Watermark="Password" Height="45" FontSize="24" Margin="0,0,0,10"
+                                           Padding="5"
+                                           VerticalContentAlignment="Center"
+                                           ToolTip="Password"/>
 
                 <xctk:WatermarkTextBox x:Name="Email" Watermark="Email" Height="45" FontSize="24" Margin="0,0,0,10"/>
 
                 <Button x:Name="SignUpButton" Content="Sign Up" Width="120" Height="45" FontSize="22" FontWeight="Bold" Click="SignUpButton_Click" Style="{StaticResource ModernButtonStyle}"/>
+                <Button x:Name="SigninButton" Content="Sign In" Width="120" Height="45" FontSize="22" FontWeight="Bold" Click="SigninButton_Click" Style="{StaticResource ModernButtonStyle}"/>
             </StackPanel>
         </Grid>
     </Grid>
