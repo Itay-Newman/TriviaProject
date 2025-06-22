@@ -23,7 +23,6 @@ bool GameManager::startGame(const std::string& username, unsigned int questionCo
 			initializeGameData("__shared__", questions);
 		}
 
-		//m_userStats[username] = PlayerResults{ username, 0, 0, 0 };
 		return true;
 	}
 	catch (const std::exception& e) {
@@ -213,14 +212,17 @@ std::pair<std::vector<std::string>, unsigned int> GameManager::shuffleAnswers(co
 {
 	std::vector<std::string> answers;
 	answers.push_back(question.correctAnswer);
-	for (const auto& wrong : question.wrongAnswers) {
+	for (const auto& wrong : question.wrongAnswers)
+	{
 		answers.push_back(wrong);
 	}
 	std::shuffle(answers.begin(), answers.end(), m_randomGenerator);
 
 	unsigned int correctIndex = 0;
-	for (size_t i = 0; i < answers.size(); ++i) {
-		if (answers[i] == question.correctAnswer) {
+	for (size_t i = 0; i < answers.size(); ++i)
+	{
+		if (answers[i] == question.correctAnswer)
+		{
 			correctIndex = static_cast<unsigned int>(i);
 			break;
 		}

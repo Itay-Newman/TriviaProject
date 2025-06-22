@@ -62,29 +62,20 @@ SubmitAnswerRequest JsonRequestPacketDeserializer::deserializeSubmitAnswerReques
 	auto j = parseJson(buffer);
 
 	return SubmitAnswerRequest{
-		j.at("answerId").get<unsigned int>(),
-		j.at("answerTime").get<double>(),
-		j.at("isLastQuestion").get<bool>()
+		j.at("AnswerId").get<unsigned int>(),
+		j.at("AnswerTime").get<double>(),
+		j.at("IsLastQuestion").get<bool>()
 	};
 }
 
-bool JsonRequestPacketDeserializer::isRequestWithNoData(unsigned int requestCode)
-{
-	// List of request codes that don't need parsing of extra data
-	switch (requestCode)
-	{
-	case 6:  // GET_HIGH_SCORE_REQUEST
-	case 29: // LOGOUT_REQUEST
-	case 22: // GET_ROOMS_REQUEST
-	case 26: // CLOSE_ROOM_REQUEST
-	case 31: // START_GAME_REQUEST
-	case 27: // GET_ROOM_STATE_REQUEST
-	case 28: // LEAVE_ROOM_REQUEST
-	case 32: // LEAVE_GAME_REQUEST
-	case 33: // GET_QUESTION_REQUEST
-	case 35: // GET_GAME_RESULTS_REQUEST
-		return true;
-	default:
-		return false;
-	}
-}
+//! list of Request That Dont Need Deserialization because they are empty
+//case 6:  // GET_HIGH_SCORE_REQUEST
+//case 29: // LOGOUT_REQUEST
+//case 22: // GET_ROOMS_REQUEST
+//case 26: // CLOSE_ROOM_REQUEST
+//case 31: // START_GAME_REQUEST
+//case 27: // GET_ROOM_STATE_REQUEST
+//case 28: // LEAVE_ROOM_REQUEST
+//case 32: // LEAVE_GAME_REQUEST
+//case 33: // GET_QUESTION_REQUEST
+//case 35: // GET_GAME_RESULTS_REQUEST
