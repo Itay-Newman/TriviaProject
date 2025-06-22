@@ -23,7 +23,6 @@ bool GameManager::startGame(const std::string& username, unsigned int questionCo
 			initializeGameData("__shared__", questions);
 		}
 
-		//m_userStats[username] = PlayerResults{ username, 0, 0, 0 };
 		return true;
 	}
 	catch (const std::exception& e) {
