@@ -10,8 +10,6 @@ using nlohmann::json;
 class JsonRequestPacketDeserializer
 {
 public:
-	static bool isRequestWithNoData(unsigned int requestCode);
-
 	static LoginRequest deserializeLoginRequest(const std::vector<unsigned char>& buffer);
 	static SignupRequest deserializeSignupRequest(const std::vector<unsigned char>& buffer);
 	static GetPlayersInRoomRequest deserializeGetPlayersInRoomRequest(const std::vector<unsigned char>& buffer);

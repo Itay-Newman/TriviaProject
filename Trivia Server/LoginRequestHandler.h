@@ -23,8 +23,6 @@ public:
 	bool isRequestRelevant(const RequestInfo& requestInfo) override;
 	RequestResult handleRequest(const RequestInfo& requestInfo) override;
 
-	std::string getName() const override { return "LoginRequestHandler"; }
-
 private:
 	LoginManager& m_loginManager;
 	RequestHandlerFactory& m_handlerFactory;

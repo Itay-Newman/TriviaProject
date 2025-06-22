@@ -15,7 +15,7 @@ GameRequestHandler::GameRequestHandler(IDatabase& database, RoomManager* roomMan
 bool GameRequestHandler::isRequestRelevant(const RequestInfo& requestInfo)
 {
 	unsigned int code = requestInfo.id;
-	return /*code == static_cast<unsigned int>(RequestCodes::LEAVE_GAME_REQUEST) ||*/
+	return code == static_cast<unsigned int>(RequestCodes::LEAVE_GAME_REQUEST) ||
 		code == static_cast<unsigned int>(RequestCodes::GET_QUESTION_REQUEST) ||
 		code == static_cast<unsigned int>(RequestCodes::SUBMIT_ANSWER_REQUEST) ||
 		code == static_cast<unsigned int>(RequestCodes::GET_GAME_RESULTS_REQUEST);
@@ -27,8 +27,8 @@ RequestResult GameRequestHandler::handleRequest(const RequestInfo& requestInfo)
 
 	switch (static_cast<RequestCodes>(code))
 	{
-		/*case RequestCodes::LEAVE_GAME_REQUEST:
-			return handleLeaveGameRequest(requestInfo);*/
+	case RequestCodes::LEAVE_GAME_REQUEST:
+		return handleLeaveGameRequest(requestInfo);
 	case RequestCodes::GET_QUESTION_REQUEST:
 		return handleGetQuestionRequest(requestInfo);
 	case RequestCodes::SUBMIT_ANSWER_REQUEST:
@@ -70,13 +70,18 @@ RequestResult GameRequestHandler::handleLeaveGameRequest(const RequestInfo& requ
 		bool success = m_roomManager->removeUserFromRoom(roomId, m_user.getUsername());
 
 		// Preparing the response
-		LeaveGameResponse response;
-		response.status = success ? (unsigned int)Status::SUCCESS : (unsigned int)Status::FAILURE;
+		LeaveGameResponse response
+		{
+			.status = success ? (unsigned int)Status::SUCCESS : (unsigned int)Status::FAILURE
+		};
 
-		RequestResult result;
-		result.id = ResponseCode::LEAVE_GAME_RESPONSE;
-		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = m_handlerFactory.createMenuRequestHandler(m_user.getUsername());
+		RequestResult result
+		{
+			.id = ResponseCode::LEAVE_GAME_RESPONSE,
+			.response = JsonResponsePacketSerializer::serializeResponse(response),
+			.newHandler = m_handlerFactory.createMenuRequestHandler(m_user.getUsername())
+		};
+
 
 		return result;
 	}
@@ -92,10 +97,14 @@ RequestResult GameRequestHandler::handleGetQuestionRequest(const RequestInfo& re
 	{
 		GetQuestionResponse response = m_gameManager->getNextQuestion(m_user.getUsername());
 
-		RequestResult result;
-		result.id = ResponseCode::GET_QUESTION_RESPONSE;
-		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = this;
+		RequestResult result
+		{
+			.id = ResponseCode::GET_QUESTION_RESPONSE,
+			.response = JsonResponsePacketSerializer::serializeResponse(response),
+			.newHandler = this
+		};
+
+
 
 		return result;
 	}
@@ -114,10 +123,12 @@ RequestResult GameRequestHandler::handleSubmitAnswerRequest(const RequestInfo& r
 
 		SubmitAnswerResponse response = m_gameManager->submitAnswer(m_user.getUsername(), request.answerId, request.answerTime, request.isLastQuestion);
 
-		RequestResult result;
-		result.id = ResponseCode::SUBMIT_ANSWER_RESPONSE;
-		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = this;
+		RequestResult result
+		{
+			.id = ResponseCode::SUBMIT_ANSWER_RESPONSE,
+			.response = JsonResponsePacketSerializer::serializeResponse(response),
+			.newHandler = this
+		};
 
 		return result;
 	}
@@ -133,10 +144,12 @@ RequestResult GameRequestHandler::handleGetGameResultsRequest(const RequestInfo&
 	{
 		GetGameResultsResponse response = m_gameManager->getGameResults(m_user.getUsername());
 
-		RequestResult result;
-		result.id = ResponseCode::GET_GAME_RESULTS_RESPONSE;
-		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = this->m_handlerFactory.createMenuRequestHandler(this->m_user.getUsername());
+		RequestResult result
+		{
+			.id = ResponseCode::GET_GAME_RESULTS_RESPONSE,
+			.response = JsonResponsePacketSerializer::serializeResponse(response),
+			.newHandler = this
+		};
 
 		std::optional<unsigned int> optRoomId = this->m_roomManager->getRoomIdByUser(this->m_user.getUsername());
 
@@ -155,14 +168,18 @@ RequestResult GameRequestHandler::handleGetGameResultsRequest(const RequestInfo&
 
 RequestResult GameRequestHandler::createErrorResponse(const std::string& message)
 {
-	ErrorResponse errorResponse;
-	errorResponse.status = ResponseCode::ERROR_RESPONSE;
-	errorResponse.message = message;
+	ErrorResponse errorResponse
+	{
+		.status = ResponseCode::ERROR_RESPONSE,
+		.message = message
+	};
 
-	RequestResult result;
-	result.id = ResponseCode::ERROR_RESPONSE;
-	result.response = JsonResponsePacketSerializer::serializeResponse(errorResponse);
-	result.newHandler = this;
+	RequestResult result
+	{
+		.id = ResponseCode::ERROR_RESPONSE,
+		.response = JsonResponsePacketSerializer::serializeResponse(errorResponse),
+		.newHandler = this
+	};
 
 	return result;
 }
