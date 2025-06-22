@@ -111,7 +111,9 @@ namespace TriviaClient.Windows
 
             this._times[this._currentQuestionIndex] = secondsElapsed; // Store the time taken for this question
 
-            var request = new SubmitAnswerRequest { answerId = (uint)this._Answer, answerTime = secondsElapsed };
+            bool isLastQuestion = (this._currentQuestionIndex == this._numberOfQuestions - 1);
+
+            var request = new SubmitAnswerRequest { answerId = (uint)this._Answer, answerTime = secondsElapsed, isLastQuestion = isLastQuestion };
             byte[] requestData = JsonRequestPacketSerializer.Serialize(request);
             byte requestCode = (byte)TriviaClient.RequestCodes.SUBMIT_ANSWER_REQUEST;
 
@@ -151,7 +153,7 @@ namespace TriviaClient.Windows
             // Wait a moment to show feedback before moving to next question or ending game
             await Task.Delay(1200);
 
-            if (this._currentQuestionIndex >= this._numberOfQuestions)
+            if (this._currentQuestionIndex == this._numberOfQuestions)
             {
                 await Task.Delay(1000);
 
