@@ -267,10 +267,13 @@ RequestResult MenuRequestHandler::handleGetPersonalStatisticsRequest(const Reque
 		errorResponse.status = ResponseCode::ERROR_RESPONSE;
 		errorResponse.message = e.what();
 
-		RequestResult result;
-		result.id = ResponseCode::ERROR_RESPONSE;
-		result.response = JsonResponsePacketSerializer::serializeResponse(errorResponse);
-		result.newHandler = this;
+		RequestResult result
+		{
+			.id = ResponseCode::ERROR_RESPONSE,
+			.response = JsonResponsePacketSerializer::serializeResponse(errorResponse),
+			.newHandler = this,
+		};
+
 		return result;
 	}
 }
@@ -291,14 +294,18 @@ RequestResult MenuRequestHandler::handleGetHighScoresRequest(const RequestInfo& 
 				std::to_string(highScores[i].score));
 		}
 
-		GetHighScoreResponse response;
-		response.status = (unsigned int)Status::SUCCESS;
-		response.statistics = statistics;
+		GetHighScoreResponse response
+		{
+			.status = (unsigned int)Status::SUCCESS,
+			.statistics = statistics
+		};
 
-		RequestResult result;
-		result.id = ResponseCode::GET_HIGH_SCORE_RESPONSE;
-		result.response = JsonResponsePacketSerializer::serializeResponse(response);
-		result.newHandler = this;
+		RequestResult result
+		{
+			.id = ResponseCode::GET_HIGH_SCORE_RESPONSE,
+			.response = JsonResponsePacketSerializer::serializeResponse(response),
+			.newHandler = this
+		};
 
 		return result;
 	}

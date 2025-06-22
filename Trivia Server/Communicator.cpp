@@ -250,8 +250,6 @@ void Communicator::handleNewClient(SOCKET clientSocket)
 						std::lock_guard<std::mutex> lock(m_clientsMutex);
 						m_clients[clientSocket] = handler;
 					}
-
-					std::cout << "Handler: " << handler->getName() << std::endl;
 				}
 			}
 			catch (const std::exception& e)
