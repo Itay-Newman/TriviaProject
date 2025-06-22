@@ -73,7 +73,7 @@ namespace TriviaClient.Pages
 
             var request = new StartGameResponse { };
             byte[] requestData = JsonRequestPacketSerializer.SerializeEmptyRequest();
-            byte startGameCode = (byte)TriviaClient.RequestCodes.STARTS_GAME_REQUEST;
+            byte startGameCode = (byte)TriviaClient.RequestCodes.START_GAME_REQUEST;
 
             await communicator.SendRequestAsync(startGameCode, requestData);
             var (responseCode, responseBody) = await communicator.ReadResponseAsync();

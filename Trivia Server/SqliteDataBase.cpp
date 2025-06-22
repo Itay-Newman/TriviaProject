@@ -244,14 +244,30 @@ bool SqliteDataBase::doesPasswordMatch(const std::string& username, const std::s
 bool SqliteDataBase::addUser(const std::string& username, const std::string& password, const std::string& email) const
 {
 	const std::string sql = "INSERT INTO Users (UserName, Password, Email) VALUES (?, ?, ?);";
-	return runPreparedStatement(this->db, sql, { username, password, email });
+	bool didWork = runPreparedStatement(this->db, sql, { username, password, email });
+	bool didWork2;
+
+	if (didWork)
+	{
+		didWork2 = initializeUserStatistics(username);
+	}
+
+	return didWork && didWork2;
 }
 
 bool SqliteDataBase::initializeUserStatistics(const std::string& username) const
 {
-	const std::string sql = "INSERT INTO Statistics (UserName) VALUES (?);";
-	return runPreparedStatement(this->db, sql, { username });
+	const std::string sql = "INSERT INTO Statistics (USERNAME, GAMES, W_ANSWER, C_ANSWERS, AVG_TIME) VALUES (?, ?, ?, ?, ?);";
+	std::vector<std::string> params = {
+		username,
+		std::to_string(0), // GAMES
+		std::to_string(0), // W_ANSWER
+		std::to_string(0), // C_ANSWERS
+		std::to_string(0)  // AVG_TIME
+	};
+	return runPreparedStatement(this->db, sql, params);
 }
+
 
 bool SqliteDataBase::addQuestions(std::string q, std::string a1, std::string a2, std::string a3, std::string a4)
 {

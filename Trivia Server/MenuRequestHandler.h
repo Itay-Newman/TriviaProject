@@ -24,14 +24,14 @@ public:
 	virtual bool addUser(const std::string& username, const std::string& password, const std::string& email) const override;
 
 	std::string getName() const override { return "MenuRequestHandler"; }
-
 private:
 	// Helper methods for handling specific request types
 	RequestResult handleCreateRoomRequest(const RequestInfo& requestInfo);
 	RequestResult handleGetRoomsRequest(const RequestInfo& requestInfo);
 	RequestResult handleGetPlayersInRoomRequest(const RequestInfo& requestInfo);
 	RequestResult handleJoinRoomRequest(const RequestInfo& requestInfo);
-	RequestResult handleGetStatisticsRequest(const RequestInfo& requestInfo);
+	RequestResult handleGetPersonalStatisticsRequest(const RequestInfo& requestInfo);
+	RequestResult handleGetHighScoresRequest(const RequestInfo& requestInfo);
 	RequestResult handleLogoutRequest(const RequestInfo& requestInfo);
 
 	IDatabase& m_database;

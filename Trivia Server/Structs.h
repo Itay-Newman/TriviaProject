@@ -56,13 +56,13 @@ enum class RequestCodes
 	CREATE_ROOM_REQUEST = 25,
 	CLOSE_ROOM_REQUEST = 26,
 	GET_ROOM_STATE_REQUEST = 27,
-	START_GAME_REQUEST = 31,
 	LEAVE_ROOM_REQUEST = 28,
-	LEAVE_GAME_REQUEST = 33,
+	GET_HIGH_SCORES_REQUEST = 30,
+	START_GAME_REQUEST = 31,
 	GET_QUESTION_REQUEST = 32,
 	SUBMIT_ANSWER_REQUEST = 34,
 	GET_GAME_RESULTS_REQUEST = 35,
-	GET_STATISTICS_REQUEST = 30
+	GET_PERSONAL_STATS_REQUEST = 36
 };
 
 struct RoomData
@@ -146,6 +146,7 @@ struct SubmitAnswerRequest
 {
 	unsigned int answerId;
 	double answerTime;
+	bool isLastQuestion;
 };
 
 struct GetGameResultsRequest

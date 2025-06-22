@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace TriviaClient.Pages
 {
@@ -23,6 +11,39 @@ namespace TriviaClient.Pages
         public PersonalStats()
         {
             InitializeComponent();
+
+            GetHighScores();
+        }
+
+        private async void GetHighScores()
+        {
+            var communicator = ClientCommunicator.Instance;
+
+            if (!await communicator.ConnectAsync())
+            {
+                MessageBox.Show("Failed to connect to server.");
+                return;
+            }
+
+            byte[] requestData = JsonRequestPacketSerializer.SerializeEmptyRequest();
+            byte requestCode = (byte)TriviaClient.RequestCodes.GET_PERSONAL_STATS_REQUEST;
+
+            await communicator.SendRequestAsync(requestCode, requestData);
+            var (responseCode, responseBody) = await communicator.ReadResponseAsync();
+
+            if (responseCode != (byte)TriviaClient.ResponseCode.GET_PERSONAL_STATS_RESPONSE)
+            {
+                MessageBox.Show("Failed to get personal stats.");
+                return;
+            }
+
+            var personalStatsResponse = JsonResponsePacketDeserializer.DeserializeGetPersonalStatsResponse(responseBody);
+
+            AvgTime.Text = personalStatsResponse.Statistics[1];
+            CorrectAnswers.Text = personalStatsResponse.Statistics[2];
+            WrongAnswers.Text = personalStatsResponse.Statistics[3];
+            GamesPlayed.Text = personalStatsResponse.Statistics[4];
+            Score.Text = personalStatsResponse.Statistics[5];
         }
     }
 }
