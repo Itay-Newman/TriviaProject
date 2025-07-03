@@ -12,6 +12,27 @@
 
 ---
 
+## 📢 Important Architecture Note
+
+**This repository contains two distinct Visual Studio 2022 solutions:**
+
+1. **Trivia Server (C++ Solution):**
+   - Located in: `Trivia Server/`
+   - Solution file: [`Trivia-Server.sln`](https://github.com/Itay-Newman/TriviaProject/blob/AddHwFiles/Trivia%20Server/Trivia-Server.sln)
+   - Implements the core trivia game server logic in C++.
+   - Includes C++ source files (`*.cpp`, `*.h`), Visual Studio C++ project files (`Trivia.vcxproj`), and server-side logic.
+
+2. **Trivia Client (WPF Solution):**
+   - Located in: `Trivia Client/`
+   - Intended for the graphical client, typically built with WPF (Windows Presentation Foundation).
+   - (The provided file listing for the client is partial, but the structure implies a WPF or similar client solution is present and separate from the C++ server.)
+   - Designed to provide a modern graphical user interface for interacting with the trivia server.
+
+**These are separate solutions and should be opened and built independently in Visual Studio 2022.**  
+**Do not confuse the C++ server project with the WPF client project.**
+
+---
+
 ## 🎯 Features
 
 - Fast and efficient C-based trivia game engine
@@ -20,14 +41,23 @@
 - Modular question/answer framework
 - Designed for learning, hacking, and extension
 - Clean and simple architecture
+- - C++ backend server for handling trivia logic and networking
+- Intended WPF (C#) or Python client for user interaction
+- Modular, extensible codebase
+- Solutions are logically and physically separated for clarity and maintainability
 
-## 🖼️ Screenshots
+## 📂 Folder Structure
 
-<!-- Add screenshots here if available -->
-<!-- Example:
-![TriviaProject gameplay screenshot](docs/demo-screenshot.png)
--->
+```
+TriviaProject/
+├── HW/                # Documentation, diagrams, and homework files
+├── Trivia Server/     # C++ backend server solution (Visual Studio C++)
+├── Trivia Client/     # WPF client solution (Visual Studio WPF, C#)
+```
 
+- [Trivia Server/](https://github.com/Itay-Newman/TriviaProject/tree/AddHwFiles/Trivia%20Server): C++ source and solution files
+- [Trivia Client/](https://github.com/Itay-Newman/TriviaProject/tree/AddHwFiles/Trivia%20Client): WPF or Python client (see repo for details)
+- [HW/](https://github.com/Itay-Newman/TriviaProject/tree/AddHwFiles/HW): Diagrams, documents, and supporting materials
 ## 🛠️ Installation & Setup
 
 ### Prerequisites
@@ -59,36 +89,11 @@ gcc -o trivia main.c
 - Follow on-screen instructions to play the trivia game.
 - (If available) Use command line flags for advanced options.
 
-## 📂 Folder Structure
-
-```
-TriviaProject/
-├── src/          # Source code (C/C++)
-├── include/      # Header files
-├── tests/        # Test code and test data
-├── scripts/      # Python or shell scripts
-├── docs/         # Documentation & images
-├── Makefile      # Build system file (if present)
-├── README.md     # This file
-└── LICENSE       # License file
-```
-
 ## 🤖 Tech Stack
 
-- **C** (core logic, 90%)
-- **C++** (extensions, 9%)
+- **C** (core logic, 9%) There is more, but I didn't write it, it's JSON.hpp and SQLite3.c
+- **C++** (extensions, 90%)
 - **Python** (scripts/utilities, 1%)
-
-## 🧪 Tests
-
-- (If present) Run tests with:
-  ```sh
-  make test
-  ```
-  or
-  ```sh
-  ./tests/run_tests.sh
-  ```
 
 ## 🔧 Configuration
 
@@ -100,6 +105,13 @@ TriviaProject/
 - Some features may be incomplete or experimental.
 - See source for TODO or FIXME comments.
 - Open an issue for bugs or suggestions!
+- There can only be one game at once.
+
+## 🛠️ Building & Running
+
+- Open the appropriate solution (`Trivia-Server.sln` for the server, the relevant solution file for the client) in Visual Studio 2022.
+- Build and run each solution independently.
+- (See source code and documentation for additional setup/configuration.)
 
 ## 🙌 Contributing
 
