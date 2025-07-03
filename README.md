@@ -62,43 +62,15 @@ TriviaProject/
 
 ### Prerequisites
 
-- GCC or compatible C compiler
+- Visual Studio 2022\19 (Definitively recommend 2022 but whatever floats your boat)
 - Make (recommended)
 - Python (if using Python scripts)
-- (Optional) CMake for advanced builds
-
-### Quickstart
-
-```sh
-git clone https://github.com/Itay-Newman/TriviaProject.git
-cd TriviaProject
-
-# If Makefile exists:
-make
-
-# Otherwise for a simple build:
-gcc -o trivia main.c
-```
-
-## 🚀 Usage Example
-
-```sh
-./trivia
-```
-
-- Follow on-screen instructions to play the trivia game.
-- (If available) Use command line flags for advanced options.
 
 ## 🤖 Tech Stack
 
 - **C** (core logic, 9%) There is more, but I didn't write it, it's JSON.hpp and SQLite3.c
 - **C++** (extensions, 90%)
 - **Python** (scripts/utilities, 1%)
-
-## 🔧 Configuration
-
-- Default config is hardcoded or via CLI arguments.
-- For advanced config, edit source or look for `.conf`, `.ini`, or `config.h` files.
 
 ## 🧠 Known Issues / TODO
 
